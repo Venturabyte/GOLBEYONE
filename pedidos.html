@@ -1,0 +1,3421 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>GOLBEYONE | Panel Admin</title>
+
+<style>
+
+*{
+    box-sizing:border-box;
+    margin:0;
+    padding:0;
+}
+
+body{
+    font-family:Arial,Helvetica,sans-serif;
+    background:#050505;
+    color:white;
+    min-height:100vh;
+}
+
+header{
+    padding:25px 20px;
+    text-align:center;
+    border-bottom:1px solid #222;
+    background:#080808;
+}
+
+header h1{
+    font-size:30px;
+    letter-spacing:3px;
+}
+
+header p{
+    margin-top:8px;
+    color:#aaa;
+}
+
+nav{
+    display:flex;
+    justify-content:center;
+    gap:10px;
+    flex-wrap:wrap;
+    padding:15px;
+    background:#090909;
+    border-bottom:1px solid #222;
+}
+
+nav a{
+    text-decoration:none;
+    color:white;
+    padding:10px 15px;
+    border:1px solid #333;
+    border-radius:8px;
+    transition:.2s;
+}
+
+nav a:hover{
+    border-color:#a855f7;
+    color:#c084fc;
+}
+
+.contenedor{
+    width:min(1250px,94%);
+    margin:30px auto;
+}
+
+
+/* =========================================
+   NOTIFICACIÓN
+========================================= */
+
+#notificacion{
+    display:none;
+    position:fixed;
+    top:20px;
+    right:20px;
+    z-index:9999;
+    max-width:360px;
+    background:#111;
+    border:1px solid #a855f7;
+    border-radius:12px;
+    padding:15px 20px;
+    box-shadow:0 0 25px rgba(168,85,247,.25);
+}
+
+#notificacion strong{
+    color:#c084fc;
+}
+
+
+/* =========================================
+   BOTÓN NOTIFICACIONES
+========================================= */
+
+.notificaciones-panel{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    gap:15px;
+    flex-wrap:wrap;
+    margin-bottom:20px;
+    padding:16px;
+    background:#0d0d0d;
+    border:1px solid #222;
+    border-radius:14px;
+}
+
+.notificaciones-info{
+    flex:1;
+}
+
+.notificaciones-info strong{
+    display:block;
+    margin-bottom:5px;
+}
+
+.notificaciones-info span{
+    color:#888;
+    font-size:13px;
+}
+
+.boton-notificaciones{
+    padding:12px 17px;
+    border:1px solid #a855f7;
+    border-radius:10px;
+    background:#a855f7;
+    color:white;
+    cursor:pointer;
+    font-weight:bold;
+    transition:.2s;
+}
+
+.boton-notificaciones:hover{
+    background:#9333ea;
+}
+
+.boton-notificaciones.activado{
+    background:#14532d;
+    border-color:#22c55e;
+    color:#bbf7d0;
+}
+
+
+/* =========================================
+   ESTADÍSTICAS
+========================================= */
+
+.estadisticas{
+    display:grid;
+    grid-template-columns:repeat(4,1fr);
+    gap:15px;
+    margin-bottom:20px;
+}
+
+.stat{
+    background:#0d0d0d;
+    border:1px solid #222;
+    border-radius:14px;
+    padding:20px;
+    cursor:pointer;
+    transition:.2s;
+}
+
+.stat:hover{
+    border-color:#a855f7;
+    transform:translateY(-2px);
+}
+
+.stat.activo{
+    border-color:#a855f7;
+    box-shadow:0 0 18px rgba(168,85,247,.15);
+}
+
+.stat .icono{
+    font-size:25px;
+}
+
+.stat h3{
+    margin-top:10px;
+    color:#aaa;
+    font-size:13px;
+}
+
+.stat strong{
+    display:block;
+    margin-top:5px;
+    font-size:25px;
+}
+
+.pagados strong{
+    color:#4ade80;
+}
+
+
+/* =========================================
+   ESTADOS
+========================================= */
+
+.estados{
+    display:grid;
+    grid-template-columns:repeat(5,1fr);
+    gap:10px;
+    margin-bottom:20px;
+}
+
+.estado-stat{
+    background:#0d0d0d;
+    border:1px solid #222;
+    padding:15px;
+    border-radius:12px;
+    text-align:center;
+    cursor:pointer;
+    transition:.2s;
+}
+
+.estado-stat:hover,
+.estado-stat.activo{
+    border-color:#a855f7;
+    background:#111;
+}
+
+.estado-stat span{
+    display:block;
+    color:#aaa;
+    font-size:13px;
+    margin-bottom:5px;
+}
+
+.estado-stat strong{
+    font-size:20px;
+}
+
+
+/* =========================================
+   HERRAMIENTAS
+========================================= */
+
+.herramientas{
+    display:grid;
+    grid-template-columns:1fr auto auto;
+    gap:10px;
+    margin-bottom:15px;
+}
+
+#buscar{
+    width:100%;
+    padding:14px;
+    border-radius:10px;
+    border:1px solid #333;
+    background:#0d0d0d;
+    color:white;
+    outline:none;
+    font-size:15px;
+}
+
+#buscar:focus{
+    border-color:#a855f7;
+}
+
+.boton-admin{
+    padding:12px 16px;
+    border:1px solid #333;
+    border-radius:10px;
+    background:#0d0d0d;
+    color:white;
+    cursor:pointer;
+    font-weight:bold;
+}
+
+.boton-admin:hover{
+    border-color:#a855f7;
+    color:#c084fc;
+}
+
+#ordenar{
+    padding:12px;
+    border-radius:10px;
+    border:1px solid #333;
+    background:#0d0d0d;
+    color:white;
+    outline:none;
+}
+
+
+/* =========================================
+   FILTROS
+========================================= */
+
+.filtros{
+    display:flex;
+    gap:8px;
+    flex-wrap:wrap;
+    margin-bottom:25px;
+}
+
+.filtro{
+    padding:9px 13px;
+    border-radius:20px;
+    border:1px solid #333;
+    background:#0d0d0d;
+    color:#bbb;
+    cursor:pointer;
+    font-size:13px;
+}
+
+.filtro:hover,
+.filtro.activo{
+    border-color:#a855f7;
+    color:white;
+    background:#161016;
+}
+
+.resumen-filtro{
+    color:#888;
+    font-size:13px;
+    margin-bottom:15px;
+}
+
+
+/* =========================================
+   PEDIDO
+========================================= */
+
+.pedido{
+    background:#0c0c0c;
+    border:1px solid #242424;
+    border-radius:16px;
+    margin-bottom:20px;
+    overflow:hidden;
+}
+
+.pedido-header{
+    padding:18px;
+    background:#101010;
+    border-bottom:1px solid #222;
+    display:flex;
+    justify-content:space-between;
+    gap:15px;
+    align-items:center;
+    flex-wrap:wrap;
+}
+
+.pedido-id{
+    color:#c084fc;
+    font-weight:bold;
+    font-size:17px;
+}
+
+.fecha{
+    color:#888;
+    font-size:13px;
+    margin-top:5px;
+}
+
+.estado-pedido{
+    display:flex;
+    align-items:center;
+    gap:8px;
+    flex-wrap:wrap;
+}
+
+.estado-pedido select{
+    background:#080808;
+    color:white;
+    border:1px solid #333;
+    border-radius:8px;
+    padding:9px;
+}
+
+.contenido-pedido{
+    padding:20px;
+}
+
+.grid-info{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:15px;
+    margin-bottom:20px;
+}
+
+.info-box{
+    background:#111;
+    border:1px solid #222;
+    border-radius:12px;
+    padding:16px;
+}
+
+.info-box h3{
+    color:#c084fc;
+    font-size:15px;
+    margin-bottom:12px;
+}
+
+.dato{
+    margin-bottom:8px;
+    color:#ccc;
+}
+
+.dato strong{
+    color:white;
+}
+
+
+/* =========================================
+   PAGO
+========================================= */
+
+.pago-box{
+    margin-top:20px;
+    padding:18px;
+    border-radius:14px;
+    border:1px solid #2a2a2a;
+    background:#101010;
+}
+
+.pago-titulo{
+    font-size:17px;
+    font-weight:bold;
+    margin-bottom:15px;
+    color:#c084fc;
+}
+
+.pago-grid{
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    gap:12px;
+}
+
+.pago-campo label{
+    display:block;
+    color:#888;
+    font-size:12px;
+    margin-bottom:6px;
+}
+
+.pago-campo select,
+.pago-campo input{
+    width:100%;
+    padding:10px;
+    border-radius:8px;
+    border:1px solid #333;
+    background:#080808;
+    color:white;
+    outline:none;
+}
+
+.pago-campo select:focus,
+.pago-campo input:focus{
+    border-color:#a855f7;
+}
+
+.guardar-pago{
+    margin-top:15px;
+    padding:10px 16px;
+    border:none;
+    border-radius:8px;
+    background:#a855f7;
+    color:white;
+    cursor:pointer;
+    font-weight:bold;
+}
+
+.guardar-pago:hover{
+    background:#9333ea;
+}
+
+.guardar-pago:disabled{
+    opacity:.6;
+    cursor:wait;
+}
+
+.pago-confirmado{
+    border-color:#22c55e;
+}
+
+
+/* =========================================
+   PRODUCTOS
+========================================= */
+
+.productos{
+    margin-top:20px;
+}
+
+.productos h3{
+    margin-bottom:12px;
+    color:#c084fc;
+}
+
+.producto{
+    display:flex;
+    align-items:center;
+    gap:15px;
+    padding:12px;
+    background:#111;
+    border:1px solid #222;
+    border-radius:10px;
+    margin-bottom:10px;
+}
+
+.producto img{
+    width:65px;
+    height:65px;
+    object-fit:cover;
+    border-radius:8px;
+    background:#222;
+}
+
+.producto-info{
+    flex:1;
+}
+
+.producto-info strong{
+    display:block;
+    margin-bottom:5px;
+}
+
+.producto-info span{
+    color:#888;
+    font-size:13px;
+}
+
+
+/* =========================================
+   TOTAL
+========================================= */
+
+.total{
+    margin-top:20px;
+    padding-top:18px;
+    border-top:1px solid #222;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+}
+
+.total strong:last-child{
+    color:#4ade80;
+    font-size:22px;
+}
+
+
+/* =========================================
+   ACCIONES
+========================================= */
+
+.acciones{
+    margin-top:20px;
+    display:flex;
+    justify-content:flex-end;
+    gap:8px;
+    flex-wrap:wrap;
+}
+
+.accion{
+    padding:10px 14px;
+    border:1px solid #333;
+    background:#111;
+    color:white;
+    border-radius:8px;
+    cursor:pointer;
+}
+
+.accion:hover{
+    border-color:#a855f7;
+}
+
+.eliminar{
+    padding:10px 15px;
+    border:1px solid #7f1d1d;
+    background:#1a0808;
+    color:#f87171;
+    border-radius:8px;
+    cursor:pointer;
+}
+
+.eliminar:hover{
+    background:#450a0a;
+}
+
+
+/* =========================================
+   MOSTRAR / OCULTAR
+========================================= */
+
+.boton-detalles{
+    width:100%;
+    margin-top:15px;
+    padding:11px 15px;
+    border:1px solid #333;
+    background:#111;
+    color:white;
+    border-radius:9px;
+    cursor:pointer;
+    font-weight:bold;
+    transition:.2s;
+}
+
+.boton-detalles:hover{
+    border-color:#a855f7;
+    color:#c084fc;
+    background:#161016;
+}
+
+.pedido.colapsado .detalles{
+    display:none;
+}
+
+.pedido.colapsado .boton-detalles{
+    color:#c084fc;
+    border-color:#4a2865;
+}
+
+.detalles{
+    display:block;
+}
+
+
+/* =========================================
+   MENSAJES
+========================================= */
+
+.mensaje{
+    text-align:center;
+    padding:50px 20px;
+    color:#777;
+    background:#0d0d0d;
+    border:1px solid #222;
+    border-radius:15px;
+}
+
+.mensaje.error{
+    color:#f87171;
+}
+
+.estado-badge{
+    display:inline-block;
+    padding:5px 9px;
+    border-radius:20px;
+    font-size:11px;
+    border:1px solid #333;
+    color:#bbb;
+}
+
+.estado-badge.pagado{
+    color:#4ade80;
+    border-color:#166534;
+}
+
+.actualizacion{
+    color:#666;
+    font-size:12px;
+    text-align:right;
+    margin-bottom:10px;
+}
+
+
+/* =========================================
+   RESPONSIVE
+========================================= */
+
+@media(max-width:900px){
+
+    .estadisticas{
+        grid-template-columns:repeat(2,1fr);
+    }
+
+    .estados{
+        grid-template-columns:repeat(3,1fr);
+    }
+
+    .pago-grid{
+        grid-template-columns:1fr;
+    }
+
+    .herramientas{
+        grid-template-columns:1fr 1fr;
+    }
+
+    .herramientas #buscar{
+        grid-column:1/-1;
+    }
+
+}
+
+
+@media(max-width:650px){
+
+    header h1{
+        font-size:23px;
+    }
+
+    .contenedor{
+        width:94%;
+    }
+
+    .estadisticas{
+        grid-template-columns:1fr 1fr;
+    }
+
+    .estados{
+        grid-template-columns:1fr 1fr;
+    }
+
+    .grid-info{
+        grid-template-columns:1fr;
+    }
+
+    .herramientas{
+        grid-template-columns:1fr;
+    }
+
+    .herramientas #buscar{
+        grid-column:auto;
+    }
+
+    .pedido-header{
+        align-items:flex-start;
+    }
+
+    .producto img{
+        width:55px;
+        height:55px;
+    }
+
+    .total{
+        gap:10px;
+    }
+
+    .acciones{
+        justify-content:stretch;
+    }
+
+    .acciones button{
+        flex:1;
+    }
+
+    .boton-detalles{
+        flex:1;
+    }
+
+    .notificaciones-panel{
+        align-items:stretch;
+    }
+
+    .boton-notificaciones{
+        width:100%;
+    }
+
+}
+
+</style>
+
+</head>
+
+
+<body>
+
+
+<header>
+
+<h1>GOLBEYONE</h1>
+
+<p>PANEL DE ADMINISTRACIÓN</p>
+
+</header>
+
+
+<nav>
+
+<a href="index.html">🏠 Tienda</a>
+<a href="camisas.html">👕 Camisas</a>
+<a href="pantalones.html">👖 Pantalones</a>
+<a href="gorras.html">🧢 Gorras</a>
+<a href="carrito.html">🛒 Carrito</a>
+
+</nav>
+
+
+<div id="notificacion"></div>
+
+
+<main class="contenedor">
+
+
+<!-- =========================================
+     NOTIFICACIONES
+========================================= -->
+
+<section class="notificaciones-panel">
+
+<div class="notificaciones-info">
+
+<strong>🔔 Notificaciones de pedidos</strong>
+
+<span id="estadoNotificaciones">
+Activa las notificaciones para recibir avisos de nuevos pedidos.
+</span>
+
+</div>
+
+<button
+id="botonNotificaciones"
+class="boton-notificaciones"
+onclick="activarNotificaciones()">
+
+🔔 Activar notificaciones
+
+</button>
+
+</section>
+
+
+<!-- =========================================
+     ESTADÍSTICAS
+========================================= -->
+
+<section class="estadisticas">
+
+
+<div
+class="stat activo"
+id="statTotal"
+onclick="filtrarRapido('todos')">
+
+<div class="icono">📦</div>
+
+<h3>TOTAL PEDIDOS</h3>
+
+<strong id="totalPedidos">0</strong>
+
+</div>
+
+
+<div class="stat" id="statVendido">
+
+<div class="icono">💰</div>
+
+<h3>TOTAL VENDIDO</h3>
+
+<strong id="totalVendido">RD$0</strong>
+
+</div>
+
+
+<div
+class="stat"
+id="statPendientes"
+onclick="filtrarRapido('pendientes')">
+
+<div class="icono">⏳</div>
+
+<h3>PENDIENTES</h3>
+
+<strong id="totalPendientes">0</strong>
+
+</div>
+
+
+<div
+class="stat pagados"
+id="statPagados"
+onclick="filtrarRapido('pagados')">
+
+<div class="icono">💳</div>
+
+<h3>PAGADOS</h3>
+
+<strong id="totalPagados">0</strong>
+
+</div>
+
+
+</section>
+
+
+<!-- =========================================
+     ESTADOS
+========================================= -->
+
+<section class="estados">
+
+
+<div
+class="estado-stat"
+onclick="filtrarRapido('Nuevo')">
+
+<span>Nuevo</span>
+
+<strong id="estadoNuevo">0</strong>
+
+</div>
+
+
+<div
+class="estado-stat"
+onclick="filtrarRapido('Confirmado')">
+
+<span>Confirmado</span>
+
+<strong id="estadoConfirmado">0</strong>
+
+</div>
+
+
+<div
+class="estado-stat"
+onclick="filtrarRapido('Preparando')">
+
+<span>Preparando</span>
+
+<strong id="estadoPreparando">0</strong>
+
+</div>
+
+
+<div
+class="estado-stat"
+onclick="filtrarRapido('Enviado')">
+
+<span>Enviado</span>
+
+<strong id="estadoEnviado">0</strong>
+
+</div>
+
+
+<div
+class="estado-stat"
+onclick="filtrarRapido('Entregado')">
+
+<span>Entregado</span>
+
+<strong id="estadoEntregado">0</strong>
+
+</div>
+
+
+</section>
+
+
+<!-- =========================================
+     HERRAMIENTAS
+========================================= -->
+
+<section class="herramientas">
+
+
+<input
+type="text"
+id="buscar"
+placeholder="🔎 Buscar por cliente, teléfono, ciudad o ID...">
+
+
+<select id="ordenar">
+
+<option value="reciente">
+Más recientes
+</option>
+
+<option value="antiguo">
+Más antiguos
+</option>
+
+<option value="mayor">
+Mayor total
+</option>
+
+<option value="menor">
+Menor total
+</option>
+
+</select>
+
+
+<button
+class="boton-admin"
+onclick="actualizarAhora()">
+
+🔄 Actualizar
+
+</button>
+
+
+</section>
+
+
+<!-- =========================================
+     FILTROS
+========================================= -->
+
+<div class="filtros">
+
+
+<button
+class="filtro activo"
+data-filtro="todos"
+onclick="filtrarRapido('todos')">
+
+Todos
+
+</button>
+
+
+<button
+class="filtro"
+data-filtro="Nuevo"
+onclick="filtrarRapido('Nuevo')">
+
+🆕 Nuevos
+
+</button>
+
+
+<button
+class="filtro"
+data-filtro="Confirmado"
+onclick="filtrarRapido('Confirmado')">
+
+✅ Confirmados
+
+</button>
+
+
+<button
+class="filtro"
+data-filtro="Preparando"
+onclick="filtrarRapido('Preparando')">
+
+🔧 Preparando
+
+</button>
+
+
+<button
+class="filtro"
+data-filtro="Enviado"
+onclick="filtrarRapido('Enviado')">
+
+🚚 Enviados
+
+</button>
+
+
+<button
+class="filtro"
+data-filtro="Entregado"
+onclick="filtrarRapido('Entregado')">
+
+📬 Entregados
+
+</button>
+
+
+<button
+class="filtro"
+data-filtro="pagados"
+onclick="filtrarRapido('pagados')">
+
+💳 Pagados
+
+</button>
+
+
+<button
+class="filtro"
+data-filtro="pendientes"
+onclick="filtrarRapido('pendientes')">
+
+⏳ Pago pendiente
+
+</button>
+
+
+</div>
+
+
+<div
+class="actualizacion"
+id="ultimaActualizacion">
+
+Última actualización: --:--
+
+</div>
+
+
+<div
+class="resumen-filtro"
+id="resumenFiltro">
+
+Mostrando todos los pedidos
+
+</div>
+
+
+<section id="listaPedidos">
+
+<div class="mensaje">
+
+Cargando pedidos...
+
+</div>
+
+</section>
+
+
+</main>
+
+
+<script>
+
+
+/* =========================================
+   CONFIGURACIÓN
+========================================= */
+
+const API_PEDIDOS="/api/pedidos";
+
+
+let pedidos=[];
+
+let idsConocidos=new Set();
+
+let primeraCarga=true;
+
+let editandoPago=false;
+
+let filtroActual="todos";
+
+let pedidosColapsados=new Set();
+
+let sonidoActivado=false;
+
+
+/* =========================================
+   CARGAR PEDIDOS
+========================================= */
+
+async function cargarPedidos(){
+
+if(editandoPago){
+
+return;
+
+}
+
+try{
+
+const respuesta=await fetch(
+API_PEDIDOS+"?t="+Date.now()
+);
+
+if(!respuesta.ok){
+
+throw new Error(
+"Error HTTP "+respuesta.status
+);
+
+}
+
+const datos=await respuesta.json();
+
+if(!Array.isArray(datos)){
+
+throw new Error(
+"La respuesta no es una lista"
+);
+
+}
+
+detectarPedidosNuevos(datos);
+
+pedidos=datos;
+
+actualizarEstadisticas();
+
+mostrarPedidos();
+
+
+document.getElementById(
+"ultimaActualizacion"
+).textContent=
+"Última actualización: "+
+new Date().toLocaleTimeString(
+"es-DO"
+);
+
+
+}catch(error){
+
+console.error(error);
+
+
+document.getElementById(
+"listaPedidos"
+).innerHTML=`
+
+<div class="mensaje error">
+
+❌ No se pudieron cargar los pedidos.
+
+<br><br>
+
+${escapar(error.message)}
+
+</div>
+
+`;
+
+}
+
+}
+
+
+/* =========================================
+   ACTUALIZAR
+========================================= */
+
+function actualizarAhora(){
+
+mostrarNotificacion(
+"🔄 Actualizando pedidos..."
+);
+
+cargarPedidos();
+
+}
+
+
+/* =========================================
+   DETECTAR PEDIDOS NUEVOS
+========================================= */
+
+function detectarPedidosNuevos(nuevos){
+
+if(primeraCarga){
+
+nuevos.forEach(pedido=>{
+
+if(pedido.id){
+
+idsConocidos.add(
+String(pedido.id)
+);
+
+}
+
+});
+
+primeraCarga=false;
+
+return;
+
+}
+
+
+let nuevosPedidos=[];
+
+
+nuevos.forEach(pedido=>{
+
+const id=String(
+pedido.id||""
+);
+
+
+if(
+id &&
+!idsConocidos.has(id)
+){
+
+nuevosPedidos.push(
+pedido
+);
+
+idsConocidos.add(id);
+
+}
+
+});
+
+
+if(nuevosPedidos.length>0){
+
+const cantidad=
+nuevosPedidos.length;
+
+
+mostrarNotificacion(
+`🛍️ ${cantidad} pedido(s) nuevo(s)`
+);
+
+
+reproducirSonido();
+
+
+enviarNotificacionBrowser(
+"🛍️ Nuevo pedido GOLBEYONE",
+cantidad===1
+?"Has recibido un nuevo pedido."
+:`Has recibido ${cantidad} pedidos nuevos.`
+);
+
+}
+
+}
+
+
+/* =========================================
+   NOTIFICACIÓN VISUAL
+========================================= */
+
+function mostrarNotificacion(texto){
+
+const elemento=
+document.getElementById(
+"notificacion"
+);
+
+
+elemento.innerHTML=
+`<strong>${escapar(texto)}</strong>`;
+
+
+elemento.style.display="block";
+
+
+clearTimeout(
+window.temporizadorNotificacion
+);
+
+
+window.temporizadorNotificacion=
+setTimeout(()=>{
+
+elemento.style.display="none";
+
+},5000);
+
+}
+
+
+/* =========================================
+   ACTIVAR NOTIFICACIONES
+========================================= */
+
+async function activarNotificaciones(){
+
+const boton=
+document.getElementById(
+"botonNotificaciones"
+);
+
+const estado=
+document.getElementById(
+"estadoNotificaciones"
+);
+
+
+try{
+
+
+/* SONIDO */
+
+sonidoActivado=true;
+
+
+/*
+   Creamos un AudioContext únicamente
+   después de que el usuario pulse el botón.
+*/
+
+if(
+window.AudioContext||
+window.webkitAudioContext
+){
+
+const AudioCtx=
+window.AudioContext||
+window.webkitAudioContext;
+
+const contexto=
+new AudioCtx();
+
+if(
+contexto.state==="suspended"
+){
+
+await contexto.resume();
+
+}
+
+window.gboAudioContext=
+contexto;
+
+}
+
+
+/* NOTIFICACIONES DEL NAVEGADOR */
+
+if("Notification" in window){
+
+if(
+Notification.permission==="default"
+){
+
+const permiso=
+await Notification.requestPermission();
+
+
+if(permiso==="granted"){
+
+estado.textContent=
+"✅ Notificaciones activadas correctamente.";
+
+boton.textContent=
+"✅ Notificaciones activadas";
+
+boton.classList.add(
+"activado"
+);
+
+mostrarNotificacion(
+"🔔 Notificaciones activadas"
+);
+
+}else{
+
+estado.textContent=
+"⚠️ El navegador no permitió las notificaciones.";
+
+boton.textContent=
+"🔔 Intentar activar nuevamente";
+
+}
+
+}else if(
+Notification.permission==="granted"
+){
+
+estado.textContent=
+"✅ Notificaciones del navegador activadas.";
+
+boton.textContent=
+"✅ Notificaciones activadas";
+
+boton.classList.add(
+"activado"
+);
+
+}else{
+
+estado.textContent=
+"⚠️ Las notificaciones están bloqueadas en el navegador.";
+
+boton.textContent=
+"⚠️ Notificaciones bloqueadas";
+
+}
+
+}else{
+
+estado.textContent=
+"⚠️ Este navegador no permite notificaciones.";
+
+boton.textContent=
+"🔔 Sonido activado";
+
+}
+
+
+}catch(error){
+
+console.error(error);
+
+estado.textContent=
+"⚠️ No se pudieron activar las notificaciones.";
+
+}
+
+}
+
+
+/* =========================================
+   SONIDO
+========================================= */
+
+function reproducirSonido(){
+
+if(!sonidoActivado){
+
+return;
+
+}
+
+try{
+
+let contexto=
+window.gboAudioContext;
+
+
+if(!contexto){
+
+const AudioCtx=
+window.AudioContext||
+window.webkitAudioContext;
+
+
+if(!AudioCtx){
+
+return;
+
+}
+
+contexto=
+new AudioCtx();
+
+window.gboAudioContext=
+contexto;
+
+}
+
+
+if(
+contexto.state==="suspended"
+){
+
+contexto.resume();
+
+}
+
+
+const oscilador=
+contexto.createOscillator();
+
+const ganancia=
+contexto.createGain();
+
+
+oscilador.connect(
+ganancia
+);
+
+ganancia.connect(
+contexto.destination
+);
+
+
+oscilador.type="sine";
+
+oscilador.frequency.setValueAtTime(
+880,
+contexto.currentTime
+);
+
+oscilador.frequency.setValueAtTime(
+660,
+contexto.currentTime+.15
+);
+
+
+ganancia.gain.setValueAtTime(
+0.0001,
+contexto.currentTime
+);
+
+ganancia.gain.exponentialRampToValueAtTime(
+0.12,
+contexto.currentTime+.02
+);
+
+ganancia.gain.exponentialRampToValueAtTime(
+0.0001,
+contexto.currentTime+.45
+);
+
+
+oscilador.start(
+contexto.currentTime
+);
+
+oscilador.stop(
+contexto.currentTime+.45
+);
+
+
+}catch(error){
+
+console.log(
+"Sonido no disponible",
+error
+);
+
+}
+
+}
+
+
+/* =========================================
+   NOTIFICACIÓN DEL NAVEGADOR
+========================================= */
+
+function enviarNotificacionBrowser(
+titulo,
+texto
+){
+
+if(!("Notification" in window)){
+
+return;
+
+}
+
+
+if(
+Notification.permission!=="granted"
+){
+
+return;
+
+}
+
+
+try{
+
+const notificacion=
+new Notification(
+titulo,
+{
+body:texto,
+icon:"index.html"
+}
+);
+
+
+notificacion.onclick=function(){
+
+window.focus();
+
+};
+
+}catch(error){
+
+console.log(
+"Notificación del navegador no disponible",
+error
+);
+
+}
+
+}
+
+
+/* =========================================
+   ESTADÍSTICAS
+========================================= */
+
+function actualizarEstadisticas(){
+
+document.getElementById(
+"totalPedidos"
+).textContent=
+pedidos.length;
+
+
+let total=0;
+
+
+pedidos.forEach(pedido=>{
+
+total+=
+Number(pedido.total)||0;
+
+});
+
+
+document.getElementById(
+"totalVendido"
+).textContent=
+formatoDinero(total);
+
+
+const pendientes=
+pedidos.filter(
+p=>
+!p.estado||
+p.estado==="Nuevo"
+).length;
+
+
+document.getElementById(
+"totalPendientes"
+).textContent=
+pendientes;
+
+
+const pagados=
+pedidos.filter(
+p=>
+obtenerEstadoPago(p)==="Pagado"
+).length;
+
+
+document.getElementById(
+"totalPagados"
+).textContent=
+pagados;
+
+
+const estados=[
+"Nuevo",
+"Confirmado",
+"Preparando",
+"Enviado",
+"Entregado"
+];
+
+
+estados.forEach(estado=>{
+
+const cantidad=
+pedidos.filter(
+p=>
+(p.estado||"Nuevo")===
+estado
+).length;
+
+
+const elemento=
+document.getElementById(
+"estado"+estado
+);
+
+
+if(elemento){
+
+elemento.textContent=
+cantidad;
+
+}
+
+});
+
+}
+
+
+/* =========================================
+   PAGO
+========================================= */
+
+function obtenerEstadoPago(pedido){
+
+if(
+pedido.pago &&
+typeof pedido.pago==="object"
+){
+
+return pedido.pago.estado||
+"Pendiente";
+
+}
+
+return pedido.estadoPago||
+"Pendiente";
+
+}
+
+
+function obtenerMetodoPago(pedido){
+
+if(
+pedido.pago &&
+typeof pedido.pago==="object"
+){
+
+return pedido.pago.metodo||
+"Pendiente";
+
+}
+
+return pedido.metodoPago||
+"Pendiente";
+
+}
+
+
+function obtenerReferenciaPago(pedido){
+
+if(
+pedido.pago &&
+typeof pedido.pago==="object"
+){
+
+return pedido.pago.referencia||
+"";
+
+}
+
+return pedido.referenciaPago||
+"";
+
+}
+
+
+/* =========================================
+   FILTROS
+========================================= */
+
+function filtrarRapido(filtro){
+
+filtroActual=filtro;
+
+
+document.querySelectorAll(
+".filtro"
+).forEach(boton=>{
+
+boton.classList.toggle(
+"activo",
+boton.dataset.filtro===
+filtro
+);
+
+});
+
+
+document.querySelectorAll(
+".estado-stat"
+).forEach(boton=>{
+
+boton.classList.remove(
+"activo"
+);
+
+});
+
+
+document.querySelectorAll(
+".stat"
+).forEach(boton=>{
+
+boton.classList.remove(
+"activo"
+);
+
+});
+
+
+if(filtro==="todos"){
+
+document.getElementById(
+"statTotal"
+).classList.add(
+"activo"
+);
+
+}
+
+
+if(filtro==="pagados"){
+
+document.getElementById(
+"statPagados"
+).classList.add(
+"activo"
+);
+
+}
+
+
+if(filtro==="pendientes"){
+
+document.getElementById(
+"statPendientes"
+).classList.add(
+"activo"
+);
+
+}
+
+
+document.querySelectorAll(
+".estado-stat"
+).forEach(boton=>{
+
+const texto=
+boton.querySelector("span");
+
+
+if(
+texto &&
+texto.textContent.trim()===
+filtro
+){
+
+boton.classList.add(
+"activo"
+);
+
+}
+
+});
+
+
+mostrarPedidos();
+
+}
+
+
+/* =========================================
+   MOSTRAR PEDIDOS
+========================================= */
+
+function mostrarPedidos(){
+
+const contenedor=
+document.getElementById(
+"listaPedidos"
+);
+
+
+const busqueda=
+document.getElementById(
+"buscar"
+).value
+.toLowerCase()
+.trim();
+
+
+let filtrados=
+pedidos.filter(pedido=>{
+
+
+const estado=
+pedido.estado||
+"Nuevo";
+
+
+const pago=
+obtenerEstadoPago(pedido);
+
+
+if(
+filtroActual!=="todos"
+){
+
+if(
+filtroActual==="pagados"&&
+pago!=="Pagado"
+){
+
+return false;
+
+}
+
+
+if(
+filtroActual==="pendientes"&&
+pago==="Pagado"
+){
+
+return false;
+
+}
+
+
+if(
+!["pagados","pendientes"]
+.includes(filtroActual)&&
+estado!==filtroActual
+){
+
+return false;
+
+}
+
+}
+
+
+if(!busqueda){
+
+return true;
+
+}
+
+
+const texto=`
+
+${pedido.id||""}
+
+${pedido.cliente||""}
+
+${pedido.telefono||""}
+
+${pedido.ciudad||""}
+
+${pedido.direccion||""}
+
+`.toLowerCase();
+
+
+return texto.includes(
+busqueda
+);
+
+});
+
+
+/* ORDEN */
+
+const orden=
+document.getElementById(
+"ordenar"
+).value;
+
+
+filtrados.sort((a,b)=>{
+
+
+if(orden==="mayor"){
+
+return Number(b.total||0)-
+Number(a.total||0);
+
+}
+
+
+if(orden==="menor"){
+
+return Number(a.total||0)-
+Number(b.total||0);
+
+}
+
+
+if(orden==="antiguo"){
+
+return String(a.fecha||"")
+.localeCompare(
+String(b.fecha||"")
+);
+
+}
+
+
+return String(b.fecha||"")
+.localeCompare(
+String(a.fecha||"")
+);
+
+});
+
+
+document.getElementById(
+"resumenFiltro"
+).textContent=
+`Mostrando ${filtrados.length} de ${pedidos.length} pedido(s)`;
+
+
+if(filtrados.length===0){
+
+contenedor.innerHTML=`
+
+<div class="mensaje">
+
+📭 No hay pedidos que coincidan.
+
+</div>
+
+`;
+
+return;
+
+}
+
+
+contenedor.innerHTML=
+filtrados
+.map(crearPedidoHTML)
+.join("");
+
+}
+
+
+/* =========================================
+   PEDIDO HTML
+========================================= */
+
+function crearPedidoHTML(pedido){
+
+const estado=
+pedido.estado||
+"Nuevo";
+
+
+const estadoPago=
+obtenerEstadoPago(pedido);
+
+
+const metodoPago=
+obtenerMetodoPago(pedido);
+
+
+const referenciaPago=
+obtenerReferenciaPago(pedido);
+
+
+const productos=
+Array.isArray(pedido.productos)
+?pedido.productos
+:[];
+
+
+const clasePago=
+estadoPago==="Pagado"
+?"pago-box pago-confirmado"
+:"pago-box";
+
+
+const estaColapsado=
+pedidosColapsados.has(
+String(pedido.id)
+);
+
+
+return `
+
+<article
+class="pedido ${estaColapsado?"colapsado":""}"
+id="pedido-${escaparAtributo(pedido.id)}">
+
+
+<div class="pedido-header">
+
+
+<div>
+
+<div class="pedido-id">
+
+${escapar(
+pedido.id||
+"SIN ID"
+)}
+
+</div>
+
+
+<div class="fecha">
+
+${escapar(
+pedido.fecha||
+""
+)}
+
+</div>
+
+</div>
+
+
+<div class="estado-pedido">
+
+<span
+class="estado-badge ${
+estadoPago==="Pagado"
+?"pagado":""
+}">
+
+${escapar(
+estadoPago
+)}
+
+</span>
+
+
+<strong>Estado:</strong>
+
+
+<select
+onchange="cambiarEstadoPedido(
+'${escaparAtributo(pedido.id)}',
+this.value
+)">
+
+${crearOpcionesEstado(
+estado
+)}
+
+</select>
+
+
+</div>
+
+
+</div>
+
+
+<button
+class="accion boton-detalles"
+onclick="alternarDetalles(
+'${escaparAtributo(pedido.id)}',
+this
+)">
+
+${
+estaColapsado
+?"🔽 Mostrar detalles"
+:"🔼 Ocultar detalles"
+}
+
+</button>
+
+
+<div class="detalles">
+
+
+<div class="contenido-pedido">
+
+
+<div class="grid-info">
+
+
+<div class="info-box">
+
+<h3>👤 CLIENTE</h3>
+
+
+${agregarDatoCliente(
+"Nombre",
+pedido.cliente
+)}
+
+
+${agregarDatoCliente(
+"Teléfono",
+pedido.telefono
+)}
+
+
+${agregarDatoCliente(
+"Dirección",
+pedido.direccion
+)}
+
+
+${agregarDatoCliente(
+"Ciudad",
+pedido.ciudad
+)}
+
+
+${agregarDatoCliente(
+"Indicaciones",
+pedido.instrucciones
+)}
+
+
+</div>
+
+
+<div class="info-box">
+
+<h3>📦 PEDIDO</h3>
+
+
+${agregarDatoCliente(
+"ID",
+pedido.id
+)}
+
+
+${agregarDatoCliente(
+"Fecha",
+pedido.fecha
+)}
+
+
+${agregarDatoCliente(
+"Cantidad de productos",
+productos.length
+)}
+
+
+</div>
+
+
+</div>
+
+
+<div class="${clasePago}">
+
+
+<div class="pago-titulo">
+
+💳 INFORMACIÓN DEL PAGO
+
+</div>
+
+
+<div class="pago-grid">
+
+
+<div class="pago-campo">
+
+<label>
+Estado del pago
+</label>
+
+
+<select
+id="estadoPago-${escaparAtributo(pedido.id)}">
+
+
+<option
+value="Pendiente"
+${estadoPago==="Pendiente"
+?"selected":""}>
+
+Pendiente
+
+</option>
+
+
+<option
+value="Pagado"
+${estadoPago==="Pagado"
+?"selected":""}>
+
+Pagado
+
+</option>
+
+
+<option
+value="Cancelado"
+${estadoPago==="Cancelado"
+?"selected":""}>
+
+Cancelado
+
+</option>
+
+
+<option
+value="Reembolsado"
+${estadoPago==="Reembolsado"
+?"selected":""}>
+
+Reembolsado
+
+</option>
+
+
+</select>
+
+</div>
+
+
+<div class="pago-campo">
+
+<label>
+Método de pago
+</label>
+
+
+<select
+id="metodoPago-${escaparAtributo(pedido.id)}">
+
+
+<option
+value="Pendiente"
+${metodoPago==="Pendiente"
+?"selected":""}>
+
+Pendiente
+
+</option>
+
+
+<option
+value="Efectivo"
+${metodoPago==="Efectivo"
+?"selected":""}>
+
+Efectivo
+
+</option>
+
+
+<option
+value="Transferencia"
+${metodoPago==="Transferencia"
+?"selected":""}>
+
+Transferencia
+
+</option>
+
+
+<option
+value="Tarjeta"
+${metodoPago==="Tarjeta"
+?"selected":""}>
+
+Tarjeta
+
+</option>
+
+
+<option
+value="Pago móvil"
+${metodoPago==="Pago móvil"
+?"selected":""}>
+
+Pago móvil
+
+</option>
+
+
+</select>
+
+</div>
+
+
+<div class="pago-campo">
+
+<label>
+Referencia
+</label>
+
+
+<input
+type="text"
+id="referenciaPago-${escaparAtributo(pedido.id)}"
+value="${escaparAtributo(
+referenciaPago
+)}"
+placeholder="Ej: TRX-123456">
+
+</div>
+
+
+</div>
+
+
+<button
+class="guardar-pago"
+id="botonPago-${escaparAtributo(pedido.id)}"
+onclick="guardarPago(
+'${escaparAtributo(pedido.id)}'
+)">
+
+💾 Guardar información del pago
+
+</button>
+
+
+</div>
+
+
+<div class="productos">
+
+<h3>🛍️ PRODUCTOS</h3>
+
+
+${
+productos.length>0
+?
+productos
+.map(crearProductoHTML)
+.join("")
+:
+`<div class="dato">
+No hay productos registrados.
+</div>`
+}
+
+
+</div>
+
+
+<div class="total">
+
+<strong>TOTAL</strong>
+
+
+<strong>
+
+${formatoDinero(
+pedido.total
+)}
+
+</strong>
+
+
+</div>
+
+
+<div class="acciones">
+
+
+<button
+class="accion"
+onclick="copiarTexto(
+'${escaparAtributo(pedido.id)}'
+)">
+
+📋 Copiar ID
+
+</button>
+
+
+<button
+class="accion"
+onclick="copiarTexto(
+'${escaparAtributo(
+pedido.telefono||""
+)}'
+)">
+
+📞 Copiar teléfono
+
+</button>
+
+
+<button
+class="eliminar"
+onclick="eliminarPedido(
+'${escaparAtributo(pedido.id)}'
+)">
+
+🗑️ Eliminar
+
+</button>
+
+
+</div>
+
+
+</div>
+
+</div>
+
+</article>
+
+`;
+
+}
+
+
+/* =========================================
+   ESTADOS
+========================================= */
+
+function crearOpcionesEstado(actual){
+
+const estados=[
+"Nuevo",
+"Confirmado",
+"Preparando",
+"Enviado",
+"Entregado"
+];
+
+
+return estados.map(
+estado=>`
+
+<option
+value="${estado}"
+${actual===estado
+?"selected":""}>
+
+${estado}
+
+</option>
+
+`
+).join("");
+
+}
+
+
+/* =========================================
+   DETALLES
+========================================= */
+
+function alternarDetalles(id,boton){
+
+const pedido=
+document.getElementById(
+"pedido-"+id
+);
+
+
+if(!pedido){
+
+return;
+
+}
+
+
+pedido.classList.toggle(
+"colapsado"
+);
+
+
+if(
+pedido.classList.contains(
+"colapsado"
+)
+){
+
+pedidosColapsados.add(
+String(id)
+);
+
+
+boton.textContent=
+"🔽 Mostrar detalles";
+
+
+}else{
+
+
+pedidosColapsados.delete(
+String(id)
+);
+
+
+boton.textContent=
+"🔼 Ocultar detalles";
+
+}
+
+}
+
+
+/* =========================================
+   COPIAR
+========================================= */
+
+async function copiarTexto(texto){
+
+if(!texto){
+
+mostrarNotificacion(
+"⚠️ No hay información para copiar"
+);
+
+return;
+
+}
+
+
+try{
+
+await navigator.clipboard.writeText(
+texto
+);
+
+
+mostrarNotificacion(
+"📋 Copiado correctamente"
+);
+
+
+}catch(error){
+
+alert(
+"Copiado no disponible en este navegador."
+);
+
+}
+
+}
+
+
+/* =========================================
+   PRODUCTO
+========================================= */
+
+function crearProductoHTML(producto){
+
+return `
+
+<div class="producto">
+
+
+<img
+src="${escaparAtributo(
+producto.imagen||""
+)}"
+onerror="this.style.display='none';"
+alt="Producto">
+
+
+<div class="producto-info">
+
+
+<strong>
+
+${escapar(
+producto.nombre||
+"Producto"
+)}
+
+</strong>
+
+
+<span>
+
+Talla:
+${escapar(
+producto.talla||"-"
+)}
+
+&nbsp; | &nbsp;
+
+Cantidad:
+${escapar(
+producto.cantidad||1
+)}
+
+&nbsp; | &nbsp;
+
+${formatoDinero(
+producto.precio
+)}
+
+</span>
+
+
+</div>
+
+</div>
+
+`;
+
+}
+
+
+/* =========================================
+   DATO
+========================================= */
+
+function agregarDatoCliente(
+nombre,
+valor
+){
+
+if(
+valor===undefined||
+valor===null||
+valor===""
+){
+
+return "";
+
+}
+
+
+return `
+
+<div class="dato">
+
+<strong>
+
+${escapar(nombre)}:
+
+</strong>
+
+${escapar(valor)}
+
+</div>
+
+`;
+
+}
+
+
+/* =========================================
+   CAMBIAR ESTADO
+========================================= */
+
+async function cambiarEstadoPedido(
+id,
+estado
+){
+
+try{
+
+const respuesta=
+await fetch(
+API_PEDIDOS,
+{
+
+method:"PATCH",
+
+headers:{
+"Content-Type":
+"application/json"
+},
+
+body:JSON.stringify({
+id:id,
+estado:estado
+})
+
+}
+);
+
+
+const datos=
+await respuesta.json();
+
+
+if(!respuesta.ok){
+
+throw new Error(
+datos.error||
+"No se pudo cambiar el estado"
+);
+
+}
+
+
+const pedidoLocal=
+pedidos.find(
+pedido=>
+String(pedido.id)===
+String(id)
+);
+
+
+if(pedidoLocal){
+
+pedidoLocal.estado=
+estado;
+
+}
+
+
+actualizarEstadisticas();
+
+
+mostrarNotificacion(
+"✅ Estado actualizado"
+);
+
+
+}catch(error){
+
+console.error(error);
+
+
+alert(
+"No se pudo cambiar el estado:\n"+
+error.message
+);
+
+
+cargarPedidos();
+
+}
+
+}
+
+
+/* =========================================
+   GUARDAR PAGO
+========================================= */
+
+async function guardarPago(id){
+
+const estadoElemento=
+document.getElementById(
+"estadoPago-"+id
+);
+
+
+const metodoElemento=
+document.getElementById(
+"metodoPago-"+id
+);
+
+
+const referenciaElemento=
+document.getElementById(
+"referenciaPago-"+id
+);
+
+
+const boton=
+document.getElementById(
+"botonPago-"+id
+);
+
+
+if(
+!estadoElemento||
+!metodoElemento||
+!referenciaElemento
+){
+
+alert(
+"No se encontraron los campos del pago."
+);
+
+return;
+
+}
+
+
+const pago={
+
+estado:
+estadoElemento.value,
+
+metodo:
+metodoElemento.value,
+
+referencia:
+referenciaElemento.value.trim()
+
+};
+
+
+editandoPago=true;
+
+
+if(boton){
+
+boton.disabled=true;
+
+boton.textContent=
+"⏳ Guardando...";
+
+}
+
+
+try{
+
+const respuesta=
+await fetch(
+API_PEDIDOS,
+{
+
+method:"PATCH",
+
+headers:{
+"Content-Type":
+"application/json"
+},
+
+body:JSON.stringify({
+
+id:id,
+
+pago:pago
+
+})
+
+}
+);
+
+
+const datos=
+await respuesta.json();
+
+
+if(!respuesta.ok){
+
+throw new Error(
+datos.error||
+"No se pudo guardar el pago"
+);
+
+}
+
+
+const pedidoLocal=
+pedidos.find(
+pedido=>
+String(pedido.id)===
+String(id)
+);
+
+
+if(pedidoLocal){
+
+pedidoLocal.pago={
+
+estado:pago.estado,
+
+metodo:pago.metodo,
+
+referencia:pago.referencia
+
+};
+
+
+pedidoLocal.estadoPago=
+pago.estado;
+
+pedidoLocal.metodoPago=
+pago.metodo;
+
+pedidoLocal.referenciaPago=
+pago.referencia;
+
+}
+
+
+actualizarEstadisticas();
+
+
+mostrarNotificacion(
+"💳 Información del pago guardada"
+);
+
+
+if(boton){
+
+boton.textContent=
+"✅ Pago guardado";
+
+}
+
+
+setTimeout(()=>{
+
+editandoPago=false;
+
+
+if(boton){
+
+boton.disabled=false;
+
+boton.textContent=
+"💾 Guardar información del pago";
+
+}
+
+
+mostrarPedidos();
+
+},1200);
+
+
+}catch(error){
+
+console.error(error);
+
+
+editandoPago=false;
+
+
+if(boton){
+
+boton.disabled=false;
+
+boton.textContent=
+"💾 Guardar información del pago";
+
+}
+
+
+alert(
+"No se pudo guardar el pago:\n"+
+error.message
+);
+
+}
+
+}
+
+
+/* =========================================
+   ELIMINAR
+========================================= */
+
+async function eliminarPedido(id){
+
+const confirmar=
+confirm(
+"¿Seguro que quieres eliminar este pedido?"
+);
+
+
+if(!confirmar){
+
+return;
+
+}
+
+
+try{
+
+const respuesta=
+await fetch(
+API_PEDIDOS+
+"?id="+
+encodeURIComponent(id),
+{
+method:"DELETE"
+}
+);
+
+
+const datos=
+await respuesta.json();
+
+
+if(!respuesta.ok){
+
+throw new Error(
+datos.error||
+"No se pudo eliminar el pedido"
+);
+
+}
+
+
+mostrarNotificacion(
+"🗑️ Pedido eliminado"
+);
+
+
+idsConocidos.delete(
+String(id)
+);
+
+
+pedidosColapsados.delete(
+String(id)
+);
+
+
+pedidos=
+pedidos.filter(
+pedido=>
+String(pedido.id)!==
+String(id)
+);
+
+
+actualizarEstadisticas();
+
+mostrarPedidos();
+
+
+}catch(error){
+
+console.error(error);
+
+
+alert(
+"No se pudo eliminar el pedido:\n"+
+error.message
+);
+
+}
+
+}
+
+
+/* =========================================
+   DINERO
+========================================= */
+
+function formatoDinero(valor){
+
+return Number(valor||0)
+.toLocaleString(
+"es-DO",
+{
+style:"currency",
+currency:"DOP",
+maximumFractionDigits:0
+}
+);
+
+}
+
+
+/* =========================================
+   SEGURIDAD
+========================================= */
+
+function escapar(valor){
+
+return String(valor??"")
+.replace(/&/g,"&amp;")
+.replace(/</g,"&lt;")
+.replace(/>/g,"&gt;")
+.replace(/"/g,"&quot;")
+.replace(/'/g,"&#039;");
+
+}
+
+
+function escaparAtributo(valor){
+
+return escapar(valor);
+
+}
+
+
+/* =========================================
+   BUSCADOR
+========================================= */
+
+document
+.getElementById("buscar")
+.addEventListener(
+"input",
+mostrarPedidos
+);
+
+
+/* =========================================
+   ORDEN
+========================================= */
+
+document
+.getElementById("ordenar")
+.addEventListener(
+"change",
+mostrarPedidos
+);
+
+
+/* =========================================
+   PAUSAR REFRESH
+========================================= */
+
+document.addEventListener(
+"focusin",
+function(event){
+
+const elemento=
+event.target;
+
+
+if(
+!elemento||
+!elemento.id
+){
+
+return;
+
+}
+
+
+if(
+elemento.id.startsWith(
+"estadoPago-"
+)||
+elemento.id.startsWith(
+"metodoPago-"
+)||
+elemento.id.startsWith(
+"referenciaPago-"
+)
+){
+
+editandoPago=true;
+
+}
+
+}
+);
+
+
+/* =========================================
+   CAMBIO PAGO
+========================================= */
+
+document.addEventListener(
+"change",
+function(event){
+
+const elemento=
+event.target;
+
+
+if(
+!elemento||
+!elemento.id
+){
+
+return;
+
+}
+
+
+if(
+elemento.id.startsWith(
+"estadoPago-"
+)||
+elemento.id.startsWith(
+"metodoPago-"
+)
+){
+
+editandoPago=true;
+
+}
+
+}
+);
+
+
+/* =========================================
+   COMPROBAR ESTADO DE NOTIFICACIONES
+========================================= */
+
+function comprobarEstadoNotificaciones(){
+
+const boton=
+document.getElementById(
+"botonNotificaciones"
+);
+
+const estado=
+document.getElementById(
+"estadoNotificaciones"
+);
+
+
+if(!("Notification" in window)){
+
+estado.textContent=
+"⚠️ Este navegador no permite notificaciones.";
+
+boton.textContent=
+"🔔 Solo sonido";
+
+return;
+
+}
+
+
+if(
+Notification.permission==="granted"
+){
+
+estado.textContent=
+"✅ Notificaciones del navegador activadas.";
+
+boton.textContent=
+"✅ Notificaciones activadas";
+
+boton.classList.add(
+"activado"
+);
+
+return;
+
+}
+
+
+if(
+Notification.permission==="denied"
+){
+
+estado.textContent=
+"⚠️ Las notificaciones están bloqueadas en el navegador.";
+
+boton.textContent=
+"⚠️ Notificaciones bloqueadas";
+
+return;
+
+}
+
+
+estado.textContent=
+"Activa las notificaciones para recibir avisos de nuevos pedidos.";
+
+}
+
+
+/* =========================================
+   INICIO
+========================================= */
+
+comprobarEstadoNotificaciones();
+
+cargarPedidos();
+
+
+/* =========================================
+   AUTO REFRESH
+========================================= */
+
+setInterval(
+function(){
+
+if(!editandoPago){
+
+cargarPedidos();
+
+}
+
+},
+5000
+);
+
+
+</script>
+
+</body>
+
+</html>

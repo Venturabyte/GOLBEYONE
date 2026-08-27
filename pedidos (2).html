@@ -1,0 +1,2818 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0">
+
+    <title>GOLBEYONE | Pedidos</title>
+
+    <link rel="stylesheet" href="style.css">
+
+    <style>
+
+        /* =====================================================
+           PANEL PRINCIPAL
+        ===================================================== */
+
+        .panel-pedidos {
+            width: min(1100px, 92%);
+            margin: 40px auto;
+        }
+
+
+        /* =====================================================
+           CABECERA
+        ===================================================== */
+
+        .cabecera-panel {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 20px;
+            margin-bottom: 25px;
+        }
+
+        .cabecera-panel h2 {
+            margin: 0;
+        }
+
+
+        /* =====================================================
+           BOTÓN ACTUALIZAR
+        ===================================================== */
+
+        .boton-actualizar {
+            padding: 12px 18px;
+            border: none;
+            border-radius: 10px;
+            background: #a855f7;
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .boton-actualizar:hover {
+            background: #9333ea;
+            transform: translateY(-2px);
+        }
+
+
+        /* =====================================================
+           NOTIFICACIÓN
+        ===================================================== */
+
+        .notificacion-nuevo {
+
+            position: fixed;
+
+            top: 20px;
+            right: 20px;
+
+            z-index: 9999;
+
+            width: min(360px, calc(100% - 40px));
+
+            padding: 18px;
+
+            border-radius: 16px;
+
+            background: #181018;
+
+            border: 1px solid #a855f7;
+
+            box-shadow:
+                0 15px 40px
+                rgba(0, 0, 0, 0.45);
+
+            transform: translateX(120%);
+
+            transition: 0.35s ease;
+        }
+
+        .notificacion-nuevo.visible {
+            transform: translateX(0);
+        }
+
+
+        .notificacion-nuevo.visible {
+            animation: notificacionPulso 2s ease-in-out 1;
+        }
+
+        @keyframes notificacionPulso {
+            0%, 100% { box-shadow: 0 15px 40px rgba(0,0,0,0.45); }
+            50% { box-shadow: 0 0 35px rgba(168,85,247,0.35); }
+        }
+
+        .notificacion-nuevo h3 {
+            margin: 0 0 8px;
+            color: #a855f7;
+        }
+
+        .notificacion-nuevo p {
+            margin: 5px 0;
+        }
+
+        .boton-cerrar-notificacion {
+
+            margin-top: 12px;
+
+            padding: 8px 12px;
+
+            border: none;
+
+            border-radius: 8px;
+
+            background: #a855f7;
+
+            color: white;
+
+            cursor: pointer;
+
+            font-weight: bold;
+        }
+
+
+        /* =====================================================
+           ESTADÍSTICAS
+        ===================================================== */
+
+        .estadisticas-pedidos {
+
+            display: grid;
+
+            grid-template-columns:
+                repeat(3, minmax(0, 1fr));
+
+            gap: 15px;
+
+            margin-bottom: 25px;
+        }
+
+        .estadistica {
+
+            padding: 20px;
+
+            border-radius: 16px;
+
+            background:
+                rgba(168, 85, 247, 0.08);
+
+            border:
+                1px solid
+                rgba(168, 85, 247, 0.25);
+        }
+
+        .estadistica span {
+
+            display: block;
+
+            opacity: 0.7;
+
+            margin-bottom: 8px;
+        }
+
+        .estadistica strong {
+
+            font-size: 1.5rem;
+
+            color: #a855f7;
+        }
+
+
+        /* =====================================================
+           ESTADÍSTICAS DE ESTADO
+        ===================================================== */
+
+        .estadisticas-estados {
+
+            display: grid;
+
+            grid-template-columns:
+                repeat(5, minmax(0, 1fr));
+
+            gap: 10px;
+
+            margin-bottom: 30px;
+        }
+
+        .estado-estadistica {
+
+            padding: 15px;
+
+            border-radius: 13px;
+
+            background:
+                rgba(255, 255, 255, 0.04);
+
+            border:
+                1px solid
+                rgba(255, 255, 255, 0.08);
+
+            text-align: center;
+        }
+
+        .estado-estadistica span {
+
+            display: block;
+
+            font-size: 0.85rem;
+
+            opacity: 0.7;
+
+            margin-bottom: 5px;
+        }
+
+        .estado-estadistica strong {
+
+            font-size: 1.4rem;
+
+            color: #a855f7;
+        }
+
+
+        /* =====================================================
+           BUSCADOR
+        ===================================================== */
+
+        .buscador-pedidos {
+            margin-bottom: 30px;
+        }
+
+        .buscador-pedidos input {
+
+            width: 100%;
+
+            box-sizing: border-box;
+
+            padding: 15px 18px;
+
+            border-radius: 12px;
+
+            border:
+                1px solid
+                rgba(255, 255, 255, 0.15);
+
+            background:
+                rgba(20, 20, 20, 0.9);
+
+            color: white;
+
+            outline: none;
+
+            font-size: 1rem;
+        }
+
+        .buscador-pedidos input:focus {
+
+            border-color: #a855f7;
+
+            box-shadow:
+                0 0 0 3px
+                rgba(168, 85, 247, 0.1);
+        }
+
+
+        /* =====================================================
+           RESULTADOS
+        ===================================================== */
+
+        .resultado-busqueda {
+
+            margin-bottom: 18px;
+
+            opacity: 0.7;
+        }
+
+
+        /* =====================================================
+           TARJETA PEDIDO
+        ===================================================== */
+
+        .pedido {
+
+            background:
+                rgba(20, 20, 20, 0.95);
+
+            border:
+                1px solid
+                rgba(255, 255, 255, 0.1);
+
+            border-radius: 18px;
+
+            padding: 24px;
+
+            margin-bottom: 20px;
+
+            box-shadow:
+                0 10px 30px
+                rgba(0, 0, 0, 0.25);
+
+            transition: 0.25s ease;
+        }
+
+        .pedido:hover {
+
+            transform:
+                translateY(-2px);
+
+            border-color:
+                rgba(168, 85, 247, 0.45);
+        }
+
+
+        /* =====================================================
+           PEDIDO NUEVO
+        ===================================================== */
+
+        .pedido.nuevo-pedido {
+
+            border-color: #a855f7;
+
+            box-shadow:
+                0 0 25px
+                rgba(168, 85, 247, 0.15);
+        }
+
+
+        /* =====================================================
+           CABECERA PEDIDO
+        ===================================================== */
+
+        .pedido-cabecera {
+
+            display: flex;
+
+            justify-content:
+                space-between;
+
+            align-items:
+                flex-start;
+
+            gap: 15px;
+
+            margin-bottom: 18px;
+        }
+
+        .pedido h3 {
+
+            color: #a855f7;
+
+            margin:
+                0 0 6px;
+
+            font-size: 1.25rem;
+        }
+
+        .id-pedido {
+
+            color: #aaa;
+
+            font-size: 14px;
+
+            margin: 0;
+        }
+
+        .fecha-pedido {
+
+            color: #aaa;
+
+            font-size: 14px;
+
+            text-align: right;
+        }
+
+
+        /* =====================================================
+           ESTADO DEL PEDIDO
+        ===================================================== */
+
+        .zona-estado {
+
+            margin-bottom: 20px;
+
+            padding: 16px;
+
+            border-radius: 13px;
+
+            background:
+                rgba(168, 85, 247, 0.06);
+
+            border:
+                1px solid
+                rgba(168, 85, 247, 0.2);
+        }
+
+        .zona-estado label {
+
+            display: block;
+
+            margin-bottom: 8px;
+
+            font-weight: bold;
+
+            color: #a855f7;
+        }
+
+        .selector-estado {
+
+            width: 100%;
+
+            padding: 12px;
+
+            border-radius: 10px;
+
+            border:
+                1px solid
+                rgba(255, 255, 255, 0.15);
+
+            background: #151515;
+
+            color: white;
+
+            cursor: pointer;
+
+            outline: none;
+
+            font-size: 1rem;
+        }
+
+        .selector-estado:focus {
+
+            border-color:
+                #a855f7;
+        }
+
+
+        /* =====================================================
+           INFORMACIÓN CLIENTE
+        ===================================================== */
+
+        .informacion-cliente {
+
+            display: grid;
+
+            grid-template-columns:
+                repeat(2, minmax(0, 1fr));
+
+            gap: 12px;
+
+            margin-bottom: 20px;
+        }
+
+        .dato-cliente {
+
+            padding: 13px;
+
+            border-radius: 10px;
+
+            background:
+                rgba(255, 255, 255, 0.035);
+        }
+
+        .dato-cliente strong {
+
+            display: block;
+
+            color: #a855f7;
+
+            margin-bottom: 5px;
+        }
+
+
+        /* =====================================================
+           PRODUCTOS
+        ===================================================== */
+
+        .productos-pedido {
+
+            margin-top: 15px;
+
+            padding-top: 18px;
+
+            border-top:
+                1px solid
+                rgba(255, 255, 255, 0.1);
+        }
+
+        .titulo-productos {
+
+            display: block;
+
+            margin-bottom: 12px;
+
+            font-size: 1.05rem;
+        }
+
+        .producto-pedido {
+
+            display: flex;
+
+            justify-content:
+                space-between;
+
+            align-items: center;
+
+            gap: 15px;
+
+            padding: 12px 0;
+
+            border-bottom:
+                1px solid
+                rgba(255, 255, 255, 0.06);
+        }
+
+        .producto-pedido:last-child {
+
+            border-bottom: none;
+        }
+
+        .producto-nombre {
+
+            flex: 1;
+        }
+
+        .producto-precio {
+
+            font-weight: bold;
+
+            white-space: nowrap;
+        }
+
+
+        /* =====================================================
+           TOTAL
+        ===================================================== */
+
+        .total-pedido {
+
+            margin-top: 18px;
+
+            padding-top: 18px;
+
+            border-top:
+                1px solid
+                rgba(255, 255, 255, 0.1);
+
+            font-size: 1.35rem;
+
+            font-weight: bold;
+
+            color: #a855f7;
+
+            text-align: right;
+        }
+
+
+        /* =====================================================
+           BOTÓN ELIMINAR
+        ===================================================== */
+
+        .boton-eliminar {
+
+            margin-top: 18px;
+
+            padding: 11px 16px;
+
+            border:
+                1px solid
+                rgba(255, 255, 255, 0.15);
+
+            border-radius: 9px;
+
+            cursor: pointer;
+
+            background: transparent;
+
+            color: white;
+
+            transition: 0.2s;
+        }
+
+        .boton-eliminar:hover {
+
+            background: #dc2626;
+
+            border-color: #dc2626;
+        }
+
+
+        /* =====================================================
+           SIN PEDIDOS
+        ===================================================== */
+
+        .sin-pedidos {
+
+            text-align: center;
+
+            padding: 60px 20px;
+
+            background:
+                rgba(20, 20, 20, 0.8);
+
+            border:
+                1px solid
+                rgba(255, 255, 255, 0.1);
+
+            border-radius: 18px;
+        }
+
+        .sin-pedidos h2 {
+
+            margin-bottom: 10px;
+        }
+
+        .sin-pedidos p {
+
+            opacity: 0.7;
+        }
+
+
+        /* =====================================================
+           CARGANDO
+        ===================================================== */
+
+        .estado-cargando {
+
+            text-align: center;
+
+            padding: 50px 20px;
+        }
+
+
+        /* =====================================================
+           ERROR
+        ===================================================== */
+
+        .error-pedidos {
+
+            text-align: center;
+
+            padding: 35px 20px;
+
+            background:
+                rgba(120, 0, 0, 0.25);
+
+            border:
+                1px solid #700;
+
+            border-radius: 15px;
+        }
+
+        .error-pedidos p {
+
+            opacity: 0.8;
+        }
+
+
+        /* =====================================================
+           VOLVER
+        ===================================================== */
+
+        .volver-tienda {
+
+            display: block;
+
+            width: fit-content;
+
+            margin: 30px auto;
+
+            color: white;
+
+            text-decoration: none;
+
+            opacity: 0.8;
+
+            transition: 0.2s;
+        }
+
+        .volver-tienda:hover {
+
+            color: #a855f7;
+
+            opacity: 1;
+        }
+
+
+        /* =====================================================
+           PROGRESO DEL PEDIDO
+        ===================================================== */
+
+        .progreso-pedido {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 6px;
+            margin-top: 18px;
+            padding-top: 15px;
+            border-top: 1px solid rgba(255,255,255,0.07);
+        }
+
+        .paso-estado {
+            position: relative;
+            text-align: center;
+            opacity: 0.35;
+            transition: 0.25s ease;
+        }
+
+        .paso-estado.activo {
+            opacity: 1;
+        }
+
+        .punto-estado {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 28px;
+            height: 28px;
+            margin: 0 auto 6px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.06);
+            border: 1px solid rgba(255,255,255,0.12);
+            color: #aaa;
+            font-size: 0.75rem;
+            font-weight: bold;
+        }
+
+        .paso-estado.activo .punto-estado {
+            background: rgba(168,85,247,0.18);
+            border-color: #a855f7;
+            color: #c084fc;
+        }
+
+        .paso-estado small {
+            display: block;
+            font-size: 0.68rem;
+            white-space: nowrap;
+        }
+
+        .selector-estado {
+            border-color: rgba(168,85,247,0.35);
+        }
+
+        .selector-estado:hover {
+            border-color: #a855f7;
+        }
+
+        .pedido {
+            overflow: hidden;
+        }
+
+        .pedido h3 {
+            letter-spacing: 0.3px;
+        }
+
+        .total-pedido {
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            gap: 8px;
+        }
+
+        @media (max-width: 700px) {
+            .progreso-pedido {
+                grid-template-columns: repeat(5, minmax(48px, 1fr));
+                overflow-x: auto;
+                padding-bottom: 5px;
+            }
+
+            .paso-estado small {
+                font-size: 0.6rem;
+            }
+
+            .punto-estado {
+                width: 25px;
+                height: 25px;
+            }
+        }
+
+        /* =====================================================
+           MÓVIL
+        ===================================================== */
+
+        @media (max-width: 700px) {
+
+            .panel-pedidos {
+
+                width: 94%;
+
+                margin: 30px auto;
+            }
+
+            .cabecera-panel {
+
+                flex-direction: column;
+
+                align-items: stretch;
+
+                text-align: center;
+            }
+
+            .boton-actualizar {
+
+                width: 100%;
+            }
+
+            .estadisticas-pedidos {
+
+                grid-template-columns: 1fr;
+            }
+
+            .estadisticas-estados {
+
+                grid-template-columns:
+                    repeat(2, 1fr);
+            }
+
+            .pedido {
+
+                padding: 18px;
+            }
+
+            .pedido-cabecera {
+                flex-direction: column;
+                gap: 10px;
+            }
+
+            .fecha-pedido {
+
+                text-align: left;
+            }
+
+            .informacion-cliente {
+
+                grid-template-columns: 1fr;
+            }
+
+            .producto-pedido {
+
+                flex-direction: column;
+
+                align-items:
+                    flex-start;
+            }
+
+            .producto-precio {
+
+                font-size: 1rem;
+            }
+
+            .total-pedido {
+
+                text-align: left;
+            }
+
+            .boton-eliminar {
+
+                width: 100%;
+            }
+
+        }
+
+    </style>
+
+</head>
+
+
+<body>
+
+
+<nav class="navbar">
+
+    <a href="index.html" class="logo">
+        GBO
+    </a>
+
+    <div class="nav-links">
+
+        <a href="camisas.html">CAMISAS</a>
+
+        <a href="pantalones.html">
+            PANTALONES
+        </a>
+
+        <a href="gorras.html">
+            GORRAS
+        </a>
+
+        <a href="buscar.html">
+            🔎 BUSCAR
+        </a>
+
+        <a href="carrito.html">
+            🛒 CARRITO
+        </a>
+
+    </div>
+
+</nav>
+
+
+<header>
+
+    <h1>GOLBEYONE</h1>
+
+    <h2>PANEL DE PEDIDOS</h2>
+
+    <p>DRESS DIFFERENT.</p>
+
+</header>
+
+
+<!-- =====================================================
+     NOTIFICACIÓN
+===================================================== -->
+
+<div
+    id="notificacion-nuevo"
+    class="notificacion-nuevo">
+
+    <h3>
+        🔔 NUEVO PEDIDO
+    </h3>
+
+    <p id="texto-notificacion">
+        Ha llegado un nuevo pedido.
+    </p>
+
+    <button
+        class="boton-cerrar-notificacion"
+        onclick="cerrarNotificacion()">
+
+        CERRAR
+
+    </button>
+
+</div>
+
+
+<section class="panel-pedidos">
+
+
+    <!-- ==================================================
+         CABECERA
+    ================================================== -->
+
+    <div class="cabecera-panel">
+
+        <h2>
+            📋 PEDIDOS RECIBIDOS
+        </h2>
+
+        <button
+            class="boton-actualizar"
+            onclick="cargarPedidos(true)">
+
+            🔄 ACTUALIZAR
+
+        </button>
+
+    </div>
+
+
+    <!-- ==================================================
+         ESTADÍSTICAS GENERALES
+    ================================================== -->
+
+    <div class="estadisticas-pedidos">
+
+        <div class="estadistica">
+
+            <span>
+                📦 PEDIDOS
+            </span>
+
+            <strong id="contador-pedidos">
+                0
+            </strong>
+
+        </div>
+
+
+        <div class="estadistica">
+
+            <span>
+                💰 TOTAL VENDIDO
+            </span>
+
+            <strong id="total-ventas">
+                RD$0
+            </strong>
+
+        </div>
+
+
+        <div class="estadistica">
+
+            <span>
+                🆕 PENDIENTES
+            </span>
+
+            <strong id="contador-nuevos">
+                0
+            </strong>
+
+        </div>
+
+    </div>
+
+
+    <!-- ==================================================
+         ESTADÍSTICAS DE ESTADOS
+    ================================================== -->
+
+    <div class="estadisticas-estados">
+
+        <div class="estado-estadistica">
+
+            <span>
+                🆕 NUEVO
+            </span>
+
+            <strong id="estado-nuevo">
+                0
+            </strong>
+
+        </div>
+
+
+        <div class="estado-estadistica">
+
+            <span>
+                ✅ CONFIRMADO
+            </span>
+
+            <strong id="estado-confirmado">
+                0
+            </strong>
+
+        </div>
+
+
+        <div class="estado-estadistica">
+
+            <span>
+                📦 PREPARANDO
+            </span>
+
+            <strong id="estado-preparando">
+                0
+            </strong>
+
+        </div>
+
+
+        <div class="estado-estadistica">
+
+            <span>
+                🚚 ENVIADO
+            </span>
+
+            <strong id="estado-enviado">
+                0
+            </strong>
+
+        </div>
+
+
+        <div class="estado-estadistica">
+
+            <span>
+                🏁 ENTREGADO
+            </span>
+
+            <strong id="estado-entregado">
+                0
+            </strong>
+
+        </div>
+
+    </div>
+
+
+    <!-- ==================================================
+         BUSCADOR
+    ================================================== -->
+
+    <div class="buscador-pedidos">
+
+        <input
+            type="search"
+            id="buscador"
+            placeholder="🔎 Buscar por cliente, teléfono, ID o ciudad...">
+
+    </div>
+
+
+    <div
+        id="resultado-busqueda"
+        class="resultado-busqueda">
+    </div>
+
+
+    <!-- ==================================================
+         LISTA
+    ================================================== -->
+
+    <div id="lista-pedidos">
+
+        <div class="estado-cargando">
+
+            <h2>
+                ⏳ Cargando pedidos...
+            </h2>
+
+        </div>
+
+    </div>
+
+
+    <a
+        href="index.html"
+        class="volver-tienda">
+
+        ← VOLVER A GBO
+
+    </a>
+
+</section>
+
+
+<footer>
+
+    <p>
+        © 2026 GOLBEYONE — GBO
+    </p>
+
+    <p>
+        DRESS DIFFERENT.
+    </p>
+
+</footer>
+
+
+<script>
+
+
+// ======================================================
+// CONFIGURACIÓN
+// ======================================================
+
+const API_PEDIDOS =
+    "/api/pedidos";
+
+
+let pedidosActuales = [];
+
+
+// Guardamos los IDs que ya conocíamos.
+
+let idsPedidosConocidos =
+    new Set();
+
+
+// Primera carga.
+
+let primeraCarga = true;
+
+
+// Intervalo de actualización.
+
+let intervaloPedidos = null;
+
+
+// ======================================================
+// CARGAR PEDIDOS
+// ======================================================
+
+async function cargarPedidos(
+    mostrarCargando = false
+) {
+
+    const contenedor =
+        document.getElementById(
+            "lista-pedidos"
+        );
+
+
+    if (mostrarCargando) {
+
+        contenedor.innerHTML = `
+
+            <div class="estado-cargando">
+
+                <h2>
+                    ⏳ Actualizando pedidos...
+                </h2>
+
+            </div>
+
+        `;
+
+    }
+
+
+    try {
+
+        const respuesta =
+            await fetch(
+                API_PEDIDOS,
+                {
+                    method: "GET",
+                    cache: "no-store"
+                }
+            );
+
+
+        if (!respuesta.ok) {
+
+            throw new Error(
+                "El servidor respondió con error."
+            );
+
+        }
+
+
+        const pedidos =
+            await respuesta.json();
+
+
+        if (!Array.isArray(pedidos)) {
+
+            throw new Error(
+                "El servidor no devolvió una lista de pedidos."
+            );
+
+        }
+
+
+        // ==================================================
+        // DETECTAR PEDIDOS NUEVOS
+        // ==================================================
+
+        detectarPedidosNuevos(
+            pedidos
+        );
+
+
+        // ==================================================
+        // ASEGURAR ESTADO
+        // ==================================================
+
+        pedidos.forEach(
+            pedido => {
+
+                if (!pedido.estado) {
+
+                    pedido.estado = "Nuevo";
+
+                }
+
+            }
+        );
+
+
+        pedidosActuales =
+            [...pedidos].reverse();
+
+
+        actualizarEstadisticas(
+            pedidosActuales
+        );
+
+
+        mostrarPedidos(
+            pedidosActuales
+        );
+
+
+        primeraCarga = false;
+
+
+    } catch (error) {
+
+        console.error(
+            "Error cargando pedidos:",
+            error
+        );
+
+
+        if (
+            pedidosActuales.length === 0
+        ) {
+
+            contenedor.innerHTML = `
+
+                <div class="error-pedidos">
+
+                    <h2>
+                        ❌ No se pudieron cargar los pedidos
+                    </h2>
+
+                    <p>
+                        Comprueba que el servidor GBO
+                        esté funcionando.
+                    </p>
+
+                    <p>
+                        ${error.message}
+                    </p>
+
+                    <button
+                        class="boton-actualizar"
+                        onclick="cargarPedidos(true)">
+
+                        🔄 INTENTAR DE NUEVO
+
+                    </button>
+
+                </div>
+
+            `;
+
+        }
+
+    }
+
+}
+
+
+// ======================================================
+// DETECTAR PEDIDOS NUEVOS
+// ======================================================
+
+function detectarPedidosNuevos(
+    pedidos
+) {
+
+    const idsActuales =
+        new Set(
+            pedidos
+                .map(
+                    pedido => String(
+                        pedido.id || ""
+                    )
+                )
+                .filter(Boolean)
+        );
+
+
+    // Primera carga:
+    // simplemente aprendemos los IDs.
+
+    if (primeraCarga) {
+
+        idsPedidosConocidos =
+            idsActuales;
+
+        return;
+
+    }
+
+
+    const pedidosNuevos =
+        pedidos.filter(
+            pedido => {
+
+                const id =
+                    String(
+                        pedido.id || ""
+                    );
+
+                return (
+                    id &&
+                    !idsPedidosConocidos.has(id)
+                );
+
+            }
+        );
+
+
+    if (
+        pedidosNuevos.length > 0
+    ) {
+
+        const ultimo =
+            pedidosNuevos[
+                pedidosNuevos.length - 1
+            ];
+
+
+        mostrarNotificacion(
+            ultimo
+        );
+
+
+        reproducirSonido();
+
+
+        // Intentamos mostrar
+        // notificación del navegador.
+
+        mostrarNotificacionNavegador(
+            ultimo
+        );
+
+    }
+
+
+    idsPedidosConocidos =
+        idsActuales;
+
+}
+
+
+// ======================================================
+// NOTIFICACIÓN VISUAL
+// ======================================================
+
+function mostrarNotificacion(
+    pedido
+) {
+
+    const notificacion =
+        document.getElementById(
+            "notificacion-nuevo"
+        );
+
+
+    const texto =
+        document.getElementById(
+            "texto-notificacion"
+        );
+
+
+    const cliente =
+        pedido.cliente ||
+        "Cliente";
+
+
+    const total =
+        Number(
+            pedido.total || 0
+        ).toLocaleString(
+            "es-DO"
+        );
+
+
+    texto.textContent =
+        `Pedido de ${cliente} — RD$${total}`;
+
+
+    notificacion.classList.add(
+        "visible"
+    );
+
+
+    setTimeout(
+        () => {
+
+            cerrarNotificacion();
+
+        },
+        8000
+    );
+
+}
+
+
+// ======================================================
+// CERRAR NOTIFICACIÓN
+// ======================================================
+
+function cerrarNotificacion() {
+
+    const notificacion =
+        document.getElementById(
+            "notificacion-nuevo"
+        );
+
+
+    notificacion.classList.remove(
+        "visible"
+    );
+
+}
+
+
+// ======================================================
+// SONIDO
+// ======================================================
+
+function reproducirSonido() {
+
+    try {
+
+        const contexto =
+            new (
+                window.AudioContext ||
+                window.webkitAudioContext
+            )();
+
+
+        const oscilador =
+            contexto.createOscillator();
+
+
+        const ganancia =
+            contexto.createGain();
+
+
+        oscilador.type =
+            "sine";
+
+
+        oscilador.frequency.value =
+            880;
+
+
+        ganancia.gain.value =
+            0.08;
+
+
+        oscilador.connect(
+            ganancia
+        );
+
+
+        ganancia.connect(
+            contexto.destination
+        );
+
+
+        oscilador.start();
+
+
+        oscilador.stop(
+            contexto.currentTime + 0.18
+        );
+
+    } catch (error) {
+
+        console.log(
+            "El navegador no permitió reproducir sonido."
+        );
+
+    }
+
+}
+
+
+// ======================================================
+// NOTIFICACIÓN DEL NAVEGADOR
+// ======================================================
+
+function mostrarNotificacionNavegador(
+    pedido
+) {
+
+    if (
+        !("Notification" in window)
+    ) {
+
+        return;
+
+    }
+
+
+    if (
+        Notification.permission ===
+        "granted"
+    ) {
+
+        new Notification(
+            "🔔 GOLBEYONE — Nuevo pedido",
+            {
+                body:
+                    `Pedido de ${
+                        pedido.cliente ||
+                        "Cliente"
+                    }`
+            }
+        );
+
+    }
+
+}
+
+
+// ======================================================
+// PEDIR PERMISO DE NOTIFICACIONES
+// ======================================================
+
+function solicitarPermisoNotificaciones() {
+
+    if (
+        !("Notification" in window)
+    ) {
+
+        return;
+
+    }
+
+
+    if (
+        Notification.permission ===
+        "default"
+    ) {
+
+        Notification.requestPermission()
+            .then(
+                permiso => {
+
+                    console.log(
+                        "Permiso de notificaciones:",
+                        permiso
+                    );
+
+                }
+            );
+
+    }
+
+}
+
+
+// ======================================================
+// ESTADÍSTICAS
+// ======================================================
+
+function actualizarEstadisticas(
+    pedidos
+) {
+
+    const contador =
+        document.getElementById(
+            "contador-pedidos"
+        );
+
+
+    const totalVentas =
+        document.getElementById(
+            "total-ventas"
+        );
+
+
+    const contadorNuevos =
+        document.getElementById(
+            "contador-nuevos"
+        );
+
+
+    contador.textContent =
+        pedidos.length;
+
+
+    let total = 0;
+
+
+    pedidos.forEach(
+        pedido => {
+
+            total +=
+                Number(
+                    pedido.total || 0
+                );
+
+        }
+    );
+
+
+    totalVentas.textContent =
+        "RD$" +
+        total.toLocaleString(
+            "es-DO"
+        );
+
+
+    actualizarEstadisticasEstados(
+        pedidos
+    );
+
+}
+
+
+// ======================================================
+// ESTADÍSTICAS DE ESTADOS
+// ======================================================
+
+function actualizarEstadisticasEstados(
+    pedidos
+) {
+
+    const cantidades = {
+
+        Nuevo: 0,
+
+        Confirmado: 0,
+
+        Preparando: 0,
+
+        Enviado: 0,
+
+        Entregado: 0
+
+    };
+
+
+    pedidos.forEach(
+        pedido => {
+
+            const estado =
+                pedido.estado ||
+                "Nuevo";
+
+
+            if (
+                cantidades[
+                    estado
+                ] !== undefined
+            ) {
+
+                cantidades[
+                    estado
+                ]++;
+
+            }
+
+        }
+    );
+
+
+    document.getElementById(
+        "estado-nuevo"
+    ).textContent =
+        cantidades.Nuevo;
+
+
+    document.getElementById(
+        "estado-confirmado"
+    ).textContent =
+        cantidades.Confirmado;
+
+
+    document.getElementById(
+        "estado-preparando"
+    ).textContent =
+        cantidades.Preparando;
+
+
+    document.getElementById(
+        "estado-enviado"
+    ).textContent =
+        cantidades.Enviado;
+
+
+    document.getElementById(
+        "estado-entregado"
+    ).textContent =
+        cantidades.Entregado;
+
+
+    document.getElementById(
+        "contador-nuevos"
+    ).textContent =
+        cantidades.Nuevo;
+
+}
+
+
+// ======================================================
+// MOSTRAR PEDIDOS
+// ======================================================
+
+function mostrarPedidos(
+    pedidos
+) {
+
+    const contenedor =
+        document.getElementById(
+            "lista-pedidos"
+        );
+
+
+    const resultado =
+        document.getElementById(
+            "resultado-busqueda"
+        );
+
+
+    contenedor.innerHTML = "";
+
+
+    if (!Array.isArray(pedidos)) {
+
+        contenedor.innerHTML = `
+
+            <div class="error-pedidos">
+
+                <h2>
+                    ❌ Respuesta incorrecta
+                </h2>
+
+                <p>
+                    El servidor no devolvió
+                    una lista de pedidos.
+                </p>
+
+            </div>
+
+        `;
+
+        return;
+
+    }
+
+
+    if (pedidos.length === 0) {
+
+        resultado.textContent = "";
+
+
+        contenedor.innerHTML = `
+
+            <div class="sin-pedidos">
+
+                <h2>
+                    📭 No hay pedidos todavía
+                </h2>
+
+                <p>
+                    Cuando llegue un pedido
+                    aparecerá aquí.
+                </p>
+
+            </div>
+
+        `;
+
+        return;
+
+    }
+
+
+    resultado.textContent =
+        `${pedidos.length} pedido(s) mostrado(s).`;
+
+
+    pedidos.forEach(
+        (pedido, indice) => {
+
+            const productos =
+                Array.isArray(
+                    pedido.productos
+                )
+                    ? pedido.productos
+                    : [];
+
+
+            const tarjeta =
+                document.createElement(
+                    "div"
+                );
+
+
+            tarjeta.className =
+                "pedido";
+
+
+            // ==================================================
+            // ESTADO
+            // ==================================================
+
+            const estadoActual =
+                pedido.estado ||
+                "Nuevo";
+
+
+            if (
+                estadoActual ===
+                "Nuevo"
+            ) {
+
+                tarjeta.classList.add(
+                    "nuevo-pedido"
+                );
+
+            }
+
+
+            // ==================================================
+            // CABECERA
+            // ==================================================
+
+            const cabecera =
+                document.createElement(
+                    "div"
+                );
+
+
+            cabecera.className =
+                "pedido-cabecera";
+
+
+            const ladoIzquierdo =
+                document.createElement(
+                    "div"
+                );
+
+
+            const titulo =
+                document.createElement(
+                    "h3"
+                );
+
+
+            titulo.textContent =
+                `🛍️ PEDIDO #${indice + 1}`;
+
+
+            ladoIzquierdo.appendChild(
+                titulo
+            );
+
+
+            if (pedido.id) {
+
+                const id =
+                    document.createElement(
+                        "p"
+                    );
+
+
+                id.className =
+                    "id-pedido";
+
+
+                id.textContent =
+                    `ID: ${pedido.id}`;
+
+
+                ladoIzquierdo.appendChild(
+                    id
+                );
+
+            }
+
+
+            const ladoDerecho =
+                document.createElement(
+                    "div"
+                );
+
+
+            ladoDerecho.className =
+                "fecha-pedido";
+
+
+            ladoDerecho.textContent =
+                pedido.fecha
+                    ? `📅 ${pedido.fecha}`
+                    : "📅 Fecha no indicada";
+
+
+            cabecera.appendChild(
+                ladoIzquierdo
+            );
+
+
+            cabecera.appendChild(
+                ladoDerecho
+            );
+
+
+            tarjeta.appendChild(
+                cabecera
+            );
+
+
+            // ==================================================
+            // SELECTOR DE ESTADO
+            // ==================================================
+
+            const zonaEstado =
+                document.createElement(
+                    "div"
+                );
+
+
+            zonaEstado.className =
+                "zona-estado";
+
+
+            const etiquetaEstado =
+                document.createElement(
+                    "label"
+                );
+
+
+            etiquetaEstado.textContent =
+                "📦 ESTADO DEL PEDIDO";
+
+
+            zonaEstado.appendChild(
+                etiquetaEstado
+            );
+
+
+            const selector =
+                document.createElement(
+                    "select"
+                );
+
+
+            selector.className =
+                "selector-estado";
+
+
+            const estados = [
+
+                "Nuevo",
+
+                "Confirmado",
+
+                "Preparando",
+
+                "Enviado",
+
+                "Entregado"
+
+            ];
+
+
+            estados.forEach(
+                estado => {
+
+                    const opcion =
+                        document.createElement(
+                            "option"
+                        );
+
+
+                    opcion.value =
+                        estado;
+
+
+                    opcion.textContent =
+                        estado;
+
+
+                    if (
+                        estado ===
+                        estadoActual
+                    ) {
+
+                        opcion.selected =
+                            true;
+
+                    }
+
+
+                    selector.appendChild(
+                        opcion
+                    );
+
+                }
+            );
+
+
+            selector.addEventListener(
+                "change",
+                function () {
+
+                    cambiarEstadoPedido(
+                        pedido.id,
+                        this.value
+                    );
+
+                }
+            );
+
+
+            zonaEstado.appendChild(
+                selector
+            );
+
+            // Indicador visual del estado actual
+            const progreso = document.createElement("div");
+            progreso.className = "progreso-pedido";
+
+            const pasos = ["Nuevo", "Confirmado", "Preparando", "Enviado", "Entregado"];
+            const indiceEstado = Math.max(0, pasos.indexOf(estadoActual));
+
+            pasos.forEach((paso, i) => {
+                const pasoDiv = document.createElement("div");
+                pasoDiv.className = "paso-estado";
+
+                if (i <= indiceEstado) {
+                    pasoDiv.classList.add("activo");
+                }
+
+                const punto = document.createElement("span");
+                punto.className = "punto-estado";
+                punto.textContent = i < indiceEstado ? "✓" : (i === indiceEstado ? "●" : "○");
+
+                const textoPaso = document.createElement("small");
+                textoPaso.textContent = paso;
+
+                pasoDiv.appendChild(punto);
+                pasoDiv.appendChild(textoPaso);
+                progreso.appendChild(pasoDiv);
+            });
+
+            zonaEstado.appendChild(progreso);
+
+            tarjeta.appendChild(
+                zonaEstado
+            );
+
+
+            // ==================================================
+            // INFORMACIÓN CLIENTE
+            // ==================================================
+
+            const informacion =
+                document.createElement(
+                    "div"
+                );
+
+
+            informacion.className =
+                "informacion-cliente";
+
+
+            agregarDatoCliente(
+                informacion,
+                "👤 Cliente",
+                pedido.cliente
+            );
+
+
+            agregarDatoCliente(
+                informacion,
+                "📞 Teléfono",
+                pedido.telefono
+            );
+
+
+            agregarDatoCliente(
+                informacion,
+                "📍 Dirección",
+                pedido.direccion
+            );
+
+
+            agregarDatoCliente(
+                informacion,
+                "🏙️ Ciudad",
+                pedido.ciudad
+            );
+
+
+            if (
+                pedido.instrucciones ||
+                pedido.indicaciones
+            ) {
+
+                agregarDatoCliente(
+                    informacion,
+                    "📝 Indicaciones",
+                    pedido.instrucciones ||
+                    pedido.indicaciones
+                );
+
+            }
+
+
+            tarjeta.appendChild(
+                informacion
+            );
+
+
+            // ==================================================
+            // PRODUCTOS
+            // ==================================================
+
+            const productosDiv =
+                document.createElement(
+                    "div"
+                );
+
+
+            productosDiv.className =
+                "productos-pedido";
+
+
+            const tituloProductos =
+                document.createElement(
+                    "strong"
+                );
+
+
+            tituloProductos.className =
+                "titulo-productos";
+
+
+            tituloProductos.textContent =
+                "🛍️ PRODUCTOS";
+
+
+            productosDiv.appendChild(
+                tituloProductos
+            );
+
+
+            if (productos.length === 0) {
+
+                const sinProductos =
+                    document.createElement(
+                        "p"
+                    );
+
+
+                sinProductos.textContent =
+                    "No hay productos registrados.";
+
+
+                productosDiv.appendChild(
+                    sinProductos
+                );
+
+            } else {
+
+                productos.forEach(
+                    producto => {
+
+                        const fila =
+                            document.createElement(
+                                "div"
+                            );
+
+
+                        fila.className =
+                            "producto-pedido";
+
+
+                        const precio =
+                            Number(
+                                producto.precio
+                            ) || 0;
+
+
+                        const cantidad =
+                            Number(
+                                producto.cantidad
+                            ) || 0;
+
+
+                        const subtotal =
+                            precio *
+                            cantidad;
+
+
+                        const nombre =
+                            document.createElement(
+                                "span"
+                            );
+
+
+                        nombre.className =
+                            "producto-nombre";
+
+
+                        let texto =
+                            `${producto.nombre || "Producto"} × ${cantidad}`;
+
+
+                        if (
+                            producto.talla &&
+                            producto.talla !==
+                            "Talla única"
+                        ) {
+
+                            texto +=
+                                ` — Talla ${producto.talla}`;
+
+                        }
+
+
+                        nombre.textContent =
+                            texto;
+
+
+                        const precioTexto =
+                            document.createElement(
+                                "span"
+                            );
+
+
+                        precioTexto.className =
+                            "producto-precio";
+
+
+                        precioTexto.textContent =
+                            `RD$${subtotal.toLocaleString("es-DO")}`;
+
+
+                        fila.appendChild(
+                            nombre
+                        );
+
+
+                        fila.appendChild(
+                            precioTexto
+                        );
+
+
+                        productosDiv.appendChild(
+                            fila
+                        );
+
+                    }
+                );
+
+            }
+
+
+            tarjeta.appendChild(
+                productosDiv
+            );
+
+
+            // ==================================================
+            // TOTAL
+            // ==================================================
+
+            const total =
+                document.createElement(
+                    "div"
+                );
+
+
+            total.className =
+                "total-pedido";
+
+
+            total.textContent =
+                `TOTAL: RD$${Number(
+                    pedido.total || 0
+                ).toLocaleString("es-DO")}`;
+
+
+            tarjeta.appendChild(
+                total
+            );
+
+
+            // ==================================================
+            // ELIMINAR
+            // ==================================================
+
+            const boton =
+                document.createElement(
+                    "button"
+                );
+
+
+            boton.className =
+                "boton-eliminar";
+
+
+            boton.textContent =
+                "🗑️ ELIMINAR PEDIDO";
+
+
+            boton.dataset.id =
+                pedido.id || "";
+
+
+            boton.addEventListener(
+                "click",
+                function () {
+
+                    eliminarPedido(
+                        this.dataset.id
+                    );
+
+                }
+            );
+
+
+            tarjeta.appendChild(
+                boton
+            );
+
+
+            contenedor.appendChild(
+                tarjeta
+            );
+
+        }
+    );
+
+}
+
+
+// ======================================================
+// AGREGAR DATO CLIENTE
+// ======================================================
+
+function agregarDatoCliente(
+    contenedor,
+    nombre,
+    valor
+) {
+
+    const dato =
+        document.createElement(
+            "div"
+        );
+
+
+    dato.className =
+        "dato-cliente";
+
+
+    const strong =
+        document.createElement(
+            "strong"
+        );
+
+
+    strong.textContent =
+        nombre;
+
+
+    const texto =
+        document.createTextNode(
+            valor || "No indicado"
+        );
+
+
+    dato.appendChild(
+        strong
+    );
+
+
+    dato.appendChild(
+        texto
+    );
+
+
+    contenedor.appendChild(
+        dato
+    );
+
+}
+
+
+// ======================================================
+// CAMBIAR ESTADO
+// ======================================================
+
+async function cambiarEstadoPedido(
+    id,
+    estado
+) {
+
+    if (!id) {
+
+        alert(
+            "❌ Este pedido no tiene un ID válido."
+        );
+
+        return;
+
+    }
+
+
+    try {
+
+        const respuesta =
+            await fetch(
+                API_PEDIDOS,
+                {
+
+                    method: "PATCH",
+
+                    headers: {
+
+                        "Content-Type":
+                            "application/json"
+
+                    },
+
+                    body:
+                        JSON.stringify({
+
+                            id: id,
+
+                            estado: estado
+
+                        })
+
+                }
+            );
+
+
+        const resultado =
+            await respuesta.json();
+
+
+        if (!respuesta.ok) {
+
+            throw new Error(
+                resultado.error ||
+                "No se pudo actualizar el estado."
+            );
+
+        }
+
+
+        // Actualizamos la copia local.
+
+        const pedido =
+            pedidosActuales.find(
+                elemento =>
+                    String(
+                        elemento.id
+                    ) === String(id)
+            );
+
+
+        if (pedido) {
+
+            pedido.estado =
+                estado;
+
+        }
+
+
+        actualizarEstadisticas(
+            pedidosActuales
+        );
+
+
+        // Volvemos a dibujar
+        // respetando el buscador.
+
+        aplicarBusqueda();
+
+
+        console.log(
+            `Estado actualizado: ${id} → ${estado}`
+        );
+
+
+    } catch (error) {
+
+        console.error(
+            "Error cambiando estado:",
+            error
+        );
+
+
+        alert(
+            "❌ No se pudo cambiar el estado.\n\n" +
+            error.message
+        );
+
+
+        // Recuperar información
+        // real desde el servidor.
+
+        cargarPedidos();
+
+    }
+
+}
+
+
+// ======================================================
+// BUSCADOR
+// ======================================================
+
+document
+    .getElementById("buscador")
+    .addEventListener(
+        "input",
+        aplicarBusqueda
+    );
+
+
+function aplicarBusqueda() {
+
+    const input =
+        document.getElementById(
+            "buscador"
+        );
+
+
+    const texto =
+        input.value
+            .trim()
+            .toLowerCase();
+
+
+    if (texto === "") {
+
+        mostrarPedidos(
+            pedidosActuales
+        );
+
+        return;
+
+    }
+
+
+    const filtrados =
+        pedidosActuales.filter(
+            pedido => {
+
+                const contenido = [
+
+                    pedido.id,
+
+                    pedido.cliente,
+
+                    pedido.telefono,
+
+                    pedido.direccion,
+
+                    pedido.ciudad,
+
+                    pedido.fecha,
+
+                    pedido.estado
+
+                ]
+                    .filter(Boolean)
+                    .join(" ")
+                    .toLowerCase();
+
+
+                return contenido.includes(
+                    texto
+                );
+
+            }
+        );
+
+
+    mostrarPedidos(
+        filtrados
+    );
+
+}
+
+
+// ======================================================
+// ELIMINAR PEDIDO
+// ======================================================
+
+async function eliminarPedido(
+    id
+) {
+
+    console.log(
+        "🗑️ Intentando eliminar:",
+        id
+    );
+
+
+    if (!id) {
+
+        alert(
+            "❌ Este pedido no tiene un ID válido."
+        );
+
+        return;
+
+    }
+
+
+    const confirmar =
+        confirm(
+            `¿Seguro que quieres eliminar el pedido ${id}?`
+        );
+
+
+    if (!confirmar) {
+
+        return;
+
+    }
+
+
+    try {
+
+        const respuesta =
+            await fetch(
+                API_PEDIDOS,
+                {
+
+                    method: "DELETE",
+
+                    headers: {
+
+                        "Content-Type":
+                            "application/json"
+
+                    },
+
+                    body:
+                        JSON.stringify({
+                            id: id
+                        })
+
+                }
+            );
+
+
+        const resultado =
+            await respuesta.json();
+
+
+        if (!respuesta.ok) {
+
+            throw new Error(
+                resultado.error ||
+                "No se pudo eliminar el pedido."
+            );
+
+        }
+
+
+        alert(
+            "✅ Pedido eliminado correctamente."
+        );
+
+
+        // Eliminamos el ID de la memoria.
+
+        idsPedidosConocidos.delete(
+            String(id)
+        );
+
+
+        await cargarPedidos();
+
+
+    } catch (error) {
+
+        console.error(
+            "❌ Error eliminando:",
+            error
+        );
+
+
+        alert(
+            "❌ No se pudo eliminar el pedido.\n\n" +
+            error.message
+        );
+
+    }
+
+}
+
+
+// ======================================================
+// SOLICITAR NOTIFICACIONES
+// ======================================================
+
+solicitarPermisoNotificaciones();
+
+
+// ======================================================
+// INICIAR
+// ======================================================
+
+cargarPedidos();
+
+
+// ======================================================
+// ACTUALIZACIÓN AUTOMÁTICA
+// ======================================================
+
+intervaloPedidos =
+    setInterval(
+        () => {
+
+            cargarPedidos();
+
+        },
+        5000
+    );
+
+
+</script>
+
+
+</body>
+
+</html>
+

@@ -1,0 +1,386 @@
+
+
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0">
+
+    <title>GOLBEYONE | Buscar</title>
+
+    <link
+        rel="stylesheet"
+        href="style.css">
+
+</head>
+
+<body>
+
+
+<!-- =========================
+     MENÚ PRINCIPAL
+========================= -->
+
+<nav class="navbar">
+
+    <a href="index.html" class="logo">
+        GBO
+    </a>
+
+    <div class="nav-links">
+
+        <a href="camisas.html">
+            CAMISAS
+        </a>
+
+        <a href="pantalones.html">
+            PANTALONES
+        </a>
+
+        <a href="gorras.html">
+            GORRAS
+        </a>
+
+        <a href="buscar.html">
+            🔎 BUSCAR
+        </a>
+
+        <a href="carrito.html">
+            🛒 CARRITO
+        </a>
+
+    </div>
+
+</nav>
+
+
+<!-- =========================
+     ENCABEZADO
+========================= -->
+
+<header>
+
+    <h1>
+        GOLBEYONE
+    </h1>
+
+    <h2>
+        BUSCADOR GBO
+    </h2>
+
+    <p>
+        DRESS DIFFERENT.
+    </p>
+
+</header>
+
+
+<section class="coleccion-pagina">
+
+    <h2>
+        🔎 BUSCAR PRODUCTOS
+    </h2>
+
+    <p>
+        Encuentra tu próximo outfit GBO.
+    </p>
+
+
+    <div class="buscador">
+
+        <input
+            type="text"
+            id="busqueda"
+            placeholder="Busca camisas, pantalones o gorras..."
+            autocomplete="off">
+
+        <button onclick="buscarProductos()">
+            BUSCAR
+        </button>
+
+    </div>
+
+
+    <p id="mensaje"></p>
+
+
+    <div
+        class="productos"
+        id="resultados">
+    </div>
+
+
+    <a
+        href="index.html"
+        class="volver">
+
+        ← VOLVER A GBO
+
+    </a>
+
+</section>
+
+
+<footer>
+
+    <p>
+        © 2026 GOLBEYONE — GBO
+    </p>
+
+    <p>
+        DRESS DIFFERENT.
+    </p>
+
+</footer>
+
+
+<script>
+
+const productos = [];
+
+
+// =============================
+// CAMISAS
+// =============================
+
+for (let i = 1; i <= 20; i++) {
+
+    productos.push({
+
+        nombre: `CAMISA GBO #${i}`,
+
+        tipo: "camisa",
+
+        precio: "RD$1,290",
+
+        imagen: `camisa-${i}.jpg`
+
+    });
+
+}
+
+
+// =============================
+// PANTALONES
+// =============================
+
+for (let i = 1; i <= 20; i++) {
+
+    productos.push({
+
+        nombre: `PANTALÓN GBO #${i}`,
+
+        tipo: "pantalon",
+
+        precio: "RD$2,490",
+
+        imagen: `pantalon-${i}.jpg`
+
+    });
+
+}
+
+
+// =============================
+// GORRAS
+// =============================
+
+for (let i = 1; i <= 20; i++) {
+
+    productos.push({
+
+        nombre: `GORRA GBO #${i}`,
+
+        tipo: "gorra",
+
+        precio: "RD$1,190",
+
+        imagen: `gorra-${i}.jpg`
+
+    });
+
+}
+
+
+// =============================
+// NORMALIZAR TEXTO
+// =============================
+
+function normalizarTexto(texto) {
+
+    return texto
+        .toLowerCase()
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .trim();
+
+}
+
+
+// =============================
+// BUSCAR
+// =============================
+
+function buscarProductos() {
+
+    const textoOriginal =
+        document
+            .getElementById("busqueda")
+            .value;
+
+    const texto =
+        normalizarTexto(textoOriginal);
+
+    const resultados =
+        document.getElementById("resultados");
+
+    const mensaje =
+        document.getElementById("mensaje");
+
+
+    resultados.innerHTML = "";
+
+
+    if (texto === "") {
+
+        mensaje.textContent =
+            "Escribe algo para buscar.";
+
+        return;
+
+    }
+
+
+    // =============================
+    // ALIAS DE BÚSQUEDA
+    // =============================
+
+    let busqueda = texto;
+
+    if (texto === "camisas") {
+
+        busqueda = "camisa";
+
+    }
+
+    if (texto === "pantalones") {
+
+        busqueda = "pantalon";
+
+    }
+
+    if (texto === "gorras") {
+
+        busqueda = "gorra";
+
+    }
+
+
+    // =============================
+    // FILTRAR PRODUCTOS
+    // =============================
+
+    const encontrados =
+        productos.filter(producto => {
+
+            const nombre =
+                normalizarTexto(producto.nombre);
+
+            return nombre.includes(busqueda);
+
+        });
+
+
+    // =============================
+    // SIN RESULTADOS
+    // =============================
+
+    if (encontrados.length === 0) {
+
+        mensaje.textContent =
+            "No encontramos productos con esa búsqueda.";
+
+        return;
+
+    }
+
+
+    // =============================
+    // RESULTADOS ENCONTRADOS
+    // =============================
+
+    mensaje.textContent =
+        `${encontrados.length} producto(s) encontrado(s).`;
+
+
+    encontrados.forEach(producto => {
+
+        const numero =
+            producto.nombre.match(/\d+/)[0];
+
+
+        const tarjeta =
+            document.createElement("div");
+
+        tarjeta.className = "card";
+
+
+        tarjeta.innerHTML = `
+
+            <img
+                src="${producto.imagen}"
+                alt="${producto.nombre}">
+
+            <h3>
+                ${producto.nombre}
+            </h3>
+
+            <p>
+                ${producto.precio}
+            </p>
+
+            <a
+                href="producto.html?tipo=${producto.tipo}&producto=${numero}"
+                class="boton-compra">
+
+                COMPRAR
+
+            </a>
+
+        `;
+
+
+        resultados.appendChild(tarjeta);
+
+    });
+
+}
+
+
+// =============================
+// ENTER PARA BUSCAR
+// =============================
+
+document
+    .getElementById("busqueda")
+    .addEventListener("keydown", function(event) {
+
+        if (event.key === "Enter") {
+
+            buscarProductos();
+
+        }
+
+    });
+
+</script>
+
+
+</body>
+
+</html>

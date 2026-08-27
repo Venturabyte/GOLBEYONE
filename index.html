@@ -1,0 +1,222 @@
+
+
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>GOLBEYONE | GBO</title>
+
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+    <!-- =========================
+         NAVEGACIÓN GBO
+    ========================== -->
+
+    <nav class="navbar">
+
+        <a href="index.html" class="logo">
+            GBO
+        </a>
+
+        <div class="nav-links">
+
+            <a href="camisas.html">
+                CAMISAS
+            </a>
+
+            <a href="pantalones.html">
+                PANTALONES
+            </a>
+
+            <a href="gorras.html">
+                GORRAS
+            </a>
+
+            <a href="buscar.html">
+                🔎 BUSCAR
+            </a>
+
+            <a href="carrito.html">
+                🛒 CARRITO
+            </a>
+
+        </div>
+
+    </nav>
+
+
+    <!-- =========================
+         HEADER
+    ========================== -->
+
+    <header>
+
+        <h1>GOLBEYONE</h1>
+
+        <h2>GBO</h2>
+
+        <p>DRESS DIFFERENT.</p>
+
+    </header>
+
+
+    <!-- =========================
+         BANNER
+    ========================== -->
+
+    <section class="banner">
+
+        <h2>GBO — NEW DROP</h2>
+
+        <p>
+            La nueva colección ya está aquí.
+        </p>
+
+
+        <div class="botones">
+
+            <a href="#camisas">
+                CAMISAS
+            </a>
+
+            <a href="#pantalones">
+                PANTALONES
+            </a>
+
+            <a href="#gorras">
+                GORRAS
+            </a>
+
+        </div>
+
+
+        <div class="buscador-inicio">
+
+            <a href="buscar.html">
+                🔎 BUSCAR PRODUCTOS
+            </a>
+
+        </div>
+
+    </section>
+
+
+    <hr>
+
+
+    <!-- =========================
+         COLECCIÓN
+    ========================== -->
+
+    <section class="coleccion">
+
+        <div class="producto" id="camisas">
+
+            <h2>CAMISAS</h2>
+
+            RD$1,290
+
+            <p>
+                Diseños exclusivos GBO.
+            </p>
+
+            <a href="camisas.html">
+                VER COLECCIÓN
+            </a>
+
+        </div>
+
+
+        <div class="producto" id="pantalones">
+
+            <h2>PANTALONES</h2>
+
+            RD$2,490
+
+            <p>
+                Streetwear. Comodidad. Actitud.
+            </p>
+
+            <a href="pantalones.html">
+                VER COLECCIÓN
+            </a>
+
+        </div>
+
+
+        <div class="producto" id="gorras">
+
+            <h2>GORRAS</h2>
+
+            RD$1,190
+
+            <p>
+                Completa tu estilo GBO.
+            </p>
+
+            <a href="gorras.html">
+                VER COLECCIÓN
+            </a>
+
+        </div>
+
+    </section>
+
+
+    <!-- =========================
+         FOOTER
+    ========================== -->
+
+    <footer>
+
+        <p>
+            © 2026 GOLBEYONE — GBO
+        </p>
+
+        <p>
+            DRESS DIFFERENT.
+        </p>
+
+    </footer>
+
+
+    <!-- =========================
+         FONDO ALEATORIO
+    ========================== -->
+
+    <script>
+
+        const fondos = [
+            "fondo-1",
+            "fondo-2",
+            "fondo-3",
+            "fondo-4",
+            "fondo-5"
+        ];
+
+
+        const fondoAleatorio =
+            fondos[
+                Math.floor(
+                    Math.random() * fondos.length
+                )
+            ];
+
+
+        document.body.classList.add(
+            fondoAleatorio
+        );
+
+    </script>
+
+
+</body>
+
+</html>
+
