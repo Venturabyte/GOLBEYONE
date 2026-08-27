@@ -1,0 +1,817 @@
+
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0">
+
+    <title>GOLBEYONE | Producto</title>
+
+    <link rel="stylesheet" href="style.css">
+
+</head>
+
+<body>
+
+
+<!-- =========================
+     MENÚ PRINCIPAL
+========================= -->
+
+<nav class="navbar">
+
+    <a href="index.html" class="logo">
+        GBO
+    </a>
+
+    <div class="nav-links">
+
+        <a href="camisas.html">
+            CAMISAS
+        </a>
+
+        <a href="pantalones.html">
+            PANTALONES
+        </a>
+
+        <a href="gorras.html">
+            GORRAS
+        </a>
+
+        <a href="buscar.html">
+            🔎 BUSCAR
+        </a>
+
+        <a href="carrito.html">
+            🛒 CARRITO
+        </a>
+
+    </div>
+
+</nav>
+
+
+<header>
+
+    <h1>
+        GOLBEYONE
+    </h1>
+
+    <p>
+        DRESS DIFFERENT.
+    </p>
+
+</header>
+
+
+<main class="producto-detalle">
+
+
+    <!-- =========================
+         IMAGEN DEL PRODUCTO
+    ========================== -->
+
+    <div class="producto-imagen">
+
+        <img
+            id="imagen-producto"
+            src="camisa-1.jpg"
+            alt="Producto GOLBEYONE">
+
+    </div>
+
+
+    <!-- =========================
+         INFORMACIÓN
+    ========================== -->
+
+    <div class="producto-info">
+
+        <p
+            id="categoria-producto"
+            class="categoria-producto">
+        </p>
+
+
+        <h2 id="nombre-producto">
+            CAMISA GBO #1
+        </h2>
+
+
+        <p
+            id="precio-producto"
+            class="precio">
+
+            RD$1,290
+
+        </p>
+
+
+        <!-- DISPONIBILIDAD -->
+
+        <p
+            id="disponibilidad-producto"
+            class="disponibilidad-producto">
+        </p>
+
+
+        <!-- =========================
+             TALLA
+        ========================== -->
+
+        <label for="talla">
+            Talla:
+        </label>
+
+
+        <select id="talla">
+
+            <option value="">
+                Selecciona una talla
+            </option>
+
+        </select>
+
+
+        <!-- =========================
+             CANTIDAD
+        ========================== -->
+
+        <label for="cantidad">
+            Cantidad:
+        </label>
+
+
+        <div class="cantidad-producto">
+
+            <button
+                type="button"
+                onclick="cambiarCantidad(-1)">
+
+                −
+
+            </button>
+
+
+            <input
+                type="number"
+                id="cantidad"
+                min="1"
+                value="1">
+
+
+            <button
+                type="button"
+                onclick="cambiarCantidad(1)">
+
+                +
+
+            </button>
+
+        </div>
+
+
+        <!-- =========================
+             AGREGAR AL CARRITO
+        ========================== -->
+
+        <button
+            class="boton-compra"
+            onclick="confirmarCompra()">
+
+            AGREGAR AL CARRITO 🛒
+
+        </button>
+
+
+        <a
+            href="carrito.html"
+            class="volver">
+
+            🛒 VER CARRITO
+
+        </a>
+
+    </div>
+
+</main>
+
+
+<!-- =========================
+     POPUP
+========================== -->
+
+<div
+    id="fondo-popup"
+    class="fondo-popup">
+
+
+    <div class="popup-pedido">
+
+
+        <button
+            class="cerrar-popup"
+            onclick="cerrarPopup()">
+
+            ×
+
+        </button>
+
+
+        <img
+            id="popup-imagen"
+            src="camisa-1.jpg"
+            alt="Producto">
+
+
+        <h2>
+            PRODUCTO AGREGADO
+        </h2>
+
+
+        <p id="popup-producto"></p>
+
+        <p id="popup-talla"></p>
+
+        <p id="popup-cantidad"></p>
+
+
+        <div class="linea-popup"></div>
+
+
+        <p
+            id="popup-total"
+            class="popup-total">
+        </p>
+
+
+        <button
+            class="boton-final"
+            onclick="irAlCarrito()">
+
+            IR AL CARRITO 🛒
+
+        </button>
+
+    </div>
+
+</div>
+
+
+<script>
+
+/* =====================================================
+   CATÁLOGO GBO
+===================================================== */
+
+const catalogo = {
+
+    camisa: {
+
+        nombre: "CAMISA GBO",
+
+        precio: 1290,
+
+        imagen: "camisa-",
+
+        cantidad: 20
+
+    },
+
+
+    pantalon: {
+
+        nombre: "PANTALÓN GBO",
+
+        precio: 2490,
+
+        imagen: "pantalon-",
+
+        cantidad: 20
+
+    },
+
+
+    gorra: {
+
+        nombre: "GORRA GBO",
+
+        precio: 1190,
+
+        imagen: "gorra-",
+
+        cantidad: 20
+
+    }
+
+};
+
+
+/* =====================================================
+   LEER URL
+===================================================== */
+
+const parametros =
+    new URLSearchParams(
+        window.location.search
+    );
+
+
+let tipo =
+    parametros.get("tipo");
+
+
+let numero =
+    parametros.get("producto");
+
+
+const camisaAntigua =
+    parametros.get("camisa");
+
+
+if (!tipo) {
+
+    tipo = "camisa";
+
+}
+
+
+if (!numero) {
+
+    numero =
+        camisaAntigua || "1";
+
+}
+
+
+/* =====================================================
+   VALIDAR PRODUCTO
+===================================================== */
+
+if (!catalogo[tipo]) {
+
+    tipo = "camisa";
+
+    numero = "1";
+
+}
+
+
+const productoFinal =
+    catalogo[tipo];
+
+
+/* =====================================================
+   ELEMENTOS
+===================================================== */
+
+const imagen =
+    document.getElementById(
+        "imagen-producto"
+    );
+
+
+const nombre =
+    document.getElementById(
+        "nombre-producto"
+    );
+
+
+const precioTexto =
+    document.getElementById(
+        "precio-producto"
+    );
+
+
+const categoria =
+    document.getElementById(
+        "categoria-producto"
+    );
+
+
+const talla =
+    document.getElementById(
+        "talla"
+    );
+
+
+const cantidadInput =
+    document.getElementById(
+        "cantidad"
+    );
+
+
+const disponibilidad =
+    document.getElementById(
+        "disponibilidad-producto"
+    );
+
+
+/* =====================================================
+   DATOS DEL PRODUCTO
+===================================================== */
+
+imagen.src =
+    productoFinal.imagen +
+    numero +
+    ".jpg";
+
+
+imagen.alt =
+    productoFinal.nombre +
+    " #" +
+    numero;
+
+
+nombre.textContent =
+    productoFinal.nombre +
+    " #" +
+    numero;
+
+
+precioTexto.textContent =
+    "RD$" +
+    productoFinal.precio.toLocaleString();
+
+
+categoria.textContent =
+    tipo.toUpperCase();
+
+
+/* =====================================================
+   DISPONIBILIDAD
+===================================================== */
+
+if (productoFinal.cantidad > 5) {
+
+    disponibilidad.textContent =
+        "● DISPONIBLE";
+
+} else if (productoFinal.cantidad > 0) {
+
+    disponibilidad.textContent =
+        "⚠️ ÚLTIMAS UNIDADES";
+
+} else {
+
+    disponibilidad.textContent =
+        "AGOTADO";
+
+}
+
+
+/* =====================================================
+   TALLAS
+===================================================== */
+
+if (
+    tipo === "camisa" ||
+    tipo === "pantalon"
+) {
+
+    talla.innerHTML = `
+
+        <option value="">
+            Selecciona una talla
+        </option>
+
+        <option value="S">
+            S
+        </option>
+
+        <option value="M">
+            M
+        </option>
+
+        <option value="L">
+            L
+        </option>
+
+        <option value="XL">
+            XL
+        </option>
+
+    `;
+
+}
+
+
+else if (tipo === "gorra") {
+
+    talla.innerHTML = `
+
+        <option value="">
+            Selecciona una talla
+        </option>
+
+        <option value="Única">
+            Talla única
+        </option>
+
+    `;
+
+}
+
+
+/* =====================================================
+   CANTIDAD
+===================================================== */
+
+function cambiarCantidad(cambio) {
+
+    let cantidad =
+        Number(
+            cantidadInput.value
+        );
+
+
+    if (
+        !Number.isInteger(cantidad) ||
+        cantidad < 1
+    ) {
+
+        cantidad = 1;
+
+    }
+
+
+    cantidad += cambio;
+
+
+    if (
+        cantidad < 1
+    ) {
+
+        cantidad = 1;
+
+    }
+
+
+    if (
+        cantidad >
+        productoFinal.cantidad
+    ) {
+
+        cantidad =
+            productoFinal.cantidad;
+
+    }
+
+
+    cantidadInput.value =
+        cantidad;
+
+}
+
+
+/* =====================================================
+   VALIDAR CANTIDAD ESCRITA
+===================================================== */
+
+cantidadInput.addEventListener(
+    "input",
+    function () {
+
+        let cantidad =
+            Number(
+                cantidadInput.value
+            );
+
+
+        if (
+            cantidad < 1 ||
+            !Number.isInteger(cantidad)
+        ) {
+
+            cantidad = 1;
+
+        }
+
+
+        if (
+            cantidad >
+            productoFinal.cantidad
+        ) {
+
+            cantidad =
+                productoFinal.cantidad;
+
+        }
+
+
+        cantidadInput.value =
+            cantidad;
+
+    }
+);
+
+
+/* =====================================================
+   AGREGAR AL CARRITO
+===================================================== */
+
+function confirmarCompra() {
+
+
+    if (
+        productoFinal.cantidad <= 0
+    ) {
+
+        alert(
+            "❌ Este producto está agotado."
+        );
+
+        return;
+
+    }
+
+
+    const tallaSeleccionada =
+        talla.value;
+
+
+    if (
+        tallaSeleccionada === ""
+    ) {
+
+        alert(
+            "⚠️ Selecciona una talla primero."
+        );
+
+        return;
+
+    }
+
+
+    const cantidad =
+        Number(
+            cantidadInput.value
+        );
+
+
+    if (
+        cantidad < 1 ||
+        !Number.isInteger(cantidad)
+    ) {
+
+        alert(
+            "⚠️ La cantidad debe ser 1 o más."
+        );
+
+        cantidadInput.value = 1;
+
+        return;
+
+    }
+
+
+    if (
+        cantidad >
+        productoFinal.cantidad
+    ) {
+
+        alert(
+            "⚠️ Solo quedan " +
+            productoFinal.cantidad +
+            " unidades disponibles."
+        );
+
+        cantidadInput.value =
+            productoFinal.cantidad;
+
+        return;
+
+    }
+
+
+    const precio =
+        productoFinal.precio;
+
+
+    const total =
+        precio *
+        cantidad;
+
+
+    let carrito =
+        JSON.parse(
+            localStorage.getItem(
+                "carritoGBO"
+            )
+        ) || [];
+
+
+    const productoCarrito = {
+
+        nombre:
+            nombre.textContent,
+
+        imagen:
+            imagen.src,
+
+        precio:
+            precio,
+
+        talla:
+            tallaSeleccionada,
+
+        cantidad:
+            cantidad
+
+    };
+
+
+    carrito.push(
+        productoCarrito
+    );
+
+
+    localStorage.setItem(
+        "carritoGBO",
+        JSON.stringify(carrito)
+    );
+
+
+    /* =================================================
+       POPUP
+    ================================================= */
+
+    document.getElementById(
+        "popup-imagen"
+    ).src =
+        imagen.src;
+
+
+    document.getElementById(
+        "popup-producto"
+    ).textContent =
+        "🛍️ " +
+        nombre.textContent;
+
+
+    document.getElementById(
+        "popup-talla"
+    ).textContent =
+        "📏 Talla: " +
+        tallaSeleccionada;
+
+
+    document.getElementById(
+        "popup-cantidad"
+    ).textContent =
+        "🔢 Cantidad: " +
+        cantidad;
+
+
+    document.getElementById(
+        "popup-total"
+    ).textContent =
+        "TOTAL: RD$" +
+        total.toLocaleString();
+
+
+    document.getElementById(
+        "fondo-popup"
+    ).classList.add(
+        "mostrar"
+    );
+
+}
+
+
+/* =====================================================
+   CERRAR POPUP
+===================================================== */
+
+function cerrarPopup() {
+
+    document.getElementById(
+        "fondo-popup"
+    ).classList.remove(
+        "mostrar"
+    );
+
+}
+
+
+/* =====================================================
+   IR AL CARRITO
+===================================================== */
+
+function irAlCarrito() {
+
+    window.location.href =
+        "carrito.html";
+
+}
+
+</script>
+
+</body>
+
+</html>

@@ -1,0 +1,1253 @@
+
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0">
+
+    <title>GOLBEYONE | Carrito</title>
+
+    <link rel="stylesheet" href="style.css">
+
+    <style>
+
+        .carrito-pagina {
+            width: min(1100px, 92%);
+            margin: 50px auto;
+        }
+
+        .carrito-pagina > h2 {
+            text-align: center;
+            font-size: 2.2rem;
+            margin-bottom: 35px;
+            letter-spacing: 2px;
+        }
+
+        .item-carrito {
+            display: flex;
+            align-items: center;
+            gap: 25px;
+            padding: 22px;
+            margin-bottom: 20px;
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 18px;
+            backdrop-filter: blur(10px);
+            transition: 0.3s ease;
+        }
+
+        .item-carrito:hover {
+            transform: translateY(-3px);
+            border-color: rgba(168, 85, 247, 0.6);
+            box-shadow: 0 10px 35px rgba(0, 0, 0, 0.35);
+        }
+
+        .item-carrito img {
+            width: 150px;
+            height: 170px;
+            object-fit: cover;
+            border-radius: 14px;
+            background: #111;
+        }
+
+        .info-carrito {
+            flex: 1;
+        }
+
+        .info-carrito h3 {
+            font-size: 1.35rem;
+            margin: 0 0 10px;
+        }
+
+        .info-carrito p {
+            margin: 7px 0;
+            opacity: 0.85;
+        }
+
+        .control-cantidad {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin: 18px 0;
+        }
+
+        .boton-cantidad {
+            width: 35px;
+            height: 35px;
+            border: none;
+            border-radius: 9px;
+            cursor: pointer;
+            font-size: 1.3rem;
+            font-weight: bold;
+            background: #a855f7;
+            color: white;
+            transition: 0.2s;
+        }
+
+        .boton-cantidad:hover {
+            transform: scale(1.08);
+            background: #9333ea;
+        }
+
+        .numero-cantidad {
+            min-width: 30px;
+            text-align: center;
+            font-weight: bold;
+            font-size: 1.1rem;
+        }
+
+        .info-carrito strong {
+            display: block;
+            margin-bottom: 15px;
+            font-size: 1.05rem;
+        }
+
+        .boton-eliminar {
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            background: transparent;
+            color: white;
+            padding: 9px 14px;
+            border-radius: 9px;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .boton-eliminar:hover {
+            background: #dc2626;
+            border-color: #dc2626;
+        }
+
+        .carrito-vacio {
+            text-align: center;
+            padding: 60px 20px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            background: rgba(255, 255, 255, 0.03);
+        }
+
+        .carrito-vacio h3 {
+            font-size: 1.6rem;
+        }
+
+        .carrito-vacio p {
+            opacity: 0.7;
+        }
+
+        .carrito-total {
+            margin-top: 35px;
+            padding: 25px;
+            border-radius: 18px;
+            background: rgba(168, 85, 247, 0.08);
+            border: 1px solid rgba(168, 85, 247, 0.3);
+            text-align: right;
+        }
+
+        .carrito-total h3 {
+            font-size: 1.6rem;
+            margin-bottom: 20px;
+        }
+
+        .boton-final {
+            width: 100%;
+            padding: 15px;
+            border: none;
+            border-radius: 12px;
+            background: #a855f7;
+            color: white;
+            font-size: 1rem;
+            font-weight: bold;
+            letter-spacing: 1px;
+            cursor: pointer;
+            transition: 0.25s;
+        }
+
+        .boton-final:hover {
+            transform: translateY(-2px);
+            background: #9333ea;
+            box-shadow: 0 8px 25px rgba(168, 85, 247, 0.3);
+        }
+
+        .volver {
+            display: block;
+            text-align: center;
+            margin: 25px auto;
+            color: white;
+            text-decoration: none;
+            opacity: 0.8;
+            transition: 0.2s;
+        }
+
+        .volver:hover {
+            opacity: 1;
+            color: #a855f7;
+        }
+
+        .formulario-pedido {
+            max-width: 700px;
+            margin: auto;
+            padding: 30px;
+            border-radius: 20px;
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 15px 45px rgba(0, 0, 0, 0.3);
+        }
+
+        .formulario-pedido h2 {
+            text-align: center;
+            margin-bottom: 10px;
+        }
+
+        .formulario-pedido > p {
+            text-align: center;
+            opacity: 0.7;
+            margin-bottom: 30px;
+        }
+
+        .formulario-pedido label {
+            display: block;
+            margin: 17px 0 7px;
+            font-weight: bold;
+        }
+
+        .formulario-pedido input,
+        .formulario-pedido textarea {
+            width: 100%;
+            box-sizing: border-box;
+            padding: 13px;
+            border-radius: 10px;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            background: rgba(0, 0, 0, 0.35);
+            color: white;
+            outline: none;
+            font-size: 1rem;
+        }
+
+        .formulario-pedido input:focus,
+        .formulario-pedido textarea:focus {
+            border-color: #a855f7;
+        }
+
+        .formulario-pedido textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+
+        .resumen-pedido {
+            margin: 30px 0;
+            padding: 20px;
+            border-radius: 15px;
+            background: rgba(168, 85, 247, 0.07);
+            border: 1px solid rgba(168, 85, 247, 0.2);
+        }
+
+        .resumen-pedido h3 {
+            margin-top: 0;
+        }
+
+        .resumen-pedido p {
+            padding: 8px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        .resumen-pedido strong {
+            display: block;
+            margin-top: 15px;
+            font-size: 1.2rem;
+        }
+
+        .volver-carrito {
+            width: 100%;
+            margin-top: 12px;
+            padding: 13px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 10px;
+            background: transparent;
+            color: white;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .volver-carrito:hover {
+            border-color: #a855f7;
+            color: #a855f7;
+        }
+
+        .pedido-confirmado {
+            max-width: 650px;
+            margin: auto;
+            padding: 45px 25px;
+            text-align: center;
+            border-radius: 22px;
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid rgba(168, 85, 247, 0.35);
+            box-shadow: 0 15px 45px rgba(0, 0, 0, 0.35);
+        }
+
+        .pedido-confirmado h2 {
+            font-size: 2rem;
+        }
+
+        .pedido-confirmado p {
+            opacity: 0.8;
+            line-height: 1.6;
+        }
+
+        .estado-servidor {
+            margin-top: 15px;
+            text-align: center;
+            font-size: 0.85rem;
+            opacity: 0.6;
+        }
+
+        @media (max-width: 650px) {
+
+            .carrito-pagina {
+                width: 94%;
+                margin: 30px auto;
+            }
+
+            .carrito-pagina > h2 {
+                font-size: 1.7rem;
+            }
+
+            .item-carrito {
+                flex-direction: column;
+                align-items: stretch;
+                text-align: center;
+            }
+
+            .item-carrito img {
+                width: 100%;
+                height: 260px;
+            }
+
+            .control-cantidad {
+                justify-content: center;
+            }
+
+            .carrito-total {
+                text-align: center;
+            }
+
+            .formulario-pedido {
+                padding: 22px;
+            }
+
+        }
+
+    </style>
+
+</head>
+
+<body>
+
+<nav class="navbar">
+
+    <a href="index.html" class="logo">
+        GBO
+    </a>
+
+    <div class="nav-links">
+
+        <a href="camisas.html">CAMISAS</a>
+        <a href="pantalones.html">PANTALONES</a>
+        <a href="gorras.html">GORRAS</a>
+        <a href="buscar.html">🔎 BUSCAR</a>
+        <a href="carrito.html">🛒 CARRITO</a>
+
+    </div>
+
+</nav>
+
+<header>
+
+    <h1>GOLBEYONE</h1>
+
+    <p>DRESS DIFFERENT.</p>
+
+</header>
+
+<main class="carrito-pagina">
+
+    <h2>🛒 TU CARRITO</h2>
+
+    <div id="carrito-contenido"></div>
+
+    <div class="carrito-total">
+
+        <h3 id="carrito-total">
+            TOTAL: RD$0
+        </h3>
+
+        <button
+            class="boton-final"
+            onclick="finalizarCompra()">
+
+            FINALIZAR COMPRA
+
+        </button>
+
+        <div class="estado-servidor">
+            Sistema GBO conectado al servidor
+        </div>
+
+    </div>
+
+    <a href="index.html" class="volver">
+        ← VOLVER A LA TIENDA
+    </a>
+
+</main>
+
+<script>
+
+/* =====================================================
+   SERVIDOR GBO
+   =====================================================
+
+   IMPORTANTE:
+
+   El servidor de pedidos está en la PC
+   y escucha en el puerto 5500.
+
+   Desde el celular usamos la IP de la PC.
+
+===================================================== */
+
+const API_PEDIDOS =
+    "http://10.0.0.3:5500/api/pedidos";
+
+
+/* =====================================================
+   CARRITO
+===================================================== */
+
+let carrito =
+    JSON.parse(
+        localStorage.getItem("carritoGBO")
+    ) || [];
+
+
+/* =====================================================
+   MOSTRAR CARRITO
+===================================================== */
+
+function mostrarCarrito() {
+
+    const contenido =
+        document.getElementById(
+            "carrito-contenido"
+        );
+
+    const totalElemento =
+        document.getElementById(
+            "carrito-total"
+        );
+
+    contenido.innerHTML = "";
+
+    let total = 0;
+
+
+    if (carrito.length === 0) {
+
+        contenido.innerHTML = `
+
+            <div class="carrito-vacio">
+
+                <h3>
+                    Tu carrito está vacío 🛒
+                </h3>
+
+                <p>
+                    Agrega productos para comenzar tu compra.
+                </p>
+
+            </div>
+
+        `;
+
+        totalElemento.textContent =
+            "TOTAL: RD$0";
+
+        return;
+    }
+
+
+    carrito.forEach(
+        (producto, indice) => {
+
+            const subtotal =
+                Number(producto.precio) *
+                Number(producto.cantidad);
+
+            total += subtotal;
+
+
+            const item =
+                document.createElement(
+                    "div"
+                );
+
+            item.className =
+                "item-carrito";
+
+
+            item.innerHTML = `
+
+                <img
+                    src="${producto.imagen}"
+                    alt="${producto.nombre}">
+
+
+                <div class="info-carrito">
+
+                    <h3>
+                        ${producto.nombre}
+                    </h3>
+
+                    <p>
+                        💰 RD$${Number(
+                            producto.precio
+                        ).toLocaleString()}
+                    </p>
+
+                    <p>
+                        📏 Talla: ${producto.talla}
+                    </p>
+
+
+                    <div class="control-cantidad">
+
+                        <span>
+                            Cantidad:
+                        </span>
+
+
+                        <button
+                            class="boton-cantidad"
+                            onclick="cambiarCantidad(
+                                ${indice},
+                                -1
+                            )">
+
+                            −
+
+                        </button>
+
+
+                        <span class="numero-cantidad">
+                            ${producto.cantidad}
+                        </span>
+
+
+                        <button
+                            class="boton-cantidad"
+                            onclick="cambiarCantidad(
+                                ${indice},
+                                1
+                            )">
+
+                            +
+
+                        </button>
+
+                    </div>
+
+
+                    <strong>
+
+                        SUBTOTAL:
+                        RD$${subtotal.toLocaleString()}
+
+                    </strong>
+
+
+                    <button
+                        class="boton-eliminar"
+                        onclick="eliminarProducto(
+                            ${indice}
+                        )">
+
+                        🗑️ ELIMINAR
+
+                    </button>
+
+                </div>
+
+            `;
+
+
+            contenido.appendChild(item);
+
+        }
+    );
+
+
+    totalElemento.textContent =
+        "TOTAL: RD$" +
+        total.toLocaleString();
+
+}
+
+
+/* =====================================================
+   CAMBIAR CANTIDAD
+===================================================== */
+
+function cambiarCantidad(
+    indice,
+    cambio
+) {
+
+    carrito[indice].cantidad =
+        Number(carrito[indice].cantidad) +
+        cambio;
+
+
+    if (
+        carrito[indice].cantidad < 1
+    ) {
+
+        carrito[indice].cantidad = 1;
+
+    }
+
+
+    localStorage.setItem(
+        "carritoGBO",
+        JSON.stringify(carrito)
+    );
+
+
+    mostrarCarrito();
+
+}
+
+
+/* =====================================================
+   ELIMINAR PRODUCTO
+===================================================== */
+
+function eliminarProducto(
+    indice
+) {
+
+    carrito.splice(
+        indice,
+        1
+    );
+
+
+    localStorage.setItem(
+        "carritoGBO",
+        JSON.stringify(carrito)
+    );
+
+
+    mostrarCarrito();
+
+}
+
+
+/* =====================================================
+   FINALIZAR COMPRA
+===================================================== */
+
+function finalizarCompra() {
+
+    if (
+        carrito.length === 0
+    ) {
+
+        alert(
+            "🛒 Tu carrito está vacío."
+        );
+
+        return;
+
+    }
+
+
+    document.getElementById(
+        "carrito-contenido"
+    ).innerHTML = `
+
+        <div class="formulario-pedido">
+
+            <h2>
+                📦 DATOS DE ENVÍO
+            </h2>
+
+            <p>
+                Completa tus datos para preparar
+                tu pedido GBO.
+            </p>
+
+
+            <label>
+                Nombre completo
+            </label>
+
+            <input
+                type="text"
+                id="nombre-cliente"
+                placeholder="Tu nombre completo"
+                autocomplete="name">
+
+
+            <label>
+                Teléfono
+            </label>
+
+            <input
+                type="tel"
+                id="telefono-cliente"
+                placeholder="Tu número de teléfono"
+                autocomplete="tel">
+
+
+            <label>
+                Dirección
+            </label>
+
+            <input
+                type="text"
+                id="direccion-cliente"
+                placeholder="Dirección de entrega"
+                autocomplete="street-address">
+
+
+            <label>
+                Ciudad
+            </label>
+
+            <input
+                type="text"
+                id="ciudad-cliente"
+                placeholder="Ciudad"
+                autocomplete="address-level2">
+
+
+            <label>
+                Indicaciones
+            </label>
+
+            <textarea
+                id="indicaciones-cliente"
+                placeholder="Alguna indicación para la entrega..."></textarea>
+
+
+            <div class="resumen-pedido">
+
+                <h3>
+                    🧾 RESUMEN DEL PEDIDO
+                </h3>
+
+                <div
+                    id="resumen-productos">
+                </div>
+
+                <strong
+                    id="resumen-total">
+                </strong>
+
+            </div>
+
+
+            <button
+                class="boton-final"
+                onclick="confirmarPedido()">
+
+                CONFIRMAR PEDIDO 🔥
+
+            </button>
+
+
+            <button
+                class="volver-carrito"
+                onclick="mostrarCarrito()">
+
+                ← VOLVER AL CARRITO
+
+            </button>
+
+        </div>
+
+    `;
+
+
+    mostrarResumen();
+
+}
+
+
+/* =====================================================
+   MOSTRAR RESUMEN
+===================================================== */
+
+function mostrarResumen() {
+
+    const resumen =
+        document.getElementById(
+            "resumen-productos"
+        );
+
+    const totalElemento =
+        document.getElementById(
+            "resumen-total"
+        );
+
+
+    resumen.innerHTML = "";
+
+    let total = 0;
+
+
+    carrito.forEach(
+        producto => {
+
+            const subtotal =
+                Number(producto.precio) *
+                Number(producto.cantidad);
+
+
+            total += subtotal;
+
+
+            const linea =
+                document.createElement(
+                    "p"
+                );
+
+
+            linea.textContent =
+                `${producto.nombre} × ${producto.cantidad} — RD$${subtotal.toLocaleString()}`;
+
+
+            resumen.appendChild(linea);
+
+        }
+    );
+
+
+    totalElemento.textContent =
+        "TOTAL: RD$" +
+        total.toLocaleString();
+
+}
+
+
+/* =====================================================
+   CONFIRMAR PEDIDO
+===================================================== */
+
+async function confirmarPedido() {
+
+    const nombre =
+        document.getElementById(
+            "nombre-cliente"
+        ).value.trim();
+
+
+    const telefono =
+        document.getElementById(
+            "telefono-cliente"
+        ).value.trim();
+
+
+    const direccion =
+        document.getElementById(
+            "direccion-cliente"
+        ).value.trim();
+
+
+    const ciudad =
+        document.getElementById(
+            "ciudad-cliente"
+        ).value.trim();
+
+
+    const indicaciones =
+        document.getElementById(
+            "indicaciones-cliente"
+        ).value.trim();
+
+
+    if (
+        nombre === "" ||
+        telefono === "" ||
+        direccion === "" ||
+        ciudad === ""
+    ) {
+
+        alert(
+            "⚠️ Completa todos los datos obligatorios."
+        );
+
+        return;
+
+    }
+
+
+    let total = 0;
+
+    let productosTexto = "";
+
+
+    carrito.forEach(
+        producto => {
+
+            const subtotal =
+                Number(producto.precio) *
+                Number(producto.cantidad);
+
+
+            total += subtotal;
+
+
+            productosTexto +=
+                `• ${producto.nombre} | Talla: ${producto.talla} | Cantidad: ${producto.cantidad} | RD$${subtotal.toLocaleString()}\n`;
+
+        }
+    );
+
+
+    /* =================================================
+       CREAR PEDIDO
+    ================================================= */
+
+    const nuevoPedido = {
+
+        id:
+            "GBO-" +
+            Date.now(),
+
+        cliente:
+            nombre,
+
+        telefono:
+            telefono,
+
+        direccion:
+            direccion,
+
+        ciudad:
+            ciudad,
+
+        instrucciones:
+            indicaciones || "Ninguna",
+
+        productos:
+            carrito.map(
+                producto => ({
+
+                    nombre:
+                        producto.nombre,
+
+                    imagen:
+                        producto.imagen,
+
+                    precio:
+                        Number(
+                            producto.precio
+                        ),
+
+                    talla:
+                        producto.talla,
+
+                    cantidad:
+                        Number(
+                            producto.cantidad
+                        )
+
+                })
+            ),
+
+        total:
+            total,
+
+        fecha:
+            new Date().toLocaleString(
+                "es-DO"
+            )
+
+    };
+
+
+    /* =================================================
+       ENVIAR AL SERVIDOR
+    ================================================= */
+
+    try {
+
+        console.log(
+            "================================="
+        );
+
+        console.log(
+            "GBO - ENVIANDO PEDIDO"
+        );
+
+        console.log(
+            "Servidor:",
+            API_PEDIDOS
+        );
+
+        console.log(
+            "Pedido:",
+            nuevoPedido
+        );
+
+
+        const respuesta =
+            await fetch(
+                API_PEDIDOS,
+                {
+
+                    method: "POST",
+
+                    headers: {
+
+                        "Content-Type":
+                            "application/json"
+
+                    },
+
+                    body:
+                        JSON.stringify(
+                            nuevoPedido
+                        )
+
+                }
+            );
+
+
+        console.log(
+            "Respuesta HTTP:",
+            respuesta.status
+        );
+
+
+        const textoRespuesta =
+            await respuesta.text();
+
+
+        console.log(
+            "Respuesta servidor:",
+            textoRespuesta
+        );
+
+
+        let resultado;
+
+
+        try {
+
+            resultado =
+                JSON.parse(
+                    textoRespuesta
+                );
+
+        } catch {
+
+            throw new Error(
+                "El servidor no devolvió JSON. Código HTTP: " +
+                respuesta.status
+            );
+
+        }
+
+
+        if (
+            !respuesta.ok ||
+            !resultado.ok
+        ) {
+
+            throw new Error(
+                resultado.error ||
+                "El servidor rechazó el pedido."
+            );
+
+        }
+
+
+        /* =============================================
+           MENSAJE
+        ============================================= */
+
+        const mensaje =
+
+`🔥 PEDIDO GBO 🔥
+
+🆔 Pedido: ${nuevoPedido.id}
+
+👤 Cliente: ${nombre}
+
+📞 Teléfono: ${telefono}
+
+📍 Dirección: ${direccion}
+
+🏙️ Ciudad: ${ciudad}
+
+📝 Indicaciones: ${indicaciones || "Ninguna"}
+
+🛍️ PRODUCTOS:
+
+${productosTexto}
+
+💰 TOTAL: RD$${total.toLocaleString()}
+
+DRESS DIFFERENT.`;
+
+
+        localStorage.setItem(
+            "mensajePedidoGBO",
+            mensaje
+        );
+
+
+        /* =============================================
+           LIMPIAR CARRITO
+        ============================================= */
+
+        carrito = [];
+
+
+        localStorage.setItem(
+            "carritoGBO",
+            JSON.stringify([])
+        );
+
+
+        /* =============================================
+           CONFIRMACIÓN
+        ============================================= */
+
+        document.getElementById(
+            "carrito-contenido"
+        ).innerHTML = `
+
+            <div class="pedido-confirmado">
+
+                <h2>
+                    🔥 ¡PEDIDO RECIBIDO!
+                </h2>
+
+                <p>
+                    Tu pedido GBO fue enviado
+                    correctamente.
+                </p>
+
+                <p>
+                    🆔 Número de pedido:
+                    <strong>
+                        ${nuevoPedido.id}
+                    </strong>
+                </p>
+
+                <p>
+                    ✅ El pedido fue guardado
+                    en el sistema de GOLBEYONE.
+                </p>
+
+                <p>
+                    Ahora puedes contactar a
+                    GOLBEYONE por Instagram para
+                    continuar con el pedido.
+                </p>
+
+
+                <button
+                    class="boton-final"
+                    onclick="abrirInstagram()">
+
+                    📸 CONTINUAR POR INSTAGRAM
+
+                </button>
+
+
+                <button
+                    class="volver-carrito"
+                    onclick="window.location.href='index.html'">
+
+                    ← VOLVER A LA TIENDA
+
+                </button>
+
+            </div>
+
+        `;
+
+
+        document.getElementById(
+            "carrito-total"
+        ).textContent =
+            "PEDIDO GBO";
+
+
+        console.log(
+            "✅ PEDIDO ENVIADO CORRECTAMENTE"
+        );
+
+
+    } catch (error) {
+
+        console.error(
+            "================================="
+        );
+
+        console.error(
+            "❌ ERROR ENVIANDO PEDIDO"
+        );
+
+        console.error(
+            error
+        );
+
+        console.error(
+            "================================="
+        );
+
+
+        alert(
+            "❌ NO SE PUDO ENVIAR EL PEDIDO.\n\n" +
+            "Error real:\n" +
+            error.message
+        );
+
+    }
+
+}
+
+
+/* =====================================================
+   INSTAGRAM
+===================================================== */
+
+function abrirInstagram() {
+
+    window.open(
+        "https://www.instagram.com/GOLBEYONE/",
+        "_blank"
+    );
+
+}
+
+
+/* =====================================================
+   INICIAR
+===================================================== */
+
+mostrarCarrito();
+
+</script>
+
+</body>
+
+</html>
