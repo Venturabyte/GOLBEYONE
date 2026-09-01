@@ -9,81 +9,78 @@ from urllib.parse import urlparse, parse_qs
 
 PUERTO = int(os.environ.get("PORT", 5500))
 
-# Si Render tiene DATABASE_URL, usamos PostgreSQL.
-# Si no existe, seguimos usando pedidos.json localmente.
-DATABASE_URL = os.environ.get("DATABASE_URL")
-
-# Token para proteger el panel administrativo en producción.
-ADMIN_TOKEN = os.environ.get("ADMIN_TOKEN", "")
+DATABASE_URL = os.environ.get("DATABASE_URL", "").strip()
+ADMIN_TOKEN = os.environ.get("ADMIN_TOKEN", "").strip()
 
 ARCHIVO_PEDIDOS = "pedidos.json"
+
+USAR_POSTGRES = bool(DATABASE_URL)
 
 
 # ============================================================
 # POSTGRESQL
 # ============================================================
 
-def obtener_conexion():
+def conexion_postgres():
     if not DATABASE_URL:
-        return None
+        raise RuntimeError("DATABASE_URL no está configurada.")
 
     import psycopg
+
     return psycopg.connect(DATABASE_URL)
 
 
 def inicializar_base_datos():
-    if not DATABASE_URL:
+    if not USAR_POSTGRES:
+        print("🗂️ Modo local: usando pedidos.json")
         return
 
-    try:
-        with obtener_conexion() as conexion:
-            conexion.execute("""
-                CREATE TABLE IF NOT EXISTS pedidos (
-                    id TEXT PRIMARY KEY,
-                    pedido JSONB NOT NULL,
-                    creado_en TIMESTAMPTZ NOT NULL DEFAULT NOW()
-                )
-            """)
-            conexion.commit()
+    print("🗄️ Conectando con PostgreSQL...")
 
-        print("🗄️ PostgreSQL: base de datos preparada.")
+    with conexion_postgres() as conn:
+        conn.execute("""
+            CREATE TABLE IF NOT EXISTS pedidos (
+                id TEXT PRIMARY KEY,
+                pedido JSONB NOT NULL,
+                creado_en TIMESTAMPTZ NOT NULL DEFAULT NOW()
+            )
+        """)
+        conn.commit()
 
-    except Exception as error:
-        print("❌ Error preparando PostgreSQL:", error)
-        raise
+    print("✅ PostgreSQL conectado correctamente.")
 
 
 # ============================================================
-# PEDIDOS - LOCAL / POSTGRESQL
+# PEDIDOS - CARGAR
 # ============================================================
 
 def cargar_pedidos():
     # --------------------------------------------------------
-    # PRODUCCIÓN → PostgreSQL
+    # PRODUCCIÓN: PostgreSQL
     # --------------------------------------------------------
-    if DATABASE_URL:
-        try:
-            with obtener_conexion() as conexion:
-                filas = conexion.execute("""
-                    SELECT pedido
-                    FROM pedidos
-                    ORDER BY creado_en DESC
-                """).fetchall()
 
-            pedidos = [fila[0] for fila in filas]
+    if USAR_POSTGRES:
+        with conexion_postgres() as conn:
+            filas = conn.execute("""
+                SELECT pedido
+                FROM pedidos
+                ORDER BY creado_en DESC
+            """).fetchall()
 
-            for pedido in pedidos:
-                normalizar_pedido(pedido)
+        pedidos = []
 
-            return pedidos
+        for fila in filas:
+            pedido = fila[0]
 
-        except Exception as error:
-            print("❌ Error leyendo PostgreSQL:", error)
-            return []
+            if isinstance(pedido, dict):
+                pedidos.append(pedido)
+
+        return pedidos
 
     # --------------------------------------------------------
-    # LOCAL → pedidos.json
+    # LOCAL: pedidos.json
     # --------------------------------------------------------
+
     if not os.path.exists(ARCHIVO_PEDIDOS):
         return []
 
@@ -105,45 +102,54 @@ def cargar_pedidos():
         return []
 
 
+# ============================================================
+# PEDIDOS - GUARDAR
+# ============================================================
+
 def guardar_pedidos(pedidos):
     # --------------------------------------------------------
-    # PRODUCCIÓN → PostgreSQL
+    # PRODUCCIÓN: PostgreSQL
     # --------------------------------------------------------
-    if DATABASE_URL:
-        try:
-            import psycopg
-            from psycopg.types.json import Jsonb
 
-            with obtener_conexion() as conexion:
+    if USAR_POSTGRES:
+        from psycopg.types.json import Jsonb
 
-                for pedido in pedidos:
-                    pedido_id = str(pedido.get("id", "")).strip()
+        with conexion_postgres() as conn:
 
-                    if not pedido_id:
-                        continue
+            for pedido in pedidos:
 
-                    conexion.execute("""
-                        INSERT INTO pedidos (id, pedido)
-                        VALUES (%s, %s)
-                        ON CONFLICT (id)
-                        DO UPDATE SET
-                            pedido = EXCLUDED.pedido
-                    """, (
-                        pedido_id,
-                        Jsonb(pedido)
-                    ))
+                pedido_id = str(
+                    pedido.get("id", "")
+                ).strip()
 
-                conexion.commit()
+                if not pedido_id:
+                    continue
 
-            return
+                conn.execute("""
+                    INSERT INTO pedidos (
+                        id,
+                        pedido
+                    )
+                    VALUES (
+                        %s,
+                        %s
+                    )
+                    ON CONFLICT (id)
+                    DO UPDATE SET
+                        pedido = EXCLUDED.pedido
+                """, (
+                    pedido_id,
+                    Jsonb(pedido)
+                ))
 
-        except Exception as error:
-            print("❌ Error guardando PostgreSQL:", error)
-            raise
+            conn.commit()
+
+        return
 
     # --------------------------------------------------------
-    # LOCAL → pedidos.json
+    # LOCAL: pedidos.json
     # --------------------------------------------------------
+
     with open(
         ARCHIVO_PEDIDOS,
         "w",
@@ -159,7 +165,54 @@ def guardar_pedidos(pedidos):
 
 
 # ============================================================
-# FUNCIONES DE PEDIDOS
+# ACTUALIZAR / ELIMINAR DIRECTAMENTE EN POSTGRES
+# ============================================================
+
+def actualizar_pedido_postgres(pedido):
+    from psycopg.types.json import Jsonb
+
+    pedido_id = str(
+        pedido.get("id", "")
+    ).strip()
+
+    if not pedido_id:
+        raise ValueError("El pedido no tiene ID.")
+
+    with conexion_postgres() as conn:
+
+        conn.execute("""
+            UPDATE pedidos
+            SET pedido = %s
+            WHERE id = %s
+        """, (
+            Jsonb(pedido),
+            pedido_id
+        ))
+
+        conn.commit()
+
+
+def eliminar_pedido_postgres(pedido_id):
+
+    with conexion_postgres() as conn:
+
+        resultado = conn.execute("""
+            DELETE FROM pedidos
+            WHERE id = %s
+            RETURNING id
+        """, (
+            str(pedido_id),
+        ))
+
+        eliminado = resultado.fetchone()
+
+        conn.commit()
+
+    return eliminado is not None
+
+
+# ============================================================
+# PAGOS
 # ============================================================
 
 def obtener_pago(pedido):
@@ -167,15 +220,18 @@ def obtener_pago(pedido):
     pago_actual = pedido.get("pago")
 
     if isinstance(pago_actual, dict):
+
         return {
             "estado": pago_actual.get(
                 "estado",
                 "Pendiente"
             ),
+
             "metodo": pago_actual.get(
                 "metodo",
                 "Pendiente"
             ),
+
             "referencia": pago_actual.get(
                 "referencia",
                 ""
@@ -187,16 +243,22 @@ def obtener_pago(pedido):
             "estadoPago",
             "Pendiente"
         ),
+
         "metodo": pedido.get(
             "metodoPago",
             "Pendiente"
         ),
+
         "referencia": pedido.get(
             "referenciaPago",
             ""
         )
     }
 
+
+# ============================================================
+# NORMALIZAR PEDIDO
+# ============================================================
 
 def normalizar_pedido(pedido):
 
@@ -210,59 +272,111 @@ def normalizar_pedido(pedido):
             "estado",
             "Pendiente"
         ),
+
         "metodo": pago.get(
             "metodo",
             "Pendiente"
         ),
+
         "referencia": pago.get(
             "referencia",
             ""
         )
     }
 
-    pedido["estadoPago"] = pedido["pago"]["estado"]
-    pedido["metodoPago"] = pedido["pago"]["metodo"]
-    pedido["referenciaPago"] = pedido["pago"]["referencia"]
-
     return pedido
 
 
 # ============================================================
-# AUTENTICACIÓN ADMIN
+# NOTIFICACIÓN LOCAL
 # ============================================================
 
-def admin_autorizado(handler):
+def notificar_nuevo_pedido(pedido):
 
-    # En local no exigimos token.
-    if not DATABASE_URL:
-        return True
+    try:
 
-    # En producción sí.
-    if not ADMIN_TOKEN:
-        print(
-            "⚠️ ADMIN_TOKEN no configurado."
+        from winotify import Notification, audio
+
+        pedido_id = str(
+            pedido.get(
+                "id",
+                "SIN-ID"
+            )
         )
-        return False
 
-    token_recibido = handler.headers.get(
-        "X-Admin-Token",
-        ""
-    )
+        cliente = str(
+            pedido.get(
+                "cliente",
+                pedido.get(
+                    "nombre",
+                    "Cliente"
+                )
+            )
+        )
 
-    return token_recibido == ADMIN_TOKEN
+        total = pedido.get(
+            "total",
+            0
+        )
+
+        toast = Notification(
+            app_id="GOLBEYONE",
+
+            title="🛍️ Nuevo pedido",
+
+            msg=(
+                f"Pedido: {pedido_id}\n"
+                f"Cliente: {cliente}\n"
+                f"Total: RD$ {total}"
+            ),
+
+            duration="short"
+        )
+
+        toast.set_audio(
+            audio.Default,
+            loop=False
+        )
+
+        toast.show()
+
+        print(
+            "🔔 Notificación enviada: "
+            + pedido_id
+        )
+
+    except ImportError:
+
+        print(
+            "ℹ️ winotify no está instalado. "
+            "Notificación de escritorio omitida."
+        )
+
+    except Exception as error:
+
+        print(
+            "⚠️ Error en notificación:",
+            error
+        )
 
 
 # ============================================================
 # SERVIDOR
 # ============================================================
 
-class ServidorGBO(SimpleHTTPRequestHandler):
+class ServidorGBO(
+    SimpleHTTPRequestHandler
+):
 
     # --------------------------------------------------------
     # RESPUESTA JSON
     # --------------------------------------------------------
 
-    def enviar_json(self, datos, codigo=200):
+    def enviar_json(
+        self,
+        datos,
+        codigo=200
+    ):
 
         respuesta = json.dumps(
             datos,
@@ -301,6 +415,46 @@ class ServidorGBO(SimpleHTTPRequestHandler):
         self.wfile.write(respuesta)
 
     # --------------------------------------------------------
+    # AUTORIZACIÓN ADMIN
+    # --------------------------------------------------------
+
+    def admin_autorizado(self):
+
+        if not USAR_POSTGRES:
+            return True
+
+        if not ADMIN_TOKEN:
+            return False
+
+        token_recibido = (
+            self.headers.get(
+                "X-Admin-Token",
+                ""
+            ).strip()
+        )
+
+        return token_recibido == ADMIN_TOKEN
+
+    # --------------------------------------------------------
+    # VERIFICAR ADMIN
+    # --------------------------------------------------------
+
+    def exigir_admin(self):
+
+        if self.admin_autorizado():
+            return True
+
+        self.enviar_json(
+            {
+                "ok": False,
+                "error": "Acceso administrativo requerido"
+            },
+            401
+        )
+
+        return False
+
+    # --------------------------------------------------------
     # OPTIONS
     # --------------------------------------------------------
 
@@ -331,18 +485,17 @@ class ServidorGBO(SimpleHTTPRequestHandler):
 
     def do_GET(self):
 
-        ruta = urlparse(self.path).path
+        ruta = urlparse(
+            self.path
+        ).path
 
         if ruta == "/api/pedidos":
 
-            if not admin_autorizado(self):
+            # En producción, solo admin
+            if USAR_POSTGRES:
 
-                self.enviar_json({
-                    "ok": False,
-                    "error": "Acceso administrativo no autorizado"
-                }, 401)
-
-                return
+                if not self.exigir_admin():
+                    return
 
             pedidos = cargar_pedidos()
 
@@ -356,7 +509,9 @@ class ServidorGBO(SimpleHTTPRequestHandler):
                     sort_keys=True
                 )
 
-                normalizar_pedido(pedido)
+                normalizar_pedido(
+                    pedido
+                )
 
                 despues = json.dumps(
                     pedido,
@@ -367,26 +522,44 @@ class ServidorGBO(SimpleHTTPRequestHandler):
                 if antes != despues:
                     cambios = True
 
-            if cambios and not DATABASE_URL:
-                guardar_pedidos(pedidos)
+            if cambios:
 
-            self.enviar_json(pedidos)
+                if USAR_POSTGRES:
+
+                    for pedido in pedidos:
+                        actualizar_pedido_postgres(
+                            pedido
+                        )
+
+                else:
+
+                    guardar_pedidos(
+                        pedidos
+                    )
+
+            self.enviar_json(
+                pedidos
+            )
 
             return
 
         super().do_GET()
 
     # --------------------------------------------------------
-    # POST → NUEVO PEDIDO
+    # POST - NUEVO PEDIDO
     # --------------------------------------------------------
 
     def do_POST(self):
 
-        ruta = urlparse(self.path).path
+        ruta = urlparse(
+            self.path
+        ).path
 
         if ruta != "/api/pedidos":
 
-            self.send_error(404)
+            self.send_error(
+                404
+            )
 
             return
 
@@ -401,14 +574,19 @@ class ServidorGBO(SimpleHTTPRequestHandler):
 
             if longitud <= 0:
 
-                self.enviar_json({
-                    "ok": False,
-                    "error": "No se recibieron datos"
-                }, 400)
+                self.enviar_json(
+                    {
+                        "ok": False,
+                        "error": "No se recibieron datos"
+                    },
+                    400
+                )
 
                 return
 
-            datos = self.rfile.read(longitud)
+            datos = self.rfile.read(
+                longitud
+            )
 
             nuevo_pedido = json.loads(
                 datos.decode("utf-8")
@@ -419,17 +597,17 @@ class ServidorGBO(SimpleHTTPRequestHandler):
                 dict
             ):
 
-                self.enviar_json({
-                    "ok": False,
-                    "error": "El pedido no es válido"
-                }, 400)
+                self.enviar_json(
+                    {
+                        "ok": False,
+                        "error": "El pedido no es válido"
+                    },
+                    400
+                )
 
                 return
 
-            # ------------------------------------------------
-            # ID
-            # ------------------------------------------------
-
+            # ID obligatorio
             pedido_id = str(
                 nuevo_pedido.get(
                     "id",
@@ -439,94 +617,100 @@ class ServidorGBO(SimpleHTTPRequestHandler):
 
             if not pedido_id:
 
-                self.enviar_json({
-                    "ok": False,
-                    "error": "El pedido no tiene ID"
-                }, 400)
+                self.enviar_json(
+                    {
+                        "ok": False,
+                        "error": "El pedido no tiene ID"
+                    },
+                    400
+                )
 
                 return
 
-            # ------------------------------------------------
-            # NORMALIZACIÓN
-            # ------------------------------------------------
+            # Estado
+            if not nuevo_pedido.get(
+                "estado"
+            ):
 
-            if not nuevo_pedido.get("estado"):
+                nuevo_pedido[
+                    "estado"
+                ] = "Nuevo"
 
-                nuevo_pedido["estado"] = "Nuevo"
-
+            # Pago
             pago = obtener_pago(
                 nuevo_pedido
             )
 
-            nuevo_pedido["pago"] = {
+            nuevo_pedido[
+                "pago"
+            ] = {
+
                 "estado": pago.get(
                     "estado",
                     "Pendiente"
                 ),
+
                 "metodo": pago.get(
                     "metodo",
                     "Pendiente"
                 ),
+
                 "referencia": pago.get(
                     "referencia",
                     ""
                 )
             }
 
-            nuevo_pedido["estadoPago"] = (
-                nuevo_pedido["pago"]["estado"]
-            )
+            # Compatibilidad con sistema anterior
+            nuevo_pedido[
+                "estadoPago"
+            ] = nuevo_pedido[
+                "pago"
+            ][
+                "estado"
+            ]
 
-            nuevo_pedido["metodoPago"] = (
-                nuevo_pedido["pago"]["metodo"]
-            )
+            nuevo_pedido[
+                "metodoPago"
+            ] = nuevo_pedido[
+                "pago"
+            ][
+                "metodo"
+            ]
 
-            nuevo_pedido["referenciaPago"] = (
-                nuevo_pedido["pago"]["referencia"]
-            )
+            nuevo_pedido[
+                "referenciaPago"
+            ] = nuevo_pedido[
+                "pago"
+            ][
+                "referencia"
+            ]
 
             # ------------------------------------------------
-            # POSTGRESQL
+            # POSTGRES
             # ------------------------------------------------
 
-            if DATABASE_URL:
+            if USAR_POSTGRES:
 
-                import psycopg
                 from psycopg.types.json import Jsonb
 
-                with obtener_conexion() as conexion:
+                with conexion_postgres() as conn:
 
-                    existe = conexion.execute(
-                        """
-                        SELECT 1
-                        FROM pedidos
-                        WHERE id = %s
-                        """,
-                        (pedido_id,)
-                    ).fetchone()
-
-                    if existe:
-
-                        self.enviar_json({
-                            "ok": False,
-                            "error": "El ID del pedido ya existe"
-                        }, 409)
-
-                        return
-
-                    conexion.execute(
-                        """
-                        INSERT INTO pedidos
-                        (id, pedido)
-                        VALUES (%s, %s)
-                        """,
-                        (
-                            pedido_id,
-                            Jsonb(nuevo_pedido)
+                    conn.execute("""
+                        INSERT INTO pedidos (
+                            id,
+                            pedido
                         )
-                    )
+                        VALUES (
+                            %s,
+                            %s
+                        )
+                    """, (
+                        pedido_id,
+                        Jsonb(nuevo_pedido)
+                    ))
 
-                    conexion.commit()
+                    conn.commit()
 
             # ------------------------------------------------
             # LOCAL
@@ -536,6 +720,15 @@ class ServidorGBO(SimpleHTTPRequestHandler):
 
                 pedidos = cargar_pedidos()
 
+                # Evitar IDs duplicados
+                pedidos = [
+                    pedido
+                    for pedido in pedidos
+                    if str(
+                        pedido.get("id", "")
+                    ) != pedido_id
+                ]
+
                 pedidos.append(
                     nuevo_pedido
                 )
@@ -543,10 +736,6 @@ class ServidorGBO(SimpleHTTPRequestHandler):
                 guardar_pedidos(
                     pedidos
                 )
-
-            # ------------------------------------------------
-            # LOG
-            # ------------------------------------------------
 
             print(
                 "========================================"
@@ -562,89 +751,70 @@ class ServidorGBO(SimpleHTTPRequestHandler):
             )
 
             print(
-                "CLIENTE:",
-                nuevo_pedido.get(
-                    "cliente",
-                    "Sin nombre"
-                )
-            )
-
-            print(
-                "TOTAL:",
-                nuevo_pedido.get(
-                    "total",
-                    0
-                )
-            )
-
-            print(
                 "========================================"
             )
 
-            self.enviar_json({
+            notificar_nuevo_pedido(
+                nuevo_pedido
+            )
 
-                "ok": True,
-
-                "mensaje":
-                    "Pedido guardado correctamente",
-
-                "pedido":
-                    nuevo_pedido
-
-            })
+            self.enviar_json(
+                {
+                    "ok": True,
+                    "mensaje":
+                        "Pedido guardado correctamente",
+                    "pedido":
+                        nuevo_pedido
+                }
+            )
 
         except json.JSONDecodeError:
 
-            self.enviar_json({
-
-                "ok": False,
-
-                "error":
-                    "Los datos recibidos no son JSON válido"
-
-            }, 400)
+            self.enviar_json(
+                {
+                    "ok": False,
+                    "error":
+                        "Los datos recibidos no son JSON válido"
+                },
+                400
+            )
 
         except Exception as error:
 
             print(
-                "❌ Error POST:",
+                "Error POST:",
                 error
             )
 
-            self.enviar_json({
-
-                "ok": False,
-
-                "error":
-                    "Error interno del servidor"
-
-            }, 500)
+            self.enviar_json(
+                {
+                    "ok": False,
+                    "error":
+                        str(error)
+                },
+                500
+            )
 
     # --------------------------------------------------------
-    # PATCH → ACTUALIZAR PEDIDO
+    # PATCH - ACTUALIZAR PEDIDO
     # --------------------------------------------------------
 
     def do_PATCH(self):
 
-        ruta = urlparse(self.path).path
+        ruta = urlparse(
+            self.path
+        ).path
 
         if ruta != "/api/pedidos":
 
-            self.send_error(404)
+            self.send_error(
+                404
+            )
 
             return
 
-        if not admin_autorizado(self):
-
-            self.enviar_json({
-
-                "ok": False,
-
-                "error":
-                    "Acceso administrativo no autorizado"
-
-            }, 401)
-
+        # Solo administrador
+        if not self.exigir_admin():
             return
 
         try:
@@ -658,14 +828,14 @@ class ServidorGBO(SimpleHTTPRequestHandler):
 
             if longitud <= 0:
 
-                self.enviar_json({
-
-                    "ok": False,
-
-                    "error":
-                        "No se recibieron datos"
-
-                }, 400)
+                self.enviar_json(
+                    {
+                        "ok": False,
+                        "error":
+                            "No se recibieron datos"
+                    },
+                    400
+                )
 
                 return
 
@@ -682,14 +852,14 @@ class ServidorGBO(SimpleHTTPRequestHandler):
                 dict
             ):
 
-                self.enviar_json({
-
-                    "ok": False,
-
-                    "error":
-                        "Solicitud no válida"
-
-                }, 400)
+                self.enviar_json(
+                    {
+                        "ok": False,
+                        "error":
+                            "Solicitud no válida"
+                    },
+                    400
+                )
 
                 return
 
@@ -702,284 +872,258 @@ class ServidorGBO(SimpleHTTPRequestHandler):
                 or str(pedido_id).strip() == ""
             ):
 
-                self.enviar_json({
-
-                    "ok": False,
-
-                    "error":
-                        "No se recibió el ID del pedido"
-
-                }, 400)
+                self.enviar_json(
+                    {
+                        "ok": False,
+                        "error":
+                            "No se recibió el ID del pedido"
+                    },
+                    400
+                )
 
                 return
 
-            pedido_id = str(
-                pedido_id
-            )
+            pedidos = cargar_pedidos()
 
-            # =================================================
-            # POSTGRESQL
-            # =================================================
+            encontrado = False
+            pedido_actualizado = None
 
-            if DATABASE_URL:
+            for pedido in pedidos:
 
-                with obtener_conexion() as conexion:
+                id_actual = pedido.get(
+                    "id"
+                )
 
-                    fila = conexion.execute(
-                        """
-                        SELECT pedido
-                        FROM pedidos
-                        WHERE id = %s
-                        """,
-                        (pedido_id,)
-                    ).fetchone()
+                if (
+                    str(id_actual)
+                    != str(pedido_id)
+                ):
+                    continue
 
-                    if not fila:
+                encontrado = True
 
-                        self.enviar_json({
+                # --------------------------------------------
+                # ESTADO
+                # --------------------------------------------
 
-                            "ok": False,
+                if "estado" in solicitud:
 
-                            "error":
-                                "Pedido no encontrado"
-
-                        }, 404)
-
-                        return
-
-                    pedido = fila[0]
-
-                    self.actualizar_pedido(
-                        pedido,
-                        solicitud
-                    )
-
-                    from psycopg.types.json import Jsonb
-
-                    conexion.execute(
-                        """
-                        UPDATE pedidos
-                        SET pedido = %s
-                        WHERE id = %s
-                        """,
-                        (
-                            Jsonb(pedido),
-                            pedido_id
+                    nuevo_estado = (
+                        solicitud.get(
+                            "estado"
                         )
                     )
 
-                    conexion.commit()
+                    estados_validos = [
+                        "Nuevo",
+                        "Confirmado",
+                        "Preparando",
+                        "Enviado",
+                        "Entregado"
+                    ]
 
-                    pedido_actualizado = pedido
+                    if nuevo_estado not in estados_validos:
 
-            # =================================================
-            # LOCAL
-            # =================================================
+                        self.enviar_json(
+                            {
+                                "ok": False,
+                                "error":
+                                    "Estado de pedido no válido"
+                            },
+                            400
+                        )
 
-            else:
+                        return
 
-                pedidos = cargar_pedidos()
+                    pedido[
+                        "estado"
+                    ] = nuevo_estado
 
-                encontrado = False
-                pedido_actualizado = None
-
-                for pedido in pedidos:
-
-                    if str(
-                        pedido.get("id")
-                    ) != pedido_id:
-
-                        continue
-
-                    encontrado = True
-
-                    self.actualizar_pedido(
-                        pedido,
-                        solicitud
+                    print(
+                        f"Estado actualizado: "
+                        f"{pedido_id} → "
+                        f"{nuevo_estado}"
                     )
 
-                    pedido_actualizado = (
+                # --------------------------------------------
+                # PAGO
+                # --------------------------------------------
+
+                if "pago" in solicitud:
+
+                    pago_enviado = (
+                        solicitud.get(
+                            "pago"
+                        )
+                    )
+
+                    if not isinstance(
+                        pago_enviado,
+                        dict
+                    ):
+
+                        self.enviar_json(
+                            {
+                                "ok": False,
+                                "error":
+                                    "La información del pago no es válida"
+                            },
+                            400
+                        )
+
+                        return
+
+                    pago_actual = obtener_pago(
                         pedido
                     )
 
-                    break
+                    if "estado" in pago_enviado:
 
-                if not encontrado:
+                        pago_actual[
+                            "estado"
+                        ] = pago_enviado.get(
+                            "estado"
+                        )
 
-                    self.enviar_json({
+                    if "metodo" in pago_enviado:
 
+                        pago_actual[
+                            "metodo"
+                        ] = pago_enviado.get(
+                            "metodo"
+                        )
+
+                    if "referencia" in pago_enviado:
+
+                        pago_actual[
+                            "referencia"
+                        ] = pago_enviado.get(
+                            "referencia"
+                        )
+
+                    pedido[
+                        "pago"
+                    ] = {
+
+                        "estado":
+                            pago_actual.get(
+                                "estado",
+                                "Pendiente"
+                            ),
+
+                        "metodo":
+                            pago_actual.get(
+                                "metodo",
+                                "Pendiente"
+                            ),
+
+                        "referencia":
+                            pago_actual.get(
+                                "referencia",
+                                ""
+                            )
+                    }
+
+                    # Compatibilidad
+                    pedido[
+                        "estadoPago"
+                    ] = pedido[
+                        "pago"
+                    ][
+                        "estado"
+                    ]
+
+                    pedido[
+                        "metodoPago"
+                    ] = pedido[
+                        "pago"
+                    ][
+                        "metodo"
+                    ]
+
+                    pedido[
+                        "referenciaPago"
+                    ] = pedido[
+                        "pago"
+                    ][
+                        "referencia"
+                    ]
+
+                    print(
+                        f"Pago actualizado: "
+                        f"{pedido_id} → "
+                        f"{pedido['pago']}"
+                    )
+
+                pedido_actualizado = pedido
+
+                break
+
+            if not encontrado:
+
+                self.enviar_json(
+                    {
                         "ok": False,
-
                         "error":
                             "Pedido no encontrado"
+                    },
+                    404
+                )
 
-                    }, 404)
+                return
 
-                    return
+            # Guardar actualización
+            if USAR_POSTGRES:
+
+                actualizar_pedido_postgres(
+                    pedido_actualizado
+                )
+
+            else:
 
                 guardar_pedidos(
                     pedidos
                 )
 
-            self.enviar_json({
-
-                "ok": True,
-
-                "mensaje":
-                    "Pedido actualizado correctamente",
-
-                "pedido":
-                    pedido_actualizado
-
-            })
+            self.enviar_json(
+                {
+                    "ok": True,
+                    "mensaje":
+                        "Pedido actualizado correctamente",
+                    "pedido":
+                        pedido_actualizado
+                }
+            )
 
         except json.JSONDecodeError:
 
-            self.enviar_json({
-
-                "ok": False,
-
-                "error":
-                    "Los datos recibidos no son JSON válido"
-
-            }, 400)
+            self.enviar_json(
+                {
+                    "ok": False,
+                    "error":
+                        "Los datos recibidos no son JSON válido"
+                },
+                400
+            )
 
         except Exception as error:
 
             print(
-                "❌ Error PATCH:",
+                "Error PATCH:",
                 error
             )
 
-            self.enviar_json({
-
-                "ok": False,
-
-                "error":
-                    "Error interno del servidor"
-
-            }, 500)
-
-    # --------------------------------------------------------
-    # ACTUALIZAR PEDIDO
-    # --------------------------------------------------------
-
-    def actualizar_pedido(
-        self,
-        pedido,
-        solicitud
-    ):
-
-        if "estado" in solicitud:
-
-            nuevo_estado = solicitud.get(
-                "estado"
-            )
-
-            estados_validos = [
-                "Nuevo",
-                "Confirmado",
-                "Preparando",
-                "Enviado",
-                "Entregado"
-            ]
-
-            if nuevo_estado not in estados_validos:
-
-                raise ValueError(
-                    "Estado de pedido no válido"
-                )
-
-            pedido["estado"] = (
-                nuevo_estado
-            )
-
-            print(
-                f"Estado actualizado: "
-                f"{pedido.get('id')} → "
-                f"{nuevo_estado}"
-            )
-
-        if "pago" in solicitud:
-
-            pago_enviado = solicitud.get(
-                "pago"
-            )
-
-            if not isinstance(
-                pago_enviado,
-                dict
-            ):
-
-                raise ValueError(
-                    "La información del pago no es válida"
-                )
-
-            pago_actual = obtener_pago(
-                pedido
-            )
-
-            if "estado" in pago_enviado:
-
-                pago_actual["estado"] = (
-                    pago_enviado["estado"]
-                )
-
-            if "metodo" in pago_enviado:
-
-                pago_actual["metodo"] = (
-                    pago_enviado["metodo"]
-                )
-
-            if "referencia" in pago_enviado:
-
-                pago_actual["referencia"] = (
-                    pago_enviado["referencia"]
-                )
-
-            pedido["pago"] = {
-
-                "estado":
-                    pago_actual.get(
-                        "estado",
-                        "Pendiente"
-                    ),
-
-                "metodo":
-                    pago_actual.get(
-                        "metodo",
-                        "Pendiente"
-                    ),
-
-                "referencia":
-                    pago_actual.get(
-                        "referencia",
-                        ""
-                    )
-            }
-
-            # Compatibilidad con el sistema anterior.
-
-            pedido["estadoPago"] = (
-                pedido["pago"]["estado"]
-            )
-
-            pedido["metodoPago"] = (
-                pedido["pago"]["metodo"]
-            )
-
-            pedido["referenciaPago"] = (
-                pedido["pago"]["referencia"]
-            )
-
-            print(
-                f"Pago actualizado: "
-                f"{pedido.get('id')} → "
-                f"{pedido['pago']}"
+            self.enviar_json(
+                {
+                    "ok": False,
+                    "error":
+                        str(error)
+                },
+                500
             )
 
     # --------------------------------------------------------
-    # DELETE → ELIMINAR PEDIDO
+    # DELETE - ELIMINAR PEDIDO
     # --------------------------------------------------------
 
     def do_DELETE(self):
@@ -990,21 +1134,14 @@ class ServidorGBO(SimpleHTTPRequestHandler):
 
         if ruta != "/api/pedidos":
 
-            self.send_error(404)
+            self.send_error(
+                404
+            )
 
             return
 
-        if not admin_autorizado(self):
-
-            self.enviar_json({
-
-                "ok": False,
-
-                "error":
-                    "Acceso administrativo no autorizado"
-
-            }, 401)
-
+        # Solo administrador
+        if not self.exigir_admin():
             return
 
         try:
@@ -1020,97 +1157,80 @@ class ServidorGBO(SimpleHTTPRequestHandler):
             if "id" in consulta:
 
                 pedido_id = (
-                    consulta["id"][0]
+                    consulta[
+                        "id"
+                    ][0]
                 )
 
-            # =================================================
-            # POSTGRESQL
-            # =================================================
+            if not pedido_id:
 
-            if DATABASE_URL:
+                longitud = int(
+                    self.headers.get(
+                        "Content-Length",
+                        0
+                    )
+                )
 
-                if not pedido_id:
+                if longitud > 0:
 
-                    self.enviar_json({
-
-                        "ok": False,
-
-                        "error":
-                            "No se recibió el ID del pedido"
-
-                    }, 400)
-
-                    return
-
-                with obtener_conexion() as conexion:
-
-                    resultado = conexion.execute(
-                        """
-                        DELETE FROM pedidos
-                        WHERE id = %s
-                        """,
-                        (str(pedido_id),)
+                    datos = self.rfile.read(
+                        longitud
                     )
 
-                    if resultado.rowcount == 0:
+                    solicitud = json.loads(
+                        datos.decode("utf-8")
+                    )
 
-                        self.enviar_json({
+                    pedido_id = solicitud.get(
+                        "id"
+                    )
 
+            if (
+                pedido_id is None
+                or str(pedido_id).strip() == ""
+            ):
+
+                self.enviar_json(
+                    {
+                        "ok": False,
+                        "error":
+                            "No se recibió el ID del pedido"
+                    },
+                    400
+                )
+
+                return
+
+            # ------------------------------------------------
+            # POSTGRES
+            # ------------------------------------------------
+
+            if USAR_POSTGRES:
+
+                eliminado = (
+                    eliminar_pedido_postgres(
+                        pedido_id
+                    )
+                )
+
+                if not eliminado:
+
+                    self.enviar_json(
+                        {
                             "ok": False,
-
                             "error":
                                 "Pedido no encontrado"
-
-                        }, 404)
-
-                        return
-
-                    conexion.commit()
-
-            # =================================================
-            # LOCAL
-            # =================================================
-
-            else:
-
-                if not pedido_id:
-
-                    longitud = int(
-                        self.headers.get(
-                            "Content-Length",
-                            0
-                        )
+                        },
+                        404
                     )
 
-                    if longitud > 0:
-
-                        datos = self.rfile.read(
-                            longitud
-                        )
-
-                        solicitud = json.loads(
-                            datos.decode("utf-8")
-                        )
-
-                        pedido_id = (
-                            solicitud.get("id")
-                        )
-
-                if (
-                    pedido_id is None
-                    or str(pedido_id).strip() == ""
-                ):
-
-                    self.enviar_json({
-
-                        "ok": False,
-
-                        "error":
-                            "No se recibió el ID del pedido"
-
-                    }, 400)
-
                     return
+
+            # ------------------------------------------------
+            # LOCAL
+            # ------------------------------------------------
+
+            else:
 
                 pedidos = cargar_pedidos()
 
@@ -1139,14 +1259,14 @@ class ServidorGBO(SimpleHTTPRequestHandler):
 
                 if not encontrado:
 
-                    self.enviar_json({
-
-                        "ok": False,
-
-                        "error":
-                            "Pedido no encontrado"
-
-                    }, 404)
+                    self.enviar_json(
+                        {
+                            "ok": False,
+                            "error":
+                                "Pedido no encontrado"
+                        },
+                        404
+                    )
 
                     return
 
@@ -1155,52 +1275,50 @@ class ServidorGBO(SimpleHTTPRequestHandler):
                 )
 
             print(
-                f"🗑️ Pedido eliminado: "
+                f"Pedido eliminado: "
                 f"{pedido_id}"
             )
 
-            self.enviar_json({
-
-                "ok": True,
-
-                "mensaje":
-                    "Pedido eliminado correctamente",
-
-                "id":
-                    pedido_id
-
-            })
+            self.enviar_json(
+                {
+                    "ok": True,
+                    "mensaje":
+                        "Pedido eliminado correctamente",
+                    "id":
+                        pedido_id
+                }
+            )
 
         except json.JSONDecodeError:
 
-            self.enviar_json({
-
-                "ok": False,
-
-                "error":
-                    "Los datos recibidos no son JSON válido"
-
-            }, 400)
+            self.enviar_json(
+                {
+                    "ok": False,
+                    "error":
+                        "Los datos recibidos no son JSON válido"
+                },
+                400
+            )
 
         except Exception as error:
 
             print(
-                "❌ Error DELETE:",
+                "Error DELETE:",
                 error
             )
 
-            self.enviar_json({
-
-                "ok": False,
-
-                "error":
-                    "Error interno del servidor"
-
-            }, 500)
+            self.enviar_json(
+                {
+                    "ok": False,
+                    "error":
+                        str(error)
+                },
+                500
+            )
 
 
 # ============================================================
-# ARRANQUE
+# INICIO
 # ============================================================
 
 if __name__ == "__main__":
@@ -1208,36 +1326,48 @@ if __name__ == "__main__":
     inicializar_base_datos()
 
     servidor = ThreadingHTTPServer(
-        ("0.0.0.0", PUERTO),
+        (
+            "0.0.0.0",
+            PUERTO
+        ),
         ServidorGBO
     )
 
     print("----------------------------------------")
-    print("      GOLBEYONE - SERVIDOR")
+    print("   GOLBEYONE - SERVIDOR DE PEDIDOS")
     print("----------------------------------------")
+
     print(
-        f"Servidor iniciado en puerto {PUERTO}"
+        f"Servidor iniciado en el puerto {PUERTO}"
     )
 
-    if DATABASE_URL:
+    if USAR_POSTGRES:
 
         print(
             "🗄️ Base de datos: PostgreSQL"
         )
 
-        print(
-            "🔐 Panel administrativo: PROTEGIDO"
-        )
+        if ADMIN_TOKEN:
+
+            print(
+                "🔐 Protección admin: ACTIVA"
+            )
+
+        else:
+
+            print(
+                "⚠️ ADMIN_TOKEN no configurado"
+            )
 
     else:
 
         print(
-            "💾 Base de datos: pedidos.json LOCAL"
+            "🗂️ Base de datos: pedidos.json"
         )
 
-        print(
-            "🔧 Modo desarrollo local"
-        )
+    print(
+        "API: /api/pedidos"
+    )
 
     print("----------------------------------------")
 
