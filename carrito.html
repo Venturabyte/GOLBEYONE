@@ -1,9 +1,7 @@
 <!DOCTYPE html>
-
 <html lang="es">
 
 <head>
-
 
 <meta charset="UTF-8">
 
@@ -305,7 +303,6 @@
         opacity: 0.6;
     }
 
-
     .metodo-pago {
         margin-top: 30px;
         padding: 22px;
@@ -431,13 +428,11 @@
 
 </style>
 
-
 </head>
 
 <body>
 
 <nav class="navbar">
-
 
 <a href="index.html" class="logo">
     GBO
@@ -453,21 +448,17 @@
 
 </div>
 
-
 </nav>
 
 <header>
-
 
 <h1>GOLBEYONE</h1>
 
 <p>DRESS DIFFERENT.</p>
 
-
 </header>
 
 <main class="carrito-pagina">
-
 
 <h2>🛒 TU CARRITO</h2>
 
@@ -497,7 +488,6 @@
     ← VOLVER A LA TIENDA
 </a>
 
-
 </main>
 
 <script>
@@ -508,12 +498,17 @@
 
 /*
    IMPORTANTE:
-   El carrito debe comunicarse directamente
-   con nuestro servidor Python de GOLBEYONE.
+   Usamos una ruta relativa para que el mismo archivo
+   funcione tanto en local como en producción.
+
+   LOCAL:
+   http://localhost:5500/api/pedidos
+
+   PRODUCCIÓN:
+   https://tu-dominio/api/pedidos
 */
 
-const API_PEDIDOS =
-    "http://localhost:5500/api/pedidos";
+const API_PEDIDOS = "/api/pedidos";
 
 
 /* =====================================================
@@ -836,7 +831,6 @@ function finalizarCompra() {
                 placeholder="Alguna indicación para la entrega..."></textarea>
 
 
-
             <div class="metodo-pago">
 
                 <h3>
@@ -926,153 +920,215 @@ function finalizarCompra() {
             </div>
 
 
-        <div class="resumen-pedido">
+            <div class="resumen-pedido">
 
-            <h3>
-                🧾 RESUMEN DEL PEDIDO
-            </h3>
+                <h3>
+                    🧾 RESUMEN DEL PEDIDO
+                </h3>
 
-            <div
-                id="resumen-productos">
+                <div
+                    id="resumen-productos">
+                </div>
+
+                <strong
+                    id="resumen-total">
+                </strong>
+
+                <div
+                    class="pago-seleccionado"
+                    id="resumen-pago">
+                    💳 Método de pago: pendiente de selección
+                </div>
+
             </div>
 
-            <strong
-                id="resumen-total">
-            </strong>
 
-            <div
-                class="pago-seleccionado"
-                id="resumen-pago">
-                💳 Método de pago: pendiente de selección
-            </div>
+            <button
+                class="boton-final"
+                onclick="confirmarPedido()">
+
+                CONFIRMAR PEDIDO 🔥
+
+            </button>
+
+
+            <button
+                class="volver-carrito"
+                onclick="mostrarCarrito()">
+
+                ← VOLVER AL CARRITO
+
+            </button>
 
         </div>
 
-
-        <button
-            class="boton-final"
-            onclick="confirmarPedido()">
-
-            CONFIRMAR PEDIDO 🔥
-
-        </button>
+    `;
 
 
-        <button
-            class="volver-carrito"
-            onclick="mostrarCarrito()">
-
-            ← VOLVER AL CARRITO
-
-        </button>
-
-    </div>
-
-`;
+    const opcionesPago =
+        document.querySelectorAll(
+            'input[name="metodo-pago"]'
+        );
 
 
-mostrarResumen();
+    opcionesPago.forEach(
+        opcion => {
 
+            opcion.addEventListener(
+                "change",
+                actualizarMetodoPago
+            );
+
+        }
+    );
+
+
+    mostrarResumen();
 
 }
 
+
 /* =====================================================
-MOSTRAR RESUMEN
+   ACTUALIZAR MÉTODO DE PAGO EN RESUMEN
+===================================================== */
+
+function actualizarMetodoPago() {
+
+    const seleccionado =
+        document.querySelector(
+            'input[name="metodo-pago"]:checked'
+        );
+
+    const resumenPago =
+        document.getElementById(
+            "resumen-pago"
+        );
+
+
+    if (!resumenPago) {
+        return;
+    }
+
+
+    if (!seleccionado) {
+
+        resumenPago.textContent =
+            "💳 Método de pago: pendiente de selección";
+
+        return;
+
+    }
+
+
+    resumenPago.textContent =
+        "💳 Método de pago: " +
+        seleccionado.value;
+
+}
+
+
+/* =====================================================
+   MOSTRAR RESUMEN
 ===================================================== */
 
 function mostrarResumen() {
 
+    const resumen =
+        document.getElementById(
+            "resumen-productos"
+        );
 
-const resumen =
-    document.getElementById(
-        "resumen-productos"
-    );
-
-const totalElemento =
-    document.getElementById(
-        "resumen-total"
-    );
-
-
-resumen.innerHTML = "";
-
-let total = 0;
+    const totalElemento =
+        document.getElementById(
+            "resumen-total"
+        );
 
 
-carrito.forEach(
-    producto => {
-
-        const subtotal =
-            Number(producto.precio) *
-            Number(producto.cantidad);
-
-
-        total += subtotal;
-
-
-        const linea =
-            document.createElement(
-                "p"
-            );
-
-
-        linea.textContent =
-            `${producto.nombre} × ${producto.cantidad} — RD$${subtotal.toLocaleString()}`;
-
-
-        resumen.appendChild(linea);
-
+    if (!resumen || !totalElemento) {
+        return;
     }
-);
 
 
-totalElemento.textContent =
-    "TOTAL: RD$" +
-    total.toLocaleString();
+    resumen.innerHTML = "";
 
+    let total = 0;
+
+
+    carrito.forEach(
+        producto => {
+
+            const subtotal =
+                Number(producto.precio) *
+                Number(producto.cantidad);
+
+
+            total += subtotal;
+
+
+            const linea =
+                document.createElement(
+                    "p"
+                );
+
+
+            linea.textContent =
+                `${producto.nombre} × ${producto.cantidad} — RD$${subtotal.toLocaleString()}`;
+
+
+            resumen.appendChild(linea);
+
+        }
+    );
+
+
+    totalElemento.textContent =
+        "TOTAL: RD$" +
+        total.toLocaleString();
 
 }
 
+
 /* =====================================================
-CONFIRMAR PEDIDO
+   CONFIRMAR PEDIDO
 ===================================================== */
 
 async function confirmarPedido() {
 
-
-const nombre =
-    document.getElementById(
-        "nombre-cliente"
-    ).value.trim();
-
-
-const telefono =
-    document.getElementById(
-        "telefono-cliente"
-    ).value.trim();
+    const nombre =
+        document.getElementById(
+            "nombre-cliente"
+        ).value.trim();
 
 
-const direccion =
-    document.getElementById(
-        "direccion-cliente"
-    ).value.trim();
+    const telefono =
+        document.getElementById(
+            "telefono-cliente"
+        ).value.trim();
 
 
-const ciudad =
-    document.getElementById(
-        "ciudad-cliente"
-    ).value.trim();
+    const direccion =
+        document.getElementById(
+            "direccion-cliente"
+        ).value.trim();
 
 
-const indicaciones =
-    document.getElementById(
-        "indicaciones-cliente"
-    ).value.trim();
+    const ciudad =
+        document.getElementById(
+            "ciudad-cliente"
+        ).value.trim();
+
+
+    const indicaciones =
+        document.getElementById(
+            "indicaciones-cliente"
+        ).value.trim();
+
 
     const metodoPagoElemento =
         document.querySelector(
             'input[name="metodo-pago"]:checked'
         );
+
 
     const metodoPago =
         metodoPagoElemento
@@ -1080,225 +1136,228 @@ const indicaciones =
             : "";
 
 
-
-if (
-    nombre === "" ||
-    telefono === "" ||
-    direccion === "" ||
-    ciudad === "" ||
-    metodoPago === ""
-) {
-
-    alert(
+    if (
+        nombre === "" ||
+        telefono === "" ||
+        direccion === "" ||
+        ciudad === "" ||
         metodoPago === ""
-            ? "⚠️ Selecciona un método de pago."
-            : "⚠️ Completa todos los datos obligatorios."
-    );
+    ) {
 
-    return;
-
-}
-
-
-let total = 0;
-
-let productosTexto = "";
-
-
-carrito.forEach(
-    producto => {
-
-        const subtotal =
-            Number(producto.precio) *
-            Number(producto.cantidad);
-
-
-        total += subtotal;
-
-
-        productosTexto +=
-            `• ${producto.nombre} | Talla: ${producto.talla} | Cantidad: ${producto.cantidad} | RD$${subtotal.toLocaleString()}\n`;
-
-    }
-);
-
-
-/* =================================================
-   CREAR PEDIDO
-================================================= */
-
-const nuevoPedido = {
-
-    id:
-        "GBO-" +
-        Date.now(),
-
-    cliente:
-        nombre,
-
-    telefono:
-        telefono,
-
-    direccion:
-        direccion,
-
-    ciudad:
-        ciudad,
-
-    instrucciones:
-        indicaciones || "Ninguna",
-
-    productos:
-        carrito.map(
-            producto => ({
-
-                nombre:
-                    producto.nombre,
-
-                imagen:
-                    producto.imagen,
-
-                precio:
-                    Number(
-                        producto.precio
-                    ),
-
-                talla:
-                    producto.talla,
-
-                cantidad:
-                    Number(
-                        producto.cantidad
-                    )
-
-            })
-        ),
-
-    total:
-        total,
-
-    pago: {
-        metodo:
-            metodoPago,
-
-        estado:
-            "Pendiente",
-
-        referencia:
-            ""
-    },
-
-    fecha:
-        new Date().toLocaleString(
-            "es-DO"
-        )
-
-};
-
-
-/* =================================================
-   ENVIAR AL SERVIDOR
-================================================= */
-
-try {
-
-    console.log(
-        "================================="
-    );
-
-    console.log(
-        "GBO - ENVIANDO PEDIDO"
-    );
-
-    console.log(
-        "Servidor:",
-        API_PEDIDOS
-    );
-
-    console.log(
-        "Pedido:",
-        nuevoPedido
-    );
-
-
-    const respuesta =
-        await fetch(
-            API_PEDIDOS,
-            {
-
-                method: "POST",
-
-                headers: {
-
-                    "Content-Type":
-                        "application/json"
-
-                },
-
-                body:
-                    JSON.stringify(
-                        nuevoPedido
-                    )
-
-            }
+        alert(
+            metodoPago === ""
+                ? "⚠️ Selecciona un método de pago."
+                : "⚠️ Completa todos los datos obligatorios."
         );
 
+        return;
 
-    console.log(
-        "Respuesta HTTP:",
-        respuesta.status
+    }
+
+
+    let total = 0;
+
+    let productosTexto = "";
+
+
+    carrito.forEach(
+        producto => {
+
+            const subtotal =
+                Number(producto.precio) *
+                Number(producto.cantidad);
+
+
+            total += subtotal;
+
+
+            productosTexto +=
+                `• ${producto.nombre} | Talla: ${producto.talla} | Cantidad: ${producto.cantidad} | RD$${subtotal.toLocaleString()}\n`;
+
+        }
     );
 
 
-    const textoRespuesta =
-        await respuesta.text();
+    /* =================================================
+       CREAR PEDIDO
+    ================================================= */
+
+    const nuevoPedido = {
+
+        id:
+            "GBO-" +
+            Date.now(),
+
+        cliente:
+            nombre,
+
+        telefono:
+            telefono,
+
+        direccion:
+            direccion,
+
+        ciudad:
+            ciudad,
+
+        instrucciones:
+            indicaciones || "Ninguna",
+
+        productos:
+            carrito.map(
+                producto => ({
+
+                    nombre:
+                        producto.nombre,
+
+                    imagen:
+                        producto.imagen,
+
+                    precio:
+                        Number(
+                            producto.precio
+                        ),
+
+                    talla:
+                        producto.talla,
+
+                    cantidad:
+                        Number(
+                            producto.cantidad
+                        )
+
+                })
+            ),
+
+        total:
+            total,
+
+        pago: {
+
+            metodo:
+                metodoPago,
+
+            estado:
+                "Pendiente",
+
+            referencia:
+                ""
+
+        },
+
+        estado:
+            "Nuevo",
+
+        fecha:
+            new Date().toLocaleString(
+                "es-DO"
+            )
+
+    };
 
 
-    console.log(
-        "Respuesta servidor:",
-        textoRespuesta
-    );
-
-
-    let resultado;
-
+    /* =================================================
+       ENVIAR AL SERVIDOR
+    ================================================= */
 
     try {
 
-        resultado =
-            JSON.parse(
-                textoRespuesta
+        console.log(
+            "================================="
+        );
+
+        console.log(
+            "GBO - ENVIANDO PEDIDO"
+        );
+
+        console.log(
+            "Servidor:",
+            API_PEDIDOS
+        );
+
+        console.log(
+            "Pedido:",
+            nuevoPedido
+        );
+
+
+        const respuesta =
+            await fetch(
+                API_PEDIDOS,
+                {
+
+                    method: "POST",
+
+                    headers: {
+
+                        "Content-Type":
+                            "application/json"
+
+                    },
+
+                    body:
+                        JSON.stringify(
+                            nuevoPedido
+                        )
+
+                }
             );
 
-    } catch {
 
-        throw new Error(
-            "El servidor no devolvió JSON. Código HTTP: " +
+        console.log(
+            "Respuesta HTTP:",
             respuesta.status
         );
 
-    }
+
+        const textoRespuesta =
+            await respuesta.text();
 
 
-    if (
-        !respuesta.ok ||
-        !resultado.ok
-    ) {
-
-        throw new Error(
-            resultado.error ||
-            "El servidor rechazó el pedido."
+        console.log(
+            "Respuesta servidor:",
+            textoRespuesta
         );
 
-    }
+
+        let resultado;
 
 
-    /* =============================================
-       MENSAJE
-    ============================================= */
+        try {
 
-    const mensaje =
+            resultado =
+                JSON.parse(
+                    textoRespuesta
+                );
 
+        } catch {
+
+            throw new Error(
+                "El servidor no devolvió JSON. Código HTTP: " +
+                respuesta.status
+            );
+
+        }
+
+
+        if (
+            !respuesta.ok ||
+            !resultado.ok
+        ) {
+
+            throw new Error(
+                resultado.error ||
+                "El servidor rechazó el pedido."
+            );
+
+        }
+
+
+        /* =============================================
+           MENSAJE
+        ============================================= */
+
+        const mensaje =
 
 `🔥 PEDIDO GBO 🔥
 
@@ -1314,6 +1373,8 @@ try {
 
 📝 Indicaciones: ${indicaciones || "Ninguna"}
 
+💳 Método de pago: ${metodoPago}
+
 🛍️ PRODUCTOS:
 
 ${productosTexto}
@@ -1323,143 +1384,154 @@ ${productosTexto}
 DRESS DIFFERENT.`;
 
 
-    localStorage.setItem(
-        "mensajePedidoGBO",
-        mensaje
-    );
+        localStorage.setItem(
+            "mensajePedidoGBO",
+            mensaje
+        );
 
 
-    /* =============================================
-       LIMPIAR CARRITO
-    ============================================= */
+        /* =============================================
+           GUARDAR ÚLTIMO PEDIDO LOCALMENTE
+        ============================================= */
 
-    carrito = [];
-
-
-    localStorage.setItem(
-        "carritoGBO",
-        JSON.stringify([])
-    );
-
-
-    /* =============================================
-       CONFIRMACIÓN
-    ============================================= */
-
-    document.getElementById(
-        "carrito-contenido"
-    ).innerHTML = `
-
-        <div class="pedido-confirmado">
-
-            <h2>
-                🔥 ¡PEDIDO RECIBIDO!
-            </h2>
-
-            <p>
-                Tu pedido GBO fue enviado
-                correctamente.
-            </p>
-
-            <p>
-                🆔 Número de pedido:
-                <strong>
-                    ${nuevoPedido.id}
-                </strong>
-            </p>
-
-            <p>
-                ✅ El pedido fue guardado
-                en el sistema de GOLBEYONE.
-            </p>
-
-            <p>
-                Ahora puedes contactar a
-                GOLBEYONE por Instagram para
-                continuar con el pedido.
-            </p>
+        localStorage.setItem(
+            "pedidoGBO",
+            JSON.stringify(
+                nuevoPedido
+            )
+        );
 
 
-            <button
-                class="boton-final"
-                onclick="abrirInstagram()">
+        /* =============================================
+           LIMPIAR CARRITO
+        ============================================= */
 
-                📸 CONTINUAR POR INSTAGRAM
-
-            </button>
+        carrito = [];
 
 
-            <button
-                class="volver-carrito"
-                onclick="window.location.href='index.html'">
-
-                ← VOLVER A LA TIENDA
-
-            </button>
-
-        </div>
-
-    `;
+        localStorage.setItem(
+            "carritoGBO",
+            JSON.stringify([])
+        );
 
 
-    document.getElementById(
-        "carrito-total"
-    ).textContent =
-        "PEDIDO GBO";
+        /* =============================================
+           CONFIRMACIÓN
+        ============================================= */
+
+        document.getElementById(
+            "carrito-contenido"
+        ).innerHTML = `
+
+            <div class="pedido-confirmado">
+
+                <h2>
+                    🔥 ¡PEDIDO RECIBIDO!
+                </h2>
+
+                <p>
+                    Tu pedido GBO fue enviado
+                    correctamente.
+                </p>
+
+                <p>
+                    🆔 Número de pedido:
+                    <strong>
+                        ${nuevoPedido.id}
+                    </strong>
+                </p>
+
+                <p>
+                    ✅ El pedido fue guardado
+                    en el sistema de GOLBEYONE.
+                </p>
+
+                <p>
+                    Ahora puedes contactar a
+                    GOLBEYONE por Instagram para
+                    continuar con el pedido.
+                </p>
 
 
-    console.log(
-        "✅ PEDIDO ENVIADO CORRECTAMENTE"
-    );
+                <button
+                    class="boton-final"
+                    onclick="abrirInstagram()">
+
+                    📸 CONTINUAR POR INSTAGRAM
+
+                </button>
 
 
-} catch (error) {
+                <button
+                    class="volver-carrito"
+                    onclick="window.location.href='index.html'">
 
-    console.error(
-        "================================="
-    );
+                    ← VOLVER A LA TIENDA
 
-    console.error(
-        "❌ ERROR ENVIANDO PEDIDO"
-    );
+                </button>
 
-    console.error(
-        error
-    );
+            </div>
 
-    console.error(
-        "================================="
-    );
+        `;
 
 
-    alert(
-        "❌ NO SE PUDO ENVIAR EL PEDIDO.\n\n" +
-        "Error real:\n" +
-        error.message
-    );
+        document.getElementById(
+            "carrito-total"
+        ).textContent =
+            "PEDIDO GBO";
+
+
+        console.log(
+            "✅ PEDIDO ENVIADO CORRECTAMENTE"
+        );
+
+
+    } catch (error) {
+
+        console.error(
+            "================================="
+        );
+
+        console.error(
+            "❌ ERROR ENVIANDO PEDIDO"
+        );
+
+        console.error(
+            error
+        );
+
+        console.error(
+            "================================="
+        );
+
+
+        alert(
+            "❌ NO SE PUDO ENVIAR EL PEDIDO.\n\n" +
+            "Error real:\n" +
+            error.message
+        );
+
+    }
 
 }
 
-
-}
 
 /* =====================================================
-INSTAGRAM
+   INSTAGRAM
 ===================================================== */
 
 function abrirInstagram() {
 
-
-window.open(
-    "https://www.instagram.com/GOLBEYONE/",
-    "_blank"
-);
-
+    window.open(
+        "https://www.instagram.com/GOLBEYONE/",
+        "_blank"
+    );
 
 }
 
+
 /* =====================================================
-INICIAR
+   INICIAR
 ===================================================== */
 
 mostrarCarrito();
