@@ -1371,11 +1371,6 @@ try{
 sonidoActivado=true;
 
 
-/*
-   Creamos un AudioContext únicamente
-   después de que el usuario pulse el botón.
-*/
-
 if(
 window.AudioContext||
 window.webkitAudioContext
@@ -2371,56 +2366,9 @@ Método de pago
 <select
 id="metodoPago-${escaparAtributo(pedido.id)}">
 
-
-<option
-value="Pendiente"
-${metodoPago==="Pendiente"
-?"selected":""}>
-
-Pendiente
-
-</option>
-
-
-<option
-value="Efectivo"
-${metodoPago==="Efectivo"
-?"selected":""}>
-
-Efectivo
-
-</option>
-
-
-<option
-value="Transferencia"
-${metodoPago==="Transferencia"
-?"selected":""}>
-
-Transferencia
-
-</option>
-
-
-<option
-value="Tarjeta"
-${metodoPago==="Tarjeta"
-?"selected":""}>
-
-Tarjeta
-
-</option>
-
-
-<option
-value="Pago móvil"
-${metodoPago==="Pago móvil"
-?"selected":""}>
-
-Pago móvil
-
-</option>
-
+${crearOpcionesMetodoPago(
+metodoPago
+)}
 
 </select>
 
@@ -2549,6 +2497,75 @@ onclick="eliminarPedido(
 </article>
 
 `;
+
+}
+
+
+/* =========================================
+   MÉTODOS DE PAGO
+========================================= */
+
+function crearOpcionesMetodoPago(actual){
+
+const metodos=[
+"Pendiente",
+"Pago contra entrega",
+"Transferencia bancaria",
+"Otro método"
+];
+
+let opciones=metodos.map(
+metodo=>`
+
+<option
+value="${escaparAtributo(metodo)}"
+${actual===metodo
+?"selected":""}>
+
+${escapar(metodo)}
+
+</option>
+
+`
+).join("");
+
+
+/*
+   Compatibilidad con pedidos antiguos.
+   Si un pedido viejo tiene un método que ya
+   no usamos, lo mostramos para no perderlo.
+*/
+
+const metodosAntiguos=[
+"Efectivo",
+"Transferencia",
+"Tarjeta",
+"Pago móvil"
+];
+
+
+if(
+actual &&
+!metodos.includes(actual) &&
+metodosAntiguos.includes(actual)
+){
+
+opciones+=`
+
+<option
+value="${escaparAtributo(actual)}"
+selected>
+
+${escapar(actual)} (pedido anterior)
+
+</option>
+
+`;
+
+}
+
+
+return opciones;
 
 }
 

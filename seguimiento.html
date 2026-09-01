@@ -1,0 +1,1321 @@
+<!DOCTYPE html>
+
+<html lang="es">
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>GOLBEYONE | Seguimiento de pedido</title>
+
+<style>
+
+*{
+    box-sizing:border-box;
+    margin:0;
+    padding:0;
+}
+
+:root{
+    --bg:#050505;
+    --card:#0c0c0f;
+    --card2:#111116;
+    --border:#24242b;
+    --purple:#a855f7;
+    --purple-light:#c084fc;
+    --purple-dark:#7e22ce;
+    --text:#fff;
+    --muted:#888;
+    --green:#4ade80;
+}
+
+html{
+    scroll-behavior:smooth;
+}
+
+body{
+    font-family:Arial,Helvetica,sans-serif;
+    background:
+        radial-gradient(
+            circle at 50% -10%,
+            rgba(168,85,247,.14),
+            transparent 35%
+        ),
+        var(--bg);
+    color:var(--text);
+    min-height:100vh;
+}
+
+
+/* =========================================
+   HEADER
+========================================= */
+
+header{
+    padding:42px 20px 34px;
+    text-align:center;
+    background:rgba(5,5,5,.82);
+    border-bottom:1px solid rgba(255,255,255,.07);
+    backdrop-filter:blur(12px);
+}
+
+.logo{
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    width:58px;
+    height:58px;
+    margin-bottom:15px;
+    border-radius:18px;
+    border:1px solid rgba(168,85,247,.45);
+    background:
+        linear-gradient(
+            145deg,
+            rgba(168,85,247,.18),
+            rgba(168,85,247,.04)
+        );
+    box-shadow:
+        0 0 35px rgba(168,85,247,.14);
+    font-size:24px;
+}
+
+header h1{
+    font-size:32px;
+    letter-spacing:5px;
+    font-weight:800;
+}
+
+header p{
+    margin-top:9px;
+    color:#999;
+    font-size:13px;
+    letter-spacing:2px;
+}
+
+
+/* =========================================
+   NAV
+========================================= */
+
+nav{
+    display:flex;
+    justify-content:center;
+    gap:9px;
+    flex-wrap:wrap;
+    padding:14px 15px;
+    background:rgba(8,8,8,.9);
+    border-bottom:1px solid rgba(255,255,255,.06);
+}
+
+nav a{
+    text-decoration:none;
+    color:#bbb;
+    padding:9px 13px;
+    border:1px solid #29292f;
+    border-radius:9px;
+    background:#0b0b0e;
+    font-size:13px;
+    transition:.25s ease;
+}
+
+nav a:hover{
+    color:white;
+    border-color:var(--purple);
+    background:#151019;
+    transform:translateY(-1px);
+}
+
+
+/* =========================================
+   CONTENEDOR
+========================================= */
+
+.contenedor{
+    width:min(850px,92%);
+    margin:45px auto 70px;
+}
+
+
+/* =========================================
+   HERO
+========================================= */
+
+.hero{
+    text-align:center;
+    margin-bottom:30px;
+}
+
+.hero .mini{
+    display:inline-block;
+    padding:7px 12px;
+    border-radius:30px;
+    border:1px solid rgba(168,85,247,.3);
+    background:rgba(168,85,247,.07);
+    color:var(--purple-light);
+    font-size:11px;
+    font-weight:bold;
+    letter-spacing:1.5px;
+    margin-bottom:14px;
+}
+
+.hero h2{
+    font-size:34px;
+    line-height:1.15;
+    margin-bottom:10px;
+}
+
+.hero p{
+    color:#888;
+    font-size:14px;
+    max-width:550px;
+    margin:auto;
+    line-height:1.6;
+}
+
+
+/* =========================================
+   BUSCADOR
+========================================= */
+
+.busqueda{
+    position:relative;
+    overflow:hidden;
+    background:
+        linear-gradient(
+            145deg,
+            rgba(20,20,25,.96),
+            rgba(9,9,12,.96)
+        );
+    border:1px solid var(--border);
+    border-radius:22px;
+    padding:26px;
+    margin-bottom:25px;
+    box-shadow:
+        0 20px 60px rgba(0,0,0,.3);
+}
+
+.busqueda::before{
+    content:"";
+    position:absolute;
+    width:180px;
+    height:180px;
+    top:-100px;
+    right:-70px;
+    background:rgba(168,85,247,.12);
+    filter:blur(50px);
+    border-radius:50%;
+}
+
+.busqueda-contenido{
+    position:relative;
+    z-index:1;
+}
+
+.busqueda-titulo{
+    display:flex;
+    align-items:center;
+    gap:12px;
+    margin-bottom:8px;
+}
+
+.busqueda-icono{
+    width:42px;
+    height:42px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    border-radius:12px;
+    background:#17111c;
+    border:1px solid #352044;
+    font-size:19px;
+}
+
+.busqueda h3{
+    font-size:18px;
+}
+
+.busqueda p{
+    color:#777;
+    font-size:13px;
+    margin-bottom:18px;
+    padding-left:54px;
+}
+
+.formulario{
+    display:flex;
+    gap:10px;
+}
+
+.input-wrap{
+    position:relative;
+    flex:1;
+}
+
+.input-wrap span{
+    position:absolute;
+    left:15px;
+    top:50%;
+    transform:translateY(-50%);
+    color:#666;
+    font-size:15px;
+}
+
+#pedidoID{
+    width:100%;
+    padding:15px 15px 15px 40px;
+    background:#08080a;
+    color:white;
+    border:1px solid #303037;
+    border-radius:11px;
+    outline:none;
+    font-size:14px;
+    transition:.2s;
+}
+
+#pedidoID::placeholder{
+    color:#555;
+}
+
+#pedidoID:focus{
+    border-color:var(--purple);
+    box-shadow:
+        0 0 0 3px rgba(168,85,247,.08);
+}
+
+#botonBuscar{
+    padding:0 22px;
+    min-width:155px;
+    border:1px solid var(--purple);
+    border-radius:11px;
+    background:
+        linear-gradient(
+            135deg,
+            #a855f7,
+            #8b35d0
+        );
+    color:white;
+    font-weight:bold;
+    cursor:pointer;
+    transition:.25s;
+    box-shadow:
+        0 8px 25px rgba(168,85,247,.15);
+}
+
+#botonBuscar:hover{
+    transform:translateY(-2px);
+    box-shadow:
+        0 12px 30px rgba(168,85,247,.25);
+}
+
+#botonBuscar:disabled{
+    opacity:.6;
+    cursor:wait;
+    transform:none;
+}
+
+
+/* =========================================
+   RESULTADO
+========================================= */
+
+.resultado{
+    display:none;
+    animation:aparecer .35s ease;
+}
+
+@keyframes aparecer{
+
+    from{
+        opacity:0;
+        transform:translateY(12px);
+    }
+
+    to{
+        opacity:1;
+        transform:translateY(0);
+    }
+
+}
+
+
+/* =========================================
+   PEDIDO CARD
+========================================= */
+
+.pedido-card{
+    background:
+        linear-gradient(
+            145deg,
+            rgba(17,17,22,.98),
+            rgba(9,9,11,.98)
+        );
+    border:1px solid var(--border);
+    border-radius:22px;
+    overflow:hidden;
+    box-shadow:
+        0 25px 70px rgba(0,0,0,.35);
+}
+
+.pedido-header{
+    padding:24px;
+    background:
+        linear-gradient(
+            90deg,
+            rgba(168,85,247,.08),
+            transparent
+        );
+    border-bottom:1px solid #222228;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    gap:20px;
+    flex-wrap:wrap;
+}
+
+.pedido-label{
+    color:#777;
+    font-size:10px;
+    letter-spacing:1.5px;
+    margin-bottom:6px;
+}
+
+.pedido-id{
+    color:#fff;
+    font-size:20px;
+    font-weight:800;
+    letter-spacing:.5px;
+}
+
+.fecha{
+    color:#666;
+    font-size:12px;
+    margin-top:6px;
+}
+
+.estado-actual{
+    padding:9px 14px;
+    border-radius:30px;
+    border:1px solid rgba(168,85,247,.4);
+    color:#d8b4fe;
+    background:rgba(168,85,247,.08);
+    font-size:12px;
+    font-weight:bold;
+    box-shadow:
+        0 0 20px rgba(168,85,247,.08);
+}
+
+
+/* =========================================
+   PROGRESO
+========================================= */
+
+.progreso{
+    padding:35px 30px 28px;
+}
+
+.progreso-titulo{
+    color:#777;
+    font-size:11px;
+    font-weight:bold;
+    letter-spacing:1.5px;
+    margin-bottom:25px;
+}
+
+.paso{
+    position:relative;
+    display:flex;
+    align-items:flex-start;
+    gap:16px;
+    min-height:75px;
+}
+
+.paso:not(:last-child)::after{
+    content:"";
+    position:absolute;
+    left:16px;
+    top:34px;
+    width:2px;
+    height:48px;
+    background:#292930;
+}
+
+.paso.completado:not(:last-child)::after{
+    background:
+        linear-gradient(
+            to bottom,
+            var(--purple),
+            var(--purple-dark)
+        );
+}
+
+.circulo{
+    width:34px;
+    height:34px;
+    min-width:34px;
+    border-radius:50%;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    background:#151519;
+    border:1px solid #33333b;
+    position:relative;
+    z-index:2;
+    font-size:14px;
+    transition:.3s;
+}
+
+.paso.completado .circulo{
+    background:
+        linear-gradient(
+            145deg,
+            #b05cff,
+            #8b35d0
+        );
+    border-color:#b05cff;
+    box-shadow:
+        0 5px 18px rgba(168,85,247,.18);
+}
+
+.paso.actual .circulo{
+    box-shadow:
+        0 0 0 5px rgba(168,85,247,.10),
+        0 0 25px rgba(168,85,247,.25);
+}
+
+.paso-info{
+    padding-top:1px;
+}
+
+.paso-info strong{
+    display:block;
+    font-size:14px;
+    margin-top:3px;
+}
+
+.paso-info span{
+    display:block;
+    margin-top:5px;
+    color:#666;
+    font-size:12px;
+    line-height:1.4;
+}
+
+.paso.completado .paso-info strong{
+    color:#eee;
+}
+
+.paso.no-activo{
+    opacity:.35;
+}
+
+
+/* =========================================
+   INFORMACIÓN
+========================================= */
+
+.informacion{
+    padding:24px 30px 28px;
+    border-top:1px solid #222228;
+}
+
+.informacion-titulo{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    margin-bottom:18px;
+}
+
+.informacion-titulo span{
+    font-size:18px;
+}
+
+.informacion h3{
+    font-size:15px;
+}
+
+.datos{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:10px;
+}
+
+.dato{
+    padding:14px;
+    background:#0c0c0f;
+    border:1px solid #202026;
+    border-radius:11px;
+    color:#888;
+    font-size:12px;
+}
+
+.dato strong{
+    display:block;
+    color:#555;
+    font-size:10px;
+    text-transform:uppercase;
+    letter-spacing:1px;
+    margin-bottom:6px;
+}
+
+.dato.total-dato{
+    border-color:rgba(74,222,128,.15);
+    background:rgba(74,222,128,.03);
+}
+
+.dato.total-dato span{
+    color:var(--green);
+    font-size:17px;
+    font-weight:bold;
+}
+
+
+/* =========================================
+   ERROR / MENSAJE
+========================================= */
+
+.mensaje{
+    padding:35px 25px;
+    text-align:center;
+    background:#0d0d10;
+    border:1px solid #24242b;
+    border-radius:18px;
+    color:#777;
+    line-height:1.6;
+}
+
+.mensaje .icono{
+    font-size:32px;
+    margin-bottom:12px;
+}
+
+.mensaje strong{
+    display:block;
+    color:#ddd;
+    margin-bottom:5px;
+}
+
+.mensaje.error{
+    color:#f87171;
+    border-color:#4a1717;
+    background:#100909;
+}
+
+
+/* =========================================
+   FOOTER
+========================================= */
+
+footer{
+    text-align:center;
+    padding:25px 20px 35px;
+    color:#444;
+    font-size:11px;
+    letter-spacing:1px;
+}
+
+
+/* =========================================
+   RESPONSIVE
+========================================= */
+
+@media(max-width:650px){
+
+    header{
+        padding:32px 15px 27px;
+    }
+
+    header h1{
+        font-size:25px;
+        letter-spacing:4px;
+    }
+
+    nav{
+        gap:6px;
+    }
+
+    nav a{
+        padding:8px 10px;
+        font-size:11px;
+    }
+
+    .contenedor{
+        width:94%;
+        margin:32px auto 55px;
+    }
+
+    .hero h2{
+        font-size:27px;
+    }
+
+    .hero p{
+        font-size:13px;
+    }
+
+    .busqueda{
+        padding:20px;
+        border-radius:18px;
+    }
+
+    .busqueda p{
+        padding-left:0;
+    }
+
+    .formulario{
+        flex-direction:column;
+    }
+
+    #botonBuscar{
+        min-height:48px;
+    }
+
+    .pedido-card{
+        border-radius:18px;
+    }
+
+    .pedido-header{
+        padding:20px;
+    }
+
+    .pedido-id{
+        font-size:17px;
+    }
+
+    .progreso{
+        padding:28px 20px 22px;
+    }
+
+    .informacion{
+        padding:22px 20px;
+    }
+
+    .datos{
+        grid-template-columns:1fr;
+    }
+
+}
+
+</style>
+
+</head>
+
+<body>
+
+<header>
+
+<div class="logo">
+G
+</div>
+
+<h1>GOLBEYONE</h1>
+
+<p>SEGUIMIENTO DE PEDIDO</p>
+
+</header>
+
+<nav>
+
+<a href="index.html">🏠 Tienda</a>
+
+<a href="camisas.html">👕 Camisas</a>
+
+<a href="pantalones.html">👖 Pantalones</a>
+
+<a href="gorras.html">🧢 Gorras</a>
+
+<a href="carrito.html">🛒 Carrito</a>
+
+</nav>
+
+<main class="contenedor">
+
+<section class="hero">
+
+<span class="mini">
+GOLBEYONE ORDER TRACKING
+</span>
+
+<h2>
+Sigue tu pedido.
+</h2>
+
+<p>
+Consulta el estado de tu compra en tiempo real utilizando
+el ID que recibiste al realizar tu pedido.
+</p>
+
+</section>
+
+<section class="busqueda">
+
+<div class="busqueda-contenido">
+
+<div class="busqueda-titulo">
+
+<div class="busqueda-icono">
+🔎
+</div>
+
+<h3>
+Buscar mi pedido
+</h3>
+
+</div>
+
+<p>
+Introduce tu número de pedido para consultar su progreso.
+</p>
+
+<div class="formulario">
+
+<div class="input-wrap">
+
+<span>#</span>
+
+<input
+type="text"
+id="pedidoID"
+placeholder="GBO-123456789"
+autocomplete="off"
+
+>
+
+</div>
+
+<button
+id="botonBuscar"
+onclick="buscarPedido()">
+
+🔎 Buscar pedido
+
+</button>
+
+</div>
+
+</div>
+
+</section>
+
+<section
+id="resultado"
+class="resultado">
+</section>
+
+</main>
+
+<footer>
+
+GOLBEYONE © 2026 · DRESS DIFFERENT.
+
+</footer>
+
+<script>
+
+
+/* =========================================
+   CONFIGURACIÓN
+========================================= */
+
+const API_PEDIDOS="/api/pedidos";
+
+
+/* =========================================
+   ESTADOS
+========================================= */
+
+const estados=[
+
+{
+nombre:"Nuevo",
+icono:"🆕",
+descripcion:"Tu pedido fue recibido correctamente."
+},
+
+{
+nombre:"Confirmado",
+icono:"✓",
+descripcion:"Tu pedido fue confirmado."
+},
+
+{
+nombre:"Preparando",
+icono:"🔧",
+descripcion:"Estamos preparando tus productos."
+},
+
+{
+nombre:"Enviado",
+icono:"🚚",
+descripcion:"Tu pedido está en camino."
+},
+
+{
+nombre:"Entregado",
+icono:"📬",
+descripcion:"Tu pedido fue entregado."
+}
+
+];
+
+
+/* =========================================
+   BUSCAR
+========================================= */
+
+async function buscarPedido(){
+
+const input=
+document.getElementById("pedidoID");
+
+const boton=
+document.getElementById("botonBuscar");
+
+const resultado=
+document.getElementById("resultado");
+
+
+const id=
+input.value.trim();
+
+
+if(!id){
+
+resultado.style.display="block";
+
+resultado.innerHTML=`
+
+<div class="mensaje error">
+
+<div class="icono">⚠️</div>
+
+<strong>Falta el ID del pedido</strong>
+
+Escribe el número de pedido para continuar.
+
+</div>
+
+`;
+
+return;
+
+}
+
+
+boton.disabled=true;
+
+boton.textContent="⏳ Buscando...";
+
+
+resultado.style.display="block";
+
+resultado.innerHTML=`
+
+<div class="mensaje">
+
+<div class="icono">🔎</div>
+
+<strong>Buscando pedido...</strong>
+
+Estamos consultando la información.
+
+</div>
+
+`;
+
+
+try{
+
+const respuesta=
+await fetch(
+API_PEDIDOS+"?t="+Date.now()
+);
+
+
+if(!respuesta.ok){
+
+throw new Error(
+"Error HTTP "+respuesta.status
+);
+
+}
+
+
+const pedidos=
+await respuesta.json();
+
+
+if(!Array.isArray(pedidos)){
+
+throw new Error(
+"Respuesta inválida del servidor."
+);
+
+}
+
+
+const pedido=
+pedidos.find(
+item=>
+String(item.id||"")
+.toLowerCase()===
+id.toLowerCase()
+);
+
+
+if(!pedido){
+
+resultado.innerHTML=`
+
+<div class="mensaje error">
+
+<div class="icono">📭</div>
+
+<strong>Pedido no encontrado</strong>
+
+No encontramos un pedido con el ID:
+
+<br>
+
+<strong>${escapar(id)}</strong>
+
+<br><br>
+
+Comprueba que el ID esté escrito correctamente.
+
+</div>
+
+`;
+
+return;
+
+}
+
+
+mostrarPedido(pedido);
+
+
+}catch(error){
+
+console.error(error);
+
+
+resultado.innerHTML=`
+
+<div class="mensaje error">
+
+<div class="icono">⚠️</div>
+
+<strong>No pudimos consultar el pedido</strong>
+
+Inténtalo nuevamente en unos segundos.
+
+</div>
+
+`;
+
+}finally{
+
+boton.disabled=false;
+
+boton.textContent="🔎 Buscar pedido";
+
+}
+
+}
+
+
+/* =========================================
+   MOSTRAR PEDIDO
+========================================= */
+
+function mostrarPedido(pedido){
+
+const resultado=
+document.getElementById("resultado");
+
+
+const estadoActual=
+pedido.estado||
+"Nuevo";
+
+
+let indiceActual=
+estados.findIndex(
+estado=>
+estado.nombre===estadoActual
+);
+
+
+/*
+   Si aparece un estado desconocido,
+   mantenemos el progreso en Nuevo.
+*/
+
+if(indiceActual<0){
+
+indiceActual=0;
+
+}
+
+
+let progresoHTML="";
+
+
+estados.forEach(
+(estado,index)=>{
+
+const completado=
+index<=indiceActual;
+
+
+const actual=
+index===indiceActual;
+
+
+const clase=
+completado
+?"completado"
+:"no-activo";
+
+
+progresoHTML+=`
+
+<div class="paso ${clase} ${actual?"actual":""}">
+
+<div class="circulo">
+
+${completado?"✓":estado.icono}
+
+</div>
+
+
+<div class="paso-info">
+
+<strong>
+${escapar(estado.nombre)}
+</strong>
+
+<span>
+${escapar(estado.descripcion)}
+</span>
+
+</div>
+
+</div>
+
+`;
+
+});
+
+
+const cantidad=
+Array.isArray(pedido.productos)
+?pedido.productos.length
+:0;
+
+
+resultado.innerHTML=`
+
+<div class="pedido-card">
+
+
+<div class="pedido-header">
+
+<div>
+
+<div class="pedido-label">
+NÚMERO DE PEDIDO
+</div>
+
+<div class="pedido-id">
+
+${escapar(
+pedido.id||
+"SIN ID"
+)}
+
+</div>
+
+<div class="fecha">
+
+${escapar(
+pedido.fecha||
+""
+)}
+
+</div>
+
+</div>
+
+
+<div class="estado-actual">
+
+${escapar(estadoActual)}
+
+</div>
+
+</div>
+
+
+<div class="progreso">
+
+<div class="progreso-titulo">
+ESTADO DEL PEDIDO
+</div>
+
+${progresoHTML}
+
+</div>
+
+
+<div class="informacion">
+
+<div class="informacion-titulo">
+
+<span>📦</span>
+
+<h3>
+Información del pedido
+</h3>
+
+</div>
+
+
+<div class="datos">
+
+${agregarDato(
+"Cliente",
+pedido.cliente
+)}
+
+
+${agregarDato(
+"Ciudad",
+pedido.ciudad
+)}
+
+
+${agregarDato(
+"Productos",
+cantidad
+)}
+
+
+${agregarDato(
+"Total",
+formatoDinero(pedido.total),
+true
+)}
+
+</div>
+
+</div>
+
+
+</div>
+
+`;
+
+}
+
+
+/* =========================================
+   DATOS
+========================================= */
+
+function agregarDato(
+nombre,
+valor,
+esTotal=false
+){
+
+if(
+valor===undefined||
+valor===null||
+valor===""
+){
+
+return "";
+
+}
+
+
+return `
+
+<div class="dato ${esTotal?"total-dato":""}">
+
+<strong>
+${escapar(nombre)}
+</strong>
+
+<span>
+${escapar(valor)}
+</span>
+
+</div>
+
+`;
+
+}
+
+
+/* =========================================
+   DINERO
+========================================= */
+
+function formatoDinero(valor){
+
+return Number(valor||0)
+.toLocaleString(
+"es-DO",
+{
+style:"currency",
+currency:"DOP",
+maximumFractionDigits:0
+}
+);
+
+}
+
+
+/* =========================================
+   SEGURIDAD
+========================================= */
+
+function escapar(valor){
+
+return String(valor??"")
+.replace(/&/g,"&amp;")
+.replace(/</g,"&lt;")
+.replace(/>/g,"&gt;")
+.replace(/"/g,"&quot;")
+.replace(/'/g,"&#039;");
+
+}
+
+
+/* =========================================
+   ENTER
+========================================= */
+
+document
+.getElementById("pedidoID")
+.addEventListener(
+"keydown",
+function(event){
+
+if(event.key==="Enter"){
+
+buscarPedido();
+
+}
+
+});
+
+
+</script>
+
+</body>
+
+</html>
