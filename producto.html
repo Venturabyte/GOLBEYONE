@@ -1,267 +1,1182 @@
-
 <!DOCTYPE html>
+
 <html lang="es">
 
 <head>
 
-    <meta charset="UTF-8">
 
-    <meta
-        name="viewport"
-        content="width=device-width, initial-scale=1.0">
+<meta charset="UTF-8">
 
-    <title>GOLBEYONE | Producto</title>
+<meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0">
 
-    <link rel="stylesheet" href="style.css">
+<meta
+    name="theme-color"
+    content="#050505">
+
+<title>GOLBEYONE | Producto</title>
+
+<link rel="stylesheet" href="style.css">
+
+<style>
+
+    /* =====================================================
+       PRODUCTO GBO — DISEÑO PREMIUM
+    ===================================================== */
+
+    * {
+        box-sizing: border-box;
+    }
+
+    body {
+        margin: 0;
+        background:
+            radial-gradient(
+                circle at 50% 10%,
+                rgba(168, 85, 247, 0.08),
+                transparent 35%
+            ),
+            #050505;
+        color: #ffffff;
+    }
+
+
+    /* =====================================================
+       CONTENEDOR PRINCIPAL
+    ===================================================== */
+
+    .producto-detalle {
+        width: min(1180px, 92%);
+        margin: 55px auto 100px;
+
+        display: grid;
+        grid-template-columns:
+            minmax(0, 1.15fr)
+            minmax(350px, .85fr);
+
+        gap: 75px;
+        align-items: center;
+    }
+
+
+    /* =====================================================
+       IMAGEN
+    ===================================================== */
+
+    .producto-imagen {
+        position: relative;
+
+        width: 100%;
+        min-height: 650px;
+
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        padding: 30px;
+
+        border: 1px solid rgba(255,255,255,.08);
+
+        border-radius: 28px;
+
+        background:
+            linear-gradient(
+                145deg,
+                rgba(255,255,255,.055),
+                rgba(255,255,255,.015)
+            );
+
+        box-shadow:
+            0 25px 80px rgba(0,0,0,.55),
+            inset 0 0 40px rgba(168,85,247,.025);
+
+        overflow: hidden;
+    }
+
+
+    .producto-imagen::before {
+
+        content: "";
+
+        position: absolute;
+
+        width: 350px;
+        height: 350px;
+
+        border-radius: 50%;
+
+        background:
+            rgba(168,85,247,.08);
+
+        filter: blur(70px);
+
+        pointer-events: none;
+    }
+
+
+    .producto-imagen img {
+
+        position: relative;
+
+        width: 100%;
+        max-width: 570px;
+
+        max-height: 610px;
+
+        object-fit: contain;
+
+        border-radius: 20px;
+
+        display: block;
+
+        transition:
+            transform .45s ease,
+            filter .45s ease;
+
+        filter:
+            drop-shadow(
+                0 30px 35px rgba(0,0,0,.55)
+            );
+    }
+
+
+    .producto-imagen:hover img {
+
+        transform:
+            scale(1.035);
+
+        filter:
+            drop-shadow(
+                0 35px 45px rgba(0,0,0,.65)
+            );
+    }
+
+
+    /* =====================================================
+       INFORMACIÓN
+    ===================================================== */
+
+    .producto-info {
+
+        display: flex;
+        flex-direction: column;
+
+        align-items: flex-start;
+
+        width: 100%;
+    }
+
+
+    .categoria-producto {
+
+        margin: 0 0 12px;
+
+        font-size: 13px;
+
+        letter-spacing: 3px;
+
+        font-weight: 700;
+
+        color: #a855f7;
+
+        text-transform: uppercase;
+    }
+
+
+    #nombre-producto {
+
+        margin: 0;
+
+        font-size: clamp(32px, 4vw, 55px);
+
+        line-height: 1;
+
+        letter-spacing: -1.5px;
+
+        font-weight: 800;
+
+        color: #ffffff;
+    }
+
+
+    .precio {
+
+        margin: 24px 0 10px;
+
+        font-size: 29px;
+
+        font-weight: 800;
+
+        color: #ffffff;
+    }
+
+
+    /* =====================================================
+       DISPONIBILIDAD
+    ===================================================== */
+
+    .disponibilidad-producto {
+
+        margin: 0 0 32px;
+
+        padding: 8px 14px;
+
+        border-radius: 999px;
+
+        font-size: 12px;
+
+        font-weight: 700;
+
+        letter-spacing: 1px;
+
+        background:
+            rgba(34,197,94,.08);
+
+        border:
+            1px solid rgba(34,197,94,.20);
+
+        color: #4ade80;
+    }
+
+
+    /* =====================================================
+       CAMPOS
+    ===================================================== */
+
+    .producto-info label {
+
+        margin: 0 0 9px;
+
+        font-size: 13px;
+
+        font-weight: 700;
+
+        letter-spacing: 1px;
+
+        color: #d4d4d8;
+    }
+
+
+    #talla {
+
+        width: 100%;
+
+        height: 52px;
+
+        margin-bottom: 25px;
+
+        padding: 0 16px;
+
+        border-radius: 12px;
+
+        border:
+            1px solid rgba(255,255,255,.12);
+
+        background:
+            rgba(255,255,255,.055);
+
+        color: #ffffff;
+
+        font-size: 15px;
+
+        outline: none;
+
+        cursor: pointer;
+
+        transition:
+            border-color .25s ease,
+            box-shadow .25s ease;
+    }
+
+
+    #talla:focus {
+
+        border-color:
+            rgba(168,85,247,.75);
+
+        box-shadow:
+            0 0 0 3px
+            rgba(168,85,247,.12);
+    }
+
+
+    #talla option {
+
+        background: #111111;
+
+        color: #ffffff;
+    }
+
+
+    /* =====================================================
+       CANTIDAD
+    ===================================================== */
+
+    .cantidad-producto {
+
+        display: flex;
+
+        align-items: center;
+
+        width: 100%;
+
+        height: 52px;
+
+        margin-bottom: 28px;
+
+        border:
+            1px solid rgba(255,255,255,.12);
+
+        border-radius: 12px;
+
+        overflow: hidden;
+
+        background:
+            rgba(255,255,255,.04);
+    }
+
+
+    .cantidad-producto button {
+
+        width: 55px;
+
+        height: 100%;
+
+        border: none;
+
+        background:
+            rgba(255,255,255,.06);
+
+        color: #ffffff;
+
+        font-size: 25px;
+
+        cursor: pointer;
+
+        transition:
+            background .2s ease,
+            color .2s ease;
+    }
+
+
+    .cantidad-producto button:hover {
+
+        background:
+            rgba(168,85,247,.18);
+
+        color: #c084fc;
+    }
+
+
+    #cantidad {
+
+        flex: 1;
+
+        width: 100%;
+
+        height: 100%;
+
+        border: none;
+
+        outline: none;
+
+        background: transparent;
+
+        color: #ffffff;
+
+        text-align: center;
+
+        font-size: 17px;
+
+        font-weight: 700;
+    }
+
+
+    /* Quitar flechas del input */
+
+    #cantidad::-webkit-inner-spin-button,
+    #cantidad::-webkit-outer-spin-button {
+
+        -webkit-appearance: none;
+
+        margin: 0;
+    }
+
+
+    #cantidad[type=number] {
+
+        -moz-appearance: textfield;
+    }
+
+
+    /* =====================================================
+       BOTÓN COMPRA
+    ===================================================== */
+
+    .boton-compra {
+
+        width: 100%;
+
+        min-height: 58px;
+
+        border: none;
+
+        border-radius: 14px;
+
+        background:
+            linear-gradient(
+                135deg,
+                #a855f7,
+                #7c3aed
+            );
+
+        color: #ffffff;
+
+        font-size: 14px;
+
+        font-weight: 800;
+
+        letter-spacing: 1px;
+
+        cursor: pointer;
+
+        box-shadow:
+            0 12px 30px
+            rgba(124,58,237,.25);
+
+        transition:
+            transform .2s ease,
+            box-shadow .2s ease,
+            filter .2s ease;
+    }
+
+
+    .boton-compra:hover {
+
+        transform:
+            translateY(-2px);
+
+        filter:
+            brightness(1.08);
+
+        box-shadow:
+            0 17px 38px
+            rgba(124,58,237,.38);
+    }
+
+
+    .boton-compra:active {
+
+        transform:
+            translateY(0);
+    }
+
+
+    /* =====================================================
+       VER CARRITO
+    ===================================================== */
+
+    .volver {
+
+        width: 100%;
+
+        margin-top: 14px;
+
+        padding: 16px;
+
+        text-align: center;
+
+        text-decoration: none;
+
+        color: #a1a1aa;
+
+        font-size: 13px;
+
+        font-weight: 700;
+
+        border:
+            1px solid rgba(255,255,255,.08);
+
+        border-radius: 12px;
+
+        transition:
+            color .2s ease,
+            background .2s ease,
+            border-color .2s ease;
+    }
+
+
+    .volver:hover {
+
+        color: #ffffff;
+
+        background:
+            rgba(255,255,255,.04);
+
+        border-color:
+            rgba(168,85,247,.3);
+    }
+
+
+    /* =====================================================
+       POPUP
+    ===================================================== */
+
+    .fondo-popup {
+
+        position: fixed;
+
+        inset: 0;
+
+        z-index: 9999;
+
+        display: flex;
+
+        align-items: center;
+
+        justify-content: center;
+
+        padding: 20px;
+
+        background:
+            rgba(0,0,0,.78);
+
+        backdrop-filter:
+            blur(12px);
+
+        opacity: 0;
+
+        visibility: hidden;
+
+        pointer-events: none;
+
+        transition:
+            opacity .3s ease,
+            visibility .3s ease;
+    }
+
+
+    .fondo-popup.mostrar {
+
+        opacity: 1;
+
+        visibility: visible;
+
+        pointer-events: auto;
+    }
+
+
+    .popup-pedido {
+
+        position: relative;
+
+        width: min(440px, 100%);
+
+        padding: 30px;
+
+        border:
+            1px solid rgba(255,255,255,.10);
+
+        border-radius: 24px;
+
+        background:
+            linear-gradient(
+                145deg,
+                #151515,
+                #090909
+            );
+
+        box-shadow:
+            0 30px 90px rgba(0,0,0,.75);
+
+        text-align: center;
+
+        transform:
+            translateY(25px)
+            scale(.96);
+
+        transition:
+            transform .35s ease;
+    }
+
+
+    .fondo-popup.mostrar
+    .popup-pedido {
+
+        transform:
+            translateY(0)
+            scale(1);
+    }
+
+
+    .cerrar-popup {
+
+        position: absolute;
+
+        top: 13px;
+        right: 15px;
+
+        width: 35px;
+        height: 35px;
+
+        border: none;
+
+        border-radius: 50%;
+
+        background:
+            rgba(255,255,255,.06);
+
+        color: #ffffff;
+
+        font-size: 24px;
+
+        line-height: 1;
+
+        cursor: pointer;
+
+        transition:
+            background .2s ease,
+            transform .2s ease;
+    }
+
+
+    .cerrar-popup:hover {
+
+        background:
+            rgba(255,255,255,.12);
+
+        transform:
+            rotate(90deg);
+    }
+
+
+    #popup-imagen {
+
+        width: 170px;
+
+        height: 170px;
+
+        object-fit: contain;
+
+        border-radius: 18px;
+
+        margin: 5px auto 18px;
+
+        display: block;
+
+        filter:
+            drop-shadow(
+                0 15px 25px rgba(0,0,0,.55)
+            );
+    }
+
+
+    .popup-pedido h2 {
+
+        margin: 0 0 18px;
+
+        font-size: 21px;
+
+        letter-spacing: 1px;
+    }
+
+
+    .popup-pedido p {
+
+        margin: 9px 0;
+
+        color: #d4d4d8;
+
+        font-size: 14px;
+    }
+
+
+    .linea-popup {
+
+        width: 100%;
+
+        height: 1px;
+
+        margin: 20px 0;
+
+        background:
+            rgba(255,255,255,.08);
+    }
+
+
+    .popup-total {
+
+        font-size: 20px !important;
+
+        font-weight: 800;
+
+        color: #c084fc !important;
+    }
+
+
+    .boton-final {
+
+        width: 100%;
+
+        margin-top: 16px;
+
+        padding: 15px;
+
+        border: none;
+
+        border-radius: 12px;
+
+        background:
+            linear-gradient(
+                135deg,
+                #a855f7,
+                #7c3aed
+            );
+
+        color: #ffffff;
+
+        font-weight: 800;
+
+        cursor: pointer;
+
+        transition:
+            transform .2s ease,
+            filter .2s ease;
+    }
+
+
+    .boton-final:hover {
+
+        transform:
+            translateY(-2px);
+
+        filter:
+            brightness(1.08);
+    }
+
+
+    /* =====================================================
+       TABLET
+    ===================================================== */
+
+    @media (max-width: 900px) {
+
+        .producto-detalle {
+
+            grid-template-columns:
+                1fr;
+
+            gap: 45px;
+
+            margin-top: 35px;
+        }
+
+
+        .producto-imagen {
+
+            min-height: 500px;
+        }
+
+
+        .producto-info {
+
+            max-width: 650px;
+
+            margin: 0 auto;
+        }
+
+    }
+
+
+    /* =====================================================
+       MÓVIL
+    ===================================================== */
+
+    @media (max-width: 600px) {
+
+        .producto-detalle {
+
+            width: 94%;
+
+            margin:
+                25px auto 70px;
+
+            gap: 32px;
+        }
+
+
+        .producto-imagen {
+
+            min-height: 390px;
+
+            padding: 18px;
+
+            border-radius: 20px;
+        }
+
+
+        .producto-imagen img {
+
+            max-height: 360px;
+        }
+
+
+        #nombre-producto {
+
+            font-size: 35px;
+
+            line-height: 1.05;
+        }
+
+
+        .precio {
+
+            margin-top: 18px;
+
+            font-size: 25px;
+        }
+
+
+        .disponibilidad-producto {
+
+            margin-bottom: 25px;
+        }
+
+
+        .cantidad-producto {
+
+            height: 54px;
+        }
+
+
+        .cantidad-producto button {
+
+            width: 58px;
+        }
+
+
+        .boton-compra {
+
+            min-height: 60px;
+
+            font-size: 13px;
+        }
+
+
+        .popup-pedido {
+
+            padding: 25px 20px;
+
+            border-radius: 20px;
+        }
+
+
+        #popup-imagen {
+
+            width: 145px;
+
+            height: 145px;
+        }
+
+    }
+
+
+    /* =====================================================
+       MÓVIL PEQUEÑO
+    ===================================================== */
+
+    @media (max-width: 380px) {
+
+        .producto-detalle {
+
+            width: 92%;
+        }
+
+
+        .producto-imagen {
+
+            min-height: 330px;
+        }
+
+
+        .producto-imagen img {
+
+            max-height: 300px;
+        }
+
+
+        #nombre-producto {
+
+            font-size: 30px;
+        }
+
+
+        .popup-pedido h2 {
+
+            font-size: 18px;
+        }
+
+    }
+
+</style>
+
 
 </head>
 
 <body>
 
-
-<!-- =========================
+<!-- =====================================================
      MENÚ PRINCIPAL
-========================= -->
+===================================================== -->
 
 <nav class="navbar">
 
-    <a href="index.html" class="logo">
-        GBO
+
+<a href="index.html" class="logo">
+    GBO
+</a>
+
+
+<div class="nav-links">
+
+    <a href="camisas.html">
+        CAMISAS
     </a>
 
-    <div class="nav-links">
 
-        <a href="camisas.html">
-            CAMISAS
-        </a>
+    <a href="pantalones.html">
+        PANTALONES
+    </a>
 
-        <a href="pantalones.html">
-            PANTALONES
-        </a>
 
-        <a href="gorras.html">
-            GORRAS
-        </a>
+    <a href="gorras.html">
+        GORRAS
+    </a>
 
-        <a href="buscar.html">
-            🔎 BUSCAR
-        </a>
 
-        <a href="carrito.html">
-            🛒 CARRITO
-        </a>
+    <a href="buscar.html">
+        🔎 BUSCAR
+    </a>
 
-    </div>
+
+    <a href="carrito.html">
+        🛒 CARRITO
+    </a>
+
+</div>
+
 
 </nav>
 
+<!-- =====================================================
+     HEADER
+===================================================== -->
 
 <header>
 
-    <h1>
-        GOLBEYONE
-    </h1>
 
-    <p>
-        DRESS DIFFERENT.
-    </p>
+<h1>
+    GOLBEYONE
+</h1>
+
+<p>
+    DRESS DIFFERENT.
+</p>
+
 
 </header>
 
+<!-- =====================================================
+     PRODUCTO
+===================================================== -->
 
 <main class="producto-detalle">
 
 
-    <!-- =========================
-         IMAGEN DEL PRODUCTO
-    ========================== -->
+<!-- IMAGEN -->
 
-    <div class="producto-imagen">
+<div class="producto-imagen">
 
-        <img
-            id="imagen-producto"
-            src="camisa-1.jpg"
-            alt="Producto GOLBEYONE">
+    <img
+        id="imagen-producto"
+        src="camisa-1.jpg"
+        alt="Producto GOLBEYONE">
 
-    </div>
+</div>
 
 
-    <!-- =========================
-         INFORMACIÓN
-    ========================== -->
+<!-- INFORMACIÓN -->
 
-    <div class="producto-info">
-
-        <p
-            id="categoria-producto"
-            class="categoria-producto">
-        </p>
+<div class="producto-info">
 
 
-        <h2 id="nombre-producto">
-            CAMISA GBO #1
-        </h2>
+    <p
+        id="categoria-producto"
+        class="categoria-producto">
+    </p>
 
 
-        <p
-            id="precio-producto"
-            class="precio">
-
-            RD$1,290
-
-        </p>
+    <h2 id="nombre-producto">
+        CAMISA GBO #1
+    </h2>
 
 
-        <!-- DISPONIBILIDAD -->
+    <p
+        id="precio-producto"
+        class="precio">
 
-        <p
-            id="disponibilidad-producto"
-            class="disponibilidad-producto">
-        </p>
+        RD$1,290
 
-
-        <!-- =========================
-             TALLA
-        ========================== -->
-
-        <label for="talla">
-            Talla:
-        </label>
+    </p>
 
 
-        <select id="talla">
-
-            <option value="">
-                Selecciona una talla
-            </option>
-
-        </select>
+    <p
+        id="disponibilidad-producto"
+        class="disponibilidad-producto">
+    </p>
 
 
-        <!-- =========================
-             CANTIDAD
-        ========================== -->
+    <!-- TALLA -->
 
-        <label for="cantidad">
-            Cantidad:
-        </label>
+    <label for="talla">
+        TALLA
+    </label>
 
 
-        <div class="cantidad-producto">
+    <select id="talla">
 
-            <button
-                type="button"
-                onclick="cambiarCantidad(-1)">
+        <option value="">
+            Selecciona una talla
+        </option>
 
-                −
-
-            </button>
+    </select>
 
 
-            <input
-                type="number"
-                id="cantidad"
-                min="1"
-                value="1">
+    <!-- CANTIDAD -->
+
+    <label for="cantidad">
+        CANTIDAD
+    </label>
 
 
-            <button
-                type="button"
-                onclick="cambiarCantidad(1)">
-
-                +
-
-            </button>
-
-        </div>
-
-
-        <!-- =========================
-             AGREGAR AL CARRITO
-        ========================== -->
+    <div class="cantidad-producto">
 
         <button
-            class="boton-compra"
-            onclick="confirmarCompra()">
+            type="button"
+            onclick="cambiarCantidad(-1)"
+            aria-label="Disminuir cantidad">
 
-            AGREGAR AL CARRITO 🛒
+            −
 
         </button>
 
 
-        <a
-            href="carrito.html"
-            class="volver">
+        <input
+            type="number"
+            id="cantidad"
+            min="1"
+            value="1"
+            aria-label="Cantidad">
 
-            🛒 VER CARRITO
 
-        </a>
+        <button
+            type="button"
+            onclick="cambiarCantidad(1)"
+            aria-label="Aumentar cantidad">
+
+            +
+
+        </button>
 
     </div>
 
+
+    <!-- AGREGAR -->
+
+    <button
+        class="boton-compra"
+        onclick="confirmarCompra()">
+
+        AGREGAR AL CARRITO 🛒
+
+    </button>
+
+
+    <a
+        href="carrito.html"
+        class="volver">
+
+        🛒 VER CARRITO
+
+    </a>
+
+</div>
+
+
 </main>
 
-
-<!-- =========================
+<!-- =====================================================
      POPUP
-========================== -->
+===================================================== -->
 
 <div
     id="fondo-popup"
     class="fondo-popup">
 
 
-    <div class="popup-pedido">
+<div class="popup-pedido">
 
 
-        <button
-            class="cerrar-popup"
-            onclick="cerrarPopup()">
+    <button
+        class="cerrar-popup"
+        onclick="cerrarPopup()"
+        aria-label="Cerrar">
 
-            ×
+        ×
 
-        </button>
-
-
-        <img
-            id="popup-imagen"
-            src="camisa-1.jpg"
-            alt="Producto">
+    </button>
 
 
-        <h2>
-            PRODUCTO AGREGADO
-        </h2>
+    <img
+        id="popup-imagen"
+        src="camisa-1.jpg"
+        alt="Producto">
 
 
-        <p id="popup-producto"></p>
-
-        <p id="popup-talla"></p>
-
-        <p id="popup-cantidad"></p>
+    <h2>
+        PRODUCTO AGREGADO
+    </h2>
 
 
-        <div class="linea-popup"></div>
+    <p id="popup-producto"></p>
+
+    <p id="popup-talla"></p>
+
+    <p id="popup-cantidad"></p>
 
 
-        <p
-            id="popup-total"
-            class="popup-total">
-        </p>
+    <div class="linea-popup"></div>
 
 
-        <button
-            class="boton-final"
-            onclick="irAlCarrito()">
+    <p
+        id="popup-total"
+        class="popup-total">
+    </p>
 
-            IR AL CARRITO 🛒
 
-        </button>
+    <button
+        class="boton-final"
+        onclick="irAlCarrito()">
 
-    </div>
+        IR AL CARRITO 🛒
+
+    </button>
 
 </div>
 
+
+</div>
 
 <script>
 
@@ -543,9 +1458,7 @@ function cambiarCantidad(cambio) {
     cantidad += cambio;
 
 
-    if (
-        cantidad < 1
-    ) {
+    if (cantidad < 1) {
 
         cantidad = 1;
 
@@ -797,6 +1710,48 @@ function cerrarPopup() {
     );
 
 }
+
+
+/* =====================================================
+   CERRAR POPUP HACIENDO CLICK AFUERA
+===================================================== */
+
+document.getElementById(
+    "fondo-popup"
+).addEventListener(
+    "click",
+    function (evento) {
+
+        if (
+            evento.target === this
+        ) {
+
+            cerrarPopup();
+
+        }
+
+    }
+);
+
+
+/* =====================================================
+   ESCAPE PARA CERRAR POPUP
+===================================================== */
+
+document.addEventListener(
+    "keydown",
+    function (evento) {
+
+        if (
+            evento.key === "Escape"
+        ) {
+
+            cerrarPopup();
+
+        }
+
+    }
+);
 
 
 /* =====================================================
