@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="es">
 
@@ -789,10 +790,6 @@ nav a:hover{
 <main class="contenedor">
 
 
-<!-- =========================================
-     NOTIFICACIONES
-========================================= -->
-
 <section class="notificaciones-panel">
 
 <div class="notificaciones-info">
@@ -816,10 +813,6 @@ onclick="activarNotificaciones()">
 
 </section>
 
-
-<!-- =========================================
-     ESTADÍSTICAS
-========================================= -->
 
 <section class="estadisticas">
 
@@ -879,10 +872,6 @@ onclick="filtrarRapido('pagados')">
 
 </section>
 
-
-<!-- =========================================
-     ESTADOS
-========================================= -->
 
 <section class="estados">
 
@@ -945,10 +934,6 @@ onclick="filtrarRapido('Entregado')">
 </section>
 
 
-<!-- =========================================
-     HERRAMIENTAS
-========================================= -->
-
 <section class="herramientas">
 
 
@@ -990,10 +975,6 @@ onclick="actualizarAhora()">
 
 </section>
 
-
-<!-- =========================================
-     FILTROS
-========================================= -->
 
 <div class="filtros">
 
@@ -1122,6 +1103,8 @@ Cargando pedidos...
 
 const API_PEDIDOS="/api/pedidos";
 
+let ADMIN_TOKEN=
+sessionStorage.getItem("gboAdminToken")||"";
 
 let pedidos=[];
 
@@ -1139,81 +1122,166 @@ let sonidoActivado=false;
 
 
 /* =========================================
+   AUTENTICACIÓN ADMIN
+========================================= */
+
+function obtenerTokenAdmin(){
+
+    if(!ADMIN_TOKEN){
+
+        const token=prompt(
+            "🔐 GOLBEYONE\n\nIntroduce el token de administrador:"
+        );
+
+        if(!token){
+
+            throw new Error(
+                "Token de administrador requerido."
+            );
+
+        }
+
+        ADMIN_TOKEN=token.trim();
+
+        if(!ADMIN_TOKEN){
+
+            throw new Error(
+                "Token de administrador requerido."
+            );
+
+        }
+
+        sessionStorage.setItem(
+            "gboAdminToken",
+            ADMIN_TOKEN
+        );
+
+    }
+
+    return ADMIN_TOKEN;
+
+}
+
+
+function headersAdmin(){
+
+    return {
+        "Content-Type":"application/json",
+        "X-Admin-Token":obtenerTokenAdmin()
+    };
+
+}
+
+
+function limpiarTokenAdmin(){
+
+    ADMIN_TOKEN="";
+
+    sessionStorage.removeItem(
+        "gboAdminToken"
+    );
+
+}
+
+
+/* =========================================
    CARGAR PEDIDOS
 ========================================= */
 
 async function cargarPedidos(){
 
-if(editandoPago){
+    if(editandoPago){
 
-return;
+        return;
 
-}
+    }
 
-try{
+    try{
 
-const respuesta=await fetch(
-API_PEDIDOS+"?t="+Date.now()
-);
+        const token=obtenerTokenAdmin();
 
-if(!respuesta.ok){
-
-throw new Error(
-"Error HTTP "+respuesta.status
-);
-
-}
-
-const datos=await respuesta.json();
-
-if(!Array.isArray(datos)){
-
-throw new Error(
-"La respuesta no es una lista"
-);
-
-}
-
-detectarPedidosNuevos(datos);
-
-pedidos=datos;
-
-actualizarEstadisticas();
-
-mostrarPedidos();
+        const respuesta=await fetch(
+            API_PEDIDOS+"?t="+Date.now(),
+            {
+                headers:{
+                    "X-Admin-Token":token
+                }
+            }
+        );
 
 
-document.getElementById(
-"ultimaActualizacion"
-).textContent=
-"Última actualización: "+
-new Date().toLocaleTimeString(
-"es-DO"
-);
+        if(respuesta.status===401){
+
+            limpiarTokenAdmin();
+
+            throw new Error(
+                "Token de administrador incorrecto."
+            );
+
+        }
 
 
-}catch(error){
+        if(!respuesta.ok){
 
-console.error(error);
+            throw new Error(
+                "Error HTTP "+respuesta.status
+            );
+
+        }
 
 
-document.getElementById(
-"listaPedidos"
-).innerHTML=`
+        const datos=await respuesta.json();
 
-<div class="mensaje error">
 
-❌ No se pudieron cargar los pedidos.
+        if(!Array.isArray(datos)){
 
-<br><br>
+            throw new Error(
+                "La respuesta no es una lista"
+            );
 
-${escapar(error.message)}
+        }
 
-</div>
 
-`;
+        detectarPedidosNuevos(datos);
 
-}
+        pedidos=datos;
+
+        actualizarEstadisticas();
+
+        mostrarPedidos();
+
+
+        document.getElementById(
+            "ultimaActualizacion"
+        ).textContent=
+        "Última actualización: "+
+        new Date().toLocaleTimeString(
+            "es-DO"
+        );
+
+
+    }catch(error){
+
+        console.error(error);
+
+
+        document.getElementById(
+            "listaPedidos"
+        ).innerHTML=`
+
+            <div class="mensaje error">
+
+                ❌ No se pudieron cargar los pedidos.
+
+                <br><br>
+
+                ${escapar(error.message)}
+
+            </div>
+
+        `;
+
+    }
 
 }
 
@@ -1224,11 +1292,11 @@ ${escapar(error.message)}
 
 function actualizarAhora(){
 
-mostrarNotificacion(
-"🔄 Actualizando pedidos..."
-);
+    mostrarNotificacion(
+        "🔄 Actualizando pedidos..."
+    );
 
-cargarPedidos();
+    cargarPedidos();
 
 }
 
@@ -1239,75 +1307,75 @@ cargarPedidos();
 
 function detectarPedidosNuevos(nuevos){
 
-if(primeraCarga){
+    if(primeraCarga){
 
-nuevos.forEach(pedido=>{
+        nuevos.forEach(pedido=>{
 
-if(pedido.id){
+            if(pedido.id){
 
-idsConocidos.add(
-String(pedido.id)
-);
+                idsConocidos.add(
+                    String(pedido.id)
+                );
 
-}
+            }
 
-});
+        });
 
-primeraCarga=false;
+        primeraCarga=false;
 
-return;
+        return;
 
-}
-
-
-let nuevosPedidos=[];
+    }
 
 
-nuevos.forEach(pedido=>{
-
-const id=String(
-pedido.id||""
-);
+    let nuevosPedidos=[];
 
 
-if(
-id &&
-!idsConocidos.has(id)
-){
+    nuevos.forEach(pedido=>{
 
-nuevosPedidos.push(
-pedido
-);
-
-idsConocidos.add(id);
-
-}
-
-});
+        const id=String(
+            pedido.id||""
+        );
 
 
-if(nuevosPedidos.length>0){
+        if(
+            id &&
+            !idsConocidos.has(id)
+        ){
 
-const cantidad=
-nuevosPedidos.length;
+            nuevosPedidos.push(
+                pedido
+            );
+
+            idsConocidos.add(id);
+
+        }
+
+    });
 
 
-mostrarNotificacion(
-`🛍️ ${cantidad} pedido(s) nuevo(s)`
-);
+    if(nuevosPedidos.length>0){
+
+        const cantidad=
+            nuevosPedidos.length;
 
 
-reproducirSonido();
+        mostrarNotificacion(
+            `🛍️ ${cantidad} pedido(s) nuevo(s)`
+        );
 
 
-enviarNotificacionBrowser(
-"🛍️ Nuevo pedido GOLBEYONE",
-cantidad===1
-?"Has recibido un nuevo pedido."
-:`Has recibido ${cantidad} pedidos nuevos.`
-);
+        reproducirSonido();
 
-}
+
+        enviarNotificacionBrowser(
+            "🛍️ Nuevo pedido GOLBEYONE",
+            cantidad===1
+            ?"Has recibido un nuevo pedido."
+            :`Has recibido ${cantidad} pedidos nuevos.`
+        );
+
+    }
 
 }
 
@@ -1318,30 +1386,30 @@ cantidad===1
 
 function mostrarNotificacion(texto){
 
-const elemento=
-document.getElementById(
-"notificacion"
-);
+    const elemento=
+        document.getElementById(
+            "notificacion"
+        );
 
 
-elemento.innerHTML=
-`<strong>${escapar(texto)}</strong>`;
+    elemento.innerHTML=
+        `<strong>${escapar(texto)}</strong>`;
 
 
-elemento.style.display="block";
+    elemento.style.display="block";
 
 
-clearTimeout(
-window.temporizadorNotificacion
-);
+    clearTimeout(
+        window.temporizadorNotificacion
+    );
 
 
-window.temporizadorNotificacion=
-setTimeout(()=>{
+    window.temporizadorNotificacion=
+        setTimeout(()=>{
 
-elemento.style.display="none";
+            elemento.style.display="none";
 
-},5000);
+        },5000);
 
 }
 
@@ -1352,132 +1420,129 @@ elemento.style.display="none";
 
 async function activarNotificaciones(){
 
-const boton=
-document.getElementById(
-"botonNotificaciones"
-);
+    const boton=
+        document.getElementById(
+            "botonNotificaciones"
+        );
 
-const estado=
-document.getElementById(
-"estadoNotificaciones"
-);
-
-
-try{
+    const estado=
+        document.getElementById(
+            "estadoNotificaciones"
+        );
 
 
-/* SONIDO */
+    try{
 
-sonidoActivado=true;
-
-
-if(
-window.AudioContext||
-window.webkitAudioContext
-){
-
-const AudioCtx=
-window.AudioContext||
-window.webkitAudioContext;
-
-const contexto=
-new AudioCtx();
-
-if(
-contexto.state==="suspended"
-){
-
-await contexto.resume();
-
-}
-
-window.gboAudioContext=
-contexto;
-
-}
+        sonidoActivado=true;
 
 
-/* NOTIFICACIONES DEL NAVEGADOR */
+        if(
+            window.AudioContext||
+            window.webkitAudioContext
+        ){
 
-if("Notification" in window){
+            const AudioCtx=
+                window.AudioContext||
+                window.webkitAudioContext;
 
-if(
-Notification.permission==="default"
-){
-
-const permiso=
-await Notification.requestPermission();
-
-
-if(permiso==="granted"){
-
-estado.textContent=
-"✅ Notificaciones activadas correctamente.";
-
-boton.textContent=
-"✅ Notificaciones activadas";
-
-boton.classList.add(
-"activado"
-);
-
-mostrarNotificacion(
-"🔔 Notificaciones activadas"
-);
-
-}else{
-
-estado.textContent=
-"⚠️ El navegador no permitió las notificaciones.";
-
-boton.textContent=
-"🔔 Intentar activar nuevamente";
-
-}
-
-}else if(
-Notification.permission==="granted"
-){
-
-estado.textContent=
-"✅ Notificaciones del navegador activadas.";
-
-boton.textContent=
-"✅ Notificaciones activadas";
-
-boton.classList.add(
-"activado"
-);
-
-}else{
-
-estado.textContent=
-"⚠️ Las notificaciones están bloqueadas en el navegador.";
-
-boton.textContent=
-"⚠️ Notificaciones bloqueadas";
-
-}
-
-}else{
-
-estado.textContent=
-"⚠️ Este navegador no permite notificaciones.";
-
-boton.textContent=
-"🔔 Sonido activado";
-
-}
+            const contexto=
+                new AudioCtx();
 
 
-}catch(error){
+            if(
+                contexto.state==="suspended"
+            ){
 
-console.error(error);
+                await contexto.resume();
 
-estado.textContent=
-"⚠️ No se pudieron activar las notificaciones.";
+            }
 
-}
+
+            window.gboAudioContext=
+                contexto;
+
+        }
+
+
+        if("Notification" in window){
+
+            if(
+                Notification.permission==="default"
+            ){
+
+                const permiso=
+                    await Notification.requestPermission();
+
+
+                if(permiso==="granted"){
+
+                    estado.textContent=
+                        "✅ Notificaciones activadas correctamente.";
+
+                    boton.textContent=
+                        "✅ Notificaciones activadas";
+
+                    boton.classList.add(
+                        "activado"
+                    );
+
+                    mostrarNotificacion(
+                        "🔔 Notificaciones activadas"
+                    );
+
+                }else{
+
+                    estado.textContent=
+                        "⚠️ El navegador no permitió las notificaciones.";
+
+                    boton.textContent=
+                        "🔔 Intentar activar nuevamente";
+
+                }
+
+            }else if(
+                Notification.permission==="granted"
+            ){
+
+                estado.textContent=
+                    "✅ Notificaciones del navegador activadas.";
+
+                boton.textContent=
+                    "✅ Notificaciones activadas";
+
+                boton.classList.add(
+                    "activado"
+                );
+
+            }else{
+
+                estado.textContent=
+                    "⚠️ Las notificaciones están bloqueadas en el navegador.";
+
+                boton.textContent=
+                    "⚠️ Notificaciones bloqueadas";
+
+            }
+
+        }else{
+
+            estado.textContent=
+                "⚠️ Este navegador no permite notificaciones.";
+
+            boton.textContent=
+                "🔔 Sonido activado";
+
+        }
+
+
+    }catch(error){
+
+        console.error(error);
+
+        estado.textContent=
+            "⚠️ No se pudieron activar las notificaciones.";
+
+    }
 
 }
 
@@ -1488,111 +1553,118 @@ estado.textContent=
 
 function reproducirSonido(){
 
-if(!sonidoActivado){
+    if(!sonidoActivado){
 
-return;
+        return;
 
-}
-
-try{
-
-let contexto=
-window.gboAudioContext;
+    }
 
 
-if(!contexto){
+    try{
 
-const AudioCtx=
-window.AudioContext||
-window.webkitAudioContext;
-
-
-if(!AudioCtx){
-
-return;
-
-}
-
-contexto=
-new AudioCtx();
-
-window.gboAudioContext=
-contexto;
-
-}
+        let contexto=
+            window.gboAudioContext;
 
 
-if(
-contexto.state==="suspended"
-){
+        if(!contexto){
 
-contexto.resume();
-
-}
+            const AudioCtx=
+                window.AudioContext||
+                window.webkitAudioContext;
 
 
-const oscilador=
-contexto.createOscillator();
+            if(!AudioCtx){
 
-const ganancia=
-contexto.createGain();
+                return;
 
-
-oscilador.connect(
-ganancia
-);
-
-ganancia.connect(
-contexto.destination
-);
+            }
 
 
-oscilador.type="sine";
+            contexto=
+                new AudioCtx();
 
-oscilador.frequency.setValueAtTime(
-880,
-contexto.currentTime
-);
+            window.gboAudioContext=
+                contexto;
 
-oscilador.frequency.setValueAtTime(
-660,
-contexto.currentTime+.15
-);
+        }
 
 
-ganancia.gain.setValueAtTime(
-0.0001,
-contexto.currentTime
-);
+        if(
+            contexto.state==="suspended"
+        ){
 
-ganancia.gain.exponentialRampToValueAtTime(
-0.12,
-contexto.currentTime+.02
-);
+            contexto.resume();
 
-ganancia.gain.exponentialRampToValueAtTime(
-0.0001,
-contexto.currentTime+.45
-);
+        }
 
 
-oscilador.start(
-contexto.currentTime
-);
+        const oscilador=
+            contexto.createOscillator();
 
-oscilador.stop(
-contexto.currentTime+.45
-);
+        const ganancia=
+            contexto.createGain();
 
 
-}catch(error){
+        oscilador.connect(
+            ganancia
+        );
 
-console.log(
-"Sonido no disponible",
-error
-);
+        ganancia.connect(
+            contexto.destination
+        );
 
-}
+
+        oscilador.type="sine";
+
+
+        oscilador.frequency.setValueAtTime(
+            880,
+            contexto.currentTime
+        );
+
+
+        oscilador.frequency.setValueAtTime(
+            660,
+            contexto.currentTime+.15
+        );
+
+
+        ganancia.gain.setValueAtTime(
+            0.0001,
+            contexto.currentTime
+        );
+
+
+        ganancia.gain.exponentialRampToValueAtTime(
+            0.12,
+            contexto.currentTime+.02
+        );
+
+
+        ganancia.gain.exponentialRampToValueAtTime(
+            0.0001,
+            contexto.currentTime+.45
+        );
+
+
+        oscilador.start(
+            contexto.currentTime
+        );
+
+
+        oscilador.stop(
+            contexto.currentTime+.45
+        );
+
+
+    }catch(error){
+
+        console.log(
+            "Sonido no disponible",
+            error
+        );
+
+    }
 
 }
 
@@ -1602,52 +1674,53 @@ error
 ========================================= */
 
 function enviarNotificacionBrowser(
-titulo,
-texto
+    titulo,
+    texto
 ){
 
-if(!("Notification" in window)){
+    if(!("Notification" in window)){
 
-return;
+        return;
 
-}
-
-
-if(
-Notification.permission!=="granted"
-){
-
-return;
-
-}
+    }
 
 
-try{
+    if(
+        Notification.permission!=="granted"
+    ){
 
-const notificacion=
-new Notification(
-titulo,
-{
-body:texto,
-icon:"index.html"
-}
-);
+        return;
+
+    }
 
 
-notificacion.onclick=function(){
+    try{
 
-window.focus();
+        const notificacion=
+            new Notification(
+                titulo,
+                {
+                    body:texto,
+                    icon:"index.html"
+                }
+            );
 
-};
 
-}catch(error){
+        notificacion.onclick=function(){
 
-console.log(
-"Notificación del navegador no disponible",
-error
-);
+            window.focus();
 
-}
+        };
+
+
+    }catch(error){
+
+        console.log(
+            "Notificación del navegador no disponible",
+            error
+        );
+
+    }
 
 }
 
@@ -1658,89 +1731,89 @@ error
 
 function actualizarEstadisticas(){
 
-document.getElementById(
-"totalPedidos"
-).textContent=
-pedidos.length;
+    document.getElementById(
+        "totalPedidos"
+    ).textContent=
+        pedidos.length;
 
 
-let total=0;
+    let total=0;
 
 
-pedidos.forEach(pedido=>{
+    pedidos.forEach(pedido=>{
 
-total+=
-Number(pedido.total)||0;
+        total+=
+            Number(pedido.total)||0;
 
-});
-
-
-document.getElementById(
-"totalVendido"
-).textContent=
-formatoDinero(total);
+    });
 
 
-const pendientes=
-pedidos.filter(
-p=>
-!p.estado||
-p.estado==="Nuevo"
-).length;
+    document.getElementById(
+        "totalVendido"
+    ).textContent=
+        formatoDinero(total);
 
 
-document.getElementById(
-"totalPendientes"
-).textContent=
-pendientes;
+    const pendientes=
+        pedidos.filter(
+            p=>
+            !p.estado||
+            p.estado==="Nuevo"
+        ).length;
 
 
-const pagados=
-pedidos.filter(
-p=>
-obtenerEstadoPago(p)==="Pagado"
-).length;
+    document.getElementById(
+        "totalPendientes"
+    ).textContent=
+        pendientes;
 
 
-document.getElementById(
-"totalPagados"
-).textContent=
-pagados;
+    const pagados=
+        pedidos.filter(
+            p=>
+            obtenerEstadoPago(p)==="Pagado"
+        ).length;
 
 
-const estados=[
-"Nuevo",
-"Confirmado",
-"Preparando",
-"Enviado",
-"Entregado"
-];
+    document.getElementById(
+        "totalPagados"
+    ).textContent=
+        pagados;
 
 
-estados.forEach(estado=>{
-
-const cantidad=
-pedidos.filter(
-p=>
-(p.estado||"Nuevo")===
-estado
-).length;
-
-
-const elemento=
-document.getElementById(
-"estado"+estado
-);
+    const estados=[
+        "Nuevo",
+        "Confirmado",
+        "Preparando",
+        "Enviado",
+        "Entregado"
+    ];
 
 
-if(elemento){
+    estados.forEach(estado=>{
 
-elemento.textContent=
-cantidad;
+        const cantidad=
+            pedidos.filter(
+                p=>
+                (p.estado||"Nuevo")===
+                estado
+            ).length;
 
-}
 
-});
+        const elemento=
+            document.getElementById(
+                "estado"+estado
+            );
+
+
+        if(elemento){
+
+            elemento.textContent=
+                cantidad;
+
+        }
+
+    });
 
 }
 
@@ -1751,54 +1824,54 @@ cantidad;
 
 function obtenerEstadoPago(pedido){
 
-if(
-pedido.pago &&
-typeof pedido.pago==="object"
-){
+    if(
+        pedido.pago &&
+        typeof pedido.pago==="object"
+    ){
 
-return pedido.pago.estado||
-"Pendiente";
+        return pedido.pago.estado||
+            "Pendiente";
 
-}
+    }
 
-return pedido.estadoPago||
-"Pendiente";
+    return pedido.estadoPago||
+        "Pendiente";
 
 }
 
 
 function obtenerMetodoPago(pedido){
 
-if(
-pedido.pago &&
-typeof pedido.pago==="object"
-){
+    if(
+        pedido.pago &&
+        typeof pedido.pago==="object"
+    ){
 
-return pedido.pago.metodo||
-"Pendiente";
+        return pedido.pago.metodo||
+            "Pendiente";
 
-}
+    }
 
-return pedido.metodoPago||
-"Pendiente";
+    return pedido.metodoPago||
+        "Pendiente";
 
 }
 
 
 function obtenerReferenciaPago(pedido){
 
-if(
-pedido.pago &&
-typeof pedido.pago==="object"
-){
+    if(
+        pedido.pago &&
+        typeof pedido.pago==="object"
+    ){
 
-return pedido.pago.referencia||
-"";
+        return pedido.pago.referencia||
+            "";
 
-}
+    }
 
-return pedido.referenciaPago||
-"";
+    return pedido.referenciaPago||
+        "";
 
 }
 
@@ -1809,101 +1882,101 @@ return pedido.referenciaPago||
 
 function filtrarRapido(filtro){
 
-filtroActual=filtro;
+    filtroActual=filtro;
 
 
-document.querySelectorAll(
-".filtro"
-).forEach(boton=>{
+    document.querySelectorAll(
+        ".filtro"
+    ).forEach(boton=>{
 
-boton.classList.toggle(
-"activo",
-boton.dataset.filtro===
-filtro
-);
+        boton.classList.toggle(
+            "activo",
+            boton.dataset.filtro===
+            filtro
+        );
 
-});
-
-
-document.querySelectorAll(
-".estado-stat"
-).forEach(boton=>{
-
-boton.classList.remove(
-"activo"
-);
-
-});
+    });
 
 
-document.querySelectorAll(
-".stat"
-).forEach(boton=>{
+    document.querySelectorAll(
+        ".estado-stat"
+    ).forEach(boton=>{
 
-boton.classList.remove(
-"activo"
-);
+        boton.classList.remove(
+            "activo"
+        );
 
-});
-
-
-if(filtro==="todos"){
-
-document.getElementById(
-"statTotal"
-).classList.add(
-"activo"
-);
-
-}
+    });
 
 
-if(filtro==="pagados"){
+    document.querySelectorAll(
+        ".stat"
+    ).forEach(boton=>{
 
-document.getElementById(
-"statPagados"
-).classList.add(
-"activo"
-);
+        boton.classList.remove(
+            "activo"
+        );
 
-}
-
-
-if(filtro==="pendientes"){
-
-document.getElementById(
-"statPendientes"
-).classList.add(
-"activo"
-);
-
-}
+    });
 
 
-document.querySelectorAll(
-".estado-stat"
-).forEach(boton=>{
+    if(filtro==="todos"){
 
-const texto=
-boton.querySelector("span");
+        document.getElementById(
+            "statTotal"
+        ).classList.add(
+            "activo"
+        );
 
-
-if(
-texto &&
-texto.textContent.trim()===
-filtro
-){
-
-boton.classList.add(
-"activo"
-);
-
-}
-
-});
+    }
 
 
-mostrarPedidos();
+    if(filtro==="pagados"){
+
+        document.getElementById(
+            "statPagados"
+        ).classList.add(
+            "activo"
+        );
+
+    }
+
+
+    if(filtro==="pendientes"){
+
+        document.getElementById(
+            "statPendientes"
+        ).classList.add(
+            "activo"
+        );
+
+    }
+
+
+    document.querySelectorAll(
+        ".estado-stat"
+    ).forEach(boton=>{
+
+        const texto=
+            boton.querySelector("span");
+
+
+        if(
+            texto &&
+            texto.textContent.trim()===
+            filtro
+        ){
+
+            boton.classList.add(
+                "activo"
+            );
+
+        }
+
+    });
+
+
+    mostrarPedidos();
 
 }
 
@@ -1914,171 +1987,171 @@ mostrarPedidos();
 
 function mostrarPedidos(){
 
-const contenedor=
-document.getElementById(
-"listaPedidos"
-);
+    const contenedor=
+        document.getElementById(
+            "listaPedidos"
+        );
 
 
-const busqueda=
-document.getElementById(
-"buscar"
-).value
-.toLowerCase()
-.trim();
+    const busqueda=
+        document.getElementById(
+            "buscar"
+        ).value
+        .toLowerCase()
+        .trim();
 
 
-let filtrados=
-pedidos.filter(pedido=>{
+    let filtrados=
+        pedidos.filter(pedido=>{
 
 
-const estado=
-pedido.estado||
-"Nuevo";
+            const estado=
+                pedido.estado||
+                "Nuevo";
 
 
-const pago=
-obtenerEstadoPago(pedido);
+            const pago=
+                obtenerEstadoPago(
+                    pedido
+                );
 
 
-if(
-filtroActual!=="todos"
-){
+            if(
+                filtroActual!=="todos"
+            ){
 
-if(
-filtroActual==="pagados"&&
-pago!=="Pagado"
-){
+                if(
+                    filtroActual==="pagados"&&
+                    pago!=="Pagado"
+                ){
 
-return false;
+                    return false;
 
-}
+                }
 
 
-if(
-filtroActual==="pendientes"&&
-pago==="Pagado"
-){
+                if(
+                    filtroActual==="pendientes"&&
+                    pago==="Pagado"
+                ){
 
-return false;
+                    return false;
 
-}
+                }
 
 
-if(
-!["pagados","pendientes"]
-.includes(filtroActual)&&
-estado!==filtroActual
-){
+                if(
+                    !["pagados","pendientes"]
+                    .includes(filtroActual)&&
+                    estado!==filtroActual
+                ){
 
-return false;
+                    return false;
 
-}
+                }
 
-}
+            }
 
 
-if(!busqueda){
+            if(!busqueda){
 
-return true;
+                return true;
 
-}
+            }
 
 
-const texto=`
+            const texto=`
 
-${pedido.id||""}
+                ${pedido.id||""}
 
-${pedido.cliente||""}
+                ${pedido.cliente||""}
 
-${pedido.telefono||""}
+                ${pedido.telefono||""}
 
-${pedido.ciudad||""}
+                ${pedido.ciudad||""}
 
-${pedido.direccion||""}
+                ${pedido.direccion||""}
 
-`.toLowerCase();
+            `.toLowerCase();
 
 
-return texto.includes(
-busqueda
-);
+            return texto.includes(
+                busqueda
+            );
 
-});
+        });
 
 
-/* ORDEN */
+    const orden=
+        document.getElementById(
+            "ordenar"
+        ).value;
 
-const orden=
-document.getElementById(
-"ordenar"
-).value;
 
+    filtrados.sort((a,b)=>{
 
-filtrados.sort((a,b)=>{
 
+        if(orden==="mayor"){
 
-if(orden==="mayor"){
+            return Number(b.total||0)-
+                Number(a.total||0);
 
-return Number(b.total||0)-
-Number(a.total||0);
+        }
 
-}
 
+        if(orden==="menor"){
 
-if(orden==="menor"){
+            return Number(a.total||0)-
+                Number(b.total||0);
 
-return Number(a.total||0)-
-Number(b.total||0);
+        }
 
-}
 
+        if(orden==="antiguo"){
 
-if(orden==="antiguo"){
+            return String(a.fecha||"")
+                .localeCompare(
+                    String(b.fecha||"")
+                );
 
-return String(a.fecha||"")
-.localeCompare(
-String(b.fecha||"")
-);
+        }
 
-}
 
+        return String(b.fecha||"")
+            .localeCompare(
+                String(a.fecha||"")
+            );
 
-return String(b.fecha||"")
-.localeCompare(
-String(a.fecha||"")
-);
+    });
 
-});
 
+    document.getElementById(
+        "resumenFiltro"
+    ).textContent=
+        `Mostrando ${filtrados.length} de ${pedidos.length} pedido(s)`;
 
-document.getElementById(
-"resumenFiltro"
-).textContent=
-`Mostrando ${filtrados.length} de ${pedidos.length} pedido(s)`;
 
+    if(filtrados.length===0){
 
-if(filtrados.length===0){
+        contenedor.innerHTML=`
 
-contenedor.innerHTML=`
+            <div class="mensaje">
 
-<div class="mensaje">
+                📭 No hay pedidos que coincidan.
 
-📭 No hay pedidos que coincidan.
+            </div>
 
-</div>
+        `;
 
-`;
+        return;
 
-return;
+    }
 
-}
 
-
-contenedor.innerHTML=
-filtrados
-.map(crearPedidoHTML)
-.join("");
+    contenedor.innerHTML=
+        filtrados
+        .map(crearPedidoHTML)
+        .join("");
 
 }
 
@@ -2089,414 +2162,420 @@ filtrados
 
 function crearPedidoHTML(pedido){
 
-const estado=
-pedido.estado||
-"Nuevo";
+    const estado=
+        pedido.estado||
+        "Nuevo";
 
 
-const estadoPago=
-obtenerEstadoPago(pedido);
+    const estadoPago=
+        obtenerEstadoPago(
+            pedido
+        );
 
 
-const metodoPago=
-obtenerMetodoPago(pedido);
+    const metodoPago=
+        obtenerMetodoPago(
+            pedido
+        );
 
 
-const referenciaPago=
-obtenerReferenciaPago(pedido);
+    const referenciaPago=
+        obtenerReferenciaPago(
+            pedido
+        );
 
 
-const productos=
-Array.isArray(pedido.productos)
-?pedido.productos
-:[];
+    const productos=
+        Array.isArray(pedido.productos)
+        ?pedido.productos
+        :[];
 
 
-const clasePago=
-estadoPago==="Pagado"
-?"pago-box pago-confirmado"
-:"pago-box";
+    const clasePago=
+        estadoPago==="Pagado"
+        ?"pago-box pago-confirmado"
+        :"pago-box";
 
 
-const estaColapsado=
-pedidosColapsados.has(
-String(pedido.id)
-);
+    const estaColapsado=
+        pedidosColapsados.has(
+            String(pedido.id)
+        );
 
 
-return `
+    return `
 
-<article
-class="pedido ${estaColapsado?"colapsado":""}"
-id="pedido-${escaparAtributo(pedido.id)}">
+        <article
+        class="pedido ${estaColapsado?"colapsado":""}"
+        id="pedido-${escaparAtributo(pedido.id)}">
 
 
-<div class="pedido-header">
+        <div class="pedido-header">
 
 
-<div>
+        <div>
 
-<div class="pedido-id">
+        <div class="pedido-id">
 
-${escapar(
-pedido.id||
-"SIN ID"
-)}
+        ${escapar(
+            pedido.id||
+            "SIN ID"
+        )}
 
-</div>
+        </div>
 
 
-<div class="fecha">
+        <div class="fecha">
 
-${escapar(
-pedido.fecha||
-""
-)}
+        ${escapar(
+            pedido.fecha||
+            ""
+        )}
 
-</div>
+        </div>
 
-</div>
+        </div>
 
 
-<div class="estado-pedido">
+        <div class="estado-pedido">
 
-<span
-class="estado-badge ${
-estadoPago==="Pagado"
-?"pagado":""
-}">
+        <span
+        class="estado-badge ${
+            estadoPago==="Pagado"
+            ?"pagado":""
+        }">
 
-${escapar(
-estadoPago
-)}
+        ${escapar(
+            estadoPago
+        )}
 
-</span>
+        </span>
 
 
-<strong>Estado:</strong>
+        <strong>Estado:</strong>
 
 
-<select
-onchange="cambiarEstadoPedido(
-'${escaparAtributo(pedido.id)}',
-this.value
-)">
+        <select
+        onchange="cambiarEstadoPedido(
+            '${escaparAtributo(pedido.id)}',
+            this.value
+        )">
 
-${crearOpcionesEstado(
-estado
-)}
+        ${crearOpcionesEstado(
+            estado
+        )}
 
-</select>
+        </select>
 
 
-</div>
+        </div>
 
 
-</div>
+        </div>
 
 
-<button
-class="accion boton-detalles"
-onclick="alternarDetalles(
-'${escaparAtributo(pedido.id)}',
-this
-)">
+        <button
+        class="accion boton-detalles"
+        onclick="alternarDetalles(
+            '${escaparAtributo(pedido.id)}',
+            this
+        )">
 
-${
-estaColapsado
-?"🔽 Mostrar detalles"
-:"🔼 Ocultar detalles"
-}
+        ${
+            estaColapsado
+            ?"🔽 Mostrar detalles"
+            :"🔼 Ocultar detalles"
+        }
 
-</button>
+        </button>
 
 
-<div class="detalles">
+        <div class="detalles">
 
 
-<div class="contenido-pedido">
+        <div class="contenido-pedido">
 
 
-<div class="grid-info">
+        <div class="grid-info">
 
 
-<div class="info-box">
+        <div class="info-box">
 
-<h3>👤 CLIENTE</h3>
+        <h3>👤 CLIENTE</h3>
 
 
-${agregarDatoCliente(
-"Nombre",
-pedido.cliente
-)}
+        ${agregarDatoCliente(
+            "Nombre",
+            pedido.cliente
+        )}
 
 
-${agregarDatoCliente(
-"Teléfono",
-pedido.telefono
-)}
+        ${agregarDatoCliente(
+            "Teléfono",
+            pedido.telefono
+        )}
 
 
-${agregarDatoCliente(
-"Dirección",
-pedido.direccion
-)}
+        ${agregarDatoCliente(
+            "Dirección",
+            pedido.direccion
+        )}
 
 
-${agregarDatoCliente(
-"Ciudad",
-pedido.ciudad
-)}
+        ${agregarDatoCliente(
+            "Ciudad",
+            pedido.ciudad
+        )}
 
 
-${agregarDatoCliente(
-"Indicaciones",
-pedido.instrucciones
-)}
+        ${agregarDatoCliente(
+            "Indicaciones",
+            pedido.instrucciones
+        )}
 
 
-</div>
+        </div>
 
 
-<div class="info-box">
+        <div class="info-box">
 
-<h3>📦 PEDIDO</h3>
+        <h3>📦 PEDIDO</h3>
 
 
-${agregarDatoCliente(
-"ID",
-pedido.id
-)}
+        ${agregarDatoCliente(
+            "ID",
+            pedido.id
+        )}
 
 
-${agregarDatoCliente(
-"Fecha",
-pedido.fecha
-)}
+        ${agregarDatoCliente(
+            "Fecha",
+            pedido.fecha
+        )}
 
 
-${agregarDatoCliente(
-"Cantidad de productos",
-productos.length
-)}
+        ${agregarDatoCliente(
+            "Cantidad de productos",
+            productos.length
+        )}
 
 
-</div>
+        </div>
 
 
-</div>
+        </div>
 
 
-<div class="${clasePago}">
+        <div class="${clasePago}">
 
 
-<div class="pago-titulo">
+        <div class="pago-titulo">
 
-💳 INFORMACIÓN DEL PAGO
+        💳 INFORMACIÓN DEL PAGO
 
-</div>
+        </div>
 
 
-<div class="pago-grid">
+        <div class="pago-grid">
 
 
-<div class="pago-campo">
+        <div class="pago-campo">
 
-<label>
-Estado del pago
-</label>
+        <label>
+        Estado del pago
+        </label>
 
 
-<select
-id="estadoPago-${escaparAtributo(pedido.id)}">
+        <select
+        id="estadoPago-${escaparAtributo(pedido.id)}">
 
 
-<option
-value="Pendiente"
-${estadoPago==="Pendiente"
-?"selected":""}>
+        <option
+        value="Pendiente"
+        ${estadoPago==="Pendiente"
+        ?"selected":""}>
 
-Pendiente
+        Pendiente
 
-</option>
+        </option>
 
 
-<option
-value="Pagado"
-${estadoPago==="Pagado"
-?"selected":""}>
+        <option
+        value="Pagado"
+        ${estadoPago==="Pagado"
+        ?"selected":""}>
 
-Pagado
+        Pagado
 
-</option>
+        </option>
 
 
-<option
-value="Cancelado"
-${estadoPago==="Cancelado"
-?"selected":""}>
+        <option
+        value="Cancelado"
+        ${estadoPago==="Cancelado"
+        ?"selected":""}>
 
-Cancelado
+        Cancelado
 
-</option>
+        </option>
 
 
-<option
-value="Reembolsado"
-${estadoPago==="Reembolsado"
-?"selected":""}>
+        <option
+        value="Reembolsado"
+        ${estadoPago==="Reembolsado"
+        ?"selected":""}>
 
-Reembolsado
+        Reembolsado
 
-</option>
+        </option>
 
 
-</select>
+        </select>
 
-</div>
+        </div>
 
 
-<div class="pago-campo">
+        <div class="pago-campo">
 
-<label>
-Método de pago
-</label>
+        <label>
+        Método de pago
+        </label>
 
 
-<select
-id="metodoPago-${escaparAtributo(pedido.id)}">
+        <select
+        id="metodoPago-${escaparAtributo(pedido.id)}">
 
-${crearOpcionesMetodoPago(
-metodoPago
-)}
+        ${crearOpcionesMetodoPago(
+            metodoPago
+        )}
 
-</select>
+        </select>
 
-</div>
+        </div>
 
 
-<div class="pago-campo">
+        <div class="pago-campo">
 
-<label>
-Referencia
-</label>
+        <label>
+        Referencia
+        </label>
 
 
-<input
-type="text"
-id="referenciaPago-${escaparAtributo(pedido.id)}"
-value="${escaparAtributo(
-referenciaPago
-)}"
-placeholder="Ej: TRX-123456">
+        <input
+        type="text"
+        id="referenciaPago-${escaparAtributo(pedido.id)}"
+        value="${escaparAtributo(
+            referenciaPago
+        )}"
+        placeholder="Ej: TRX-123456">
 
-</div>
+        </div>
 
 
-</div>
+        </div>
 
 
-<button
-class="guardar-pago"
-id="botonPago-${escaparAtributo(pedido.id)}"
-onclick="guardarPago(
-'${escaparAtributo(pedido.id)}'
-)">
+        <button
+        class="guardar-pago"
+        id="botonPago-${escaparAtributo(pedido.id)}"
+        onclick="guardarPago(
+            '${escaparAtributo(pedido.id)}'
+        )">
 
-💾 Guardar información del pago
+        💾 Guardar información del pago
 
-</button>
+        </button>
 
 
-</div>
+        </div>
 
 
-<div class="productos">
+        <div class="productos">
 
-<h3>🛍️ PRODUCTOS</h3>
+        <h3>🛍️ PRODUCTOS</h3>
 
 
-${
-productos.length>0
-?
-productos
-.map(crearProductoHTML)
-.join("")
-:
-`<div class="dato">
-No hay productos registrados.
-</div>`
-}
+        ${
+            productos.length>0
+            ?
+            productos
+            .map(crearProductoHTML)
+            .join("")
+            :
+            `<div class="dato">
+                No hay productos registrados.
+            </div>`
+        }
 
 
-</div>
+        </div>
 
 
-<div class="total">
+        <div class="total">
 
-<strong>TOTAL</strong>
+        <strong>TOTAL</strong>
 
 
-<strong>
+        <strong>
 
-${formatoDinero(
-pedido.total
-)}
+        ${formatoDinero(
+            pedido.total
+        )}
 
-</strong>
+        </strong>
 
 
-</div>
+        </div>
 
 
-<div class="acciones">
+        <div class="acciones">
 
 
-<button
-class="accion"
-onclick="copiarTexto(
-'${escaparAtributo(pedido.id)}'
-)">
+        <button
+        class="accion"
+        onclick="copiarTexto(
+            '${escaparAtributo(pedido.id)}'
+        )">
 
-📋 Copiar ID
+        📋 Copiar ID
 
-</button>
+        </button>
 
 
-<button
-class="accion"
-onclick="copiarTexto(
-'${escaparAtributo(
-pedido.telefono||""
-)}'
-)">
+        <button
+        class="accion"
+        onclick="copiarTexto(
+            '${escaparAtributo(
+                pedido.telefono||""
+            )}'
+        )">
 
-📞 Copiar teléfono
+        📞 Copiar teléfono
 
-</button>
+        </button>
 
 
-<button
-class="eliminar"
-onclick="eliminarPedido(
-'${escaparAtributo(pedido.id)}'
-)">
+        <button
+        class="eliminar"
+        onclick="eliminarPedido(
+            '${escaparAtributo(pedido.id)}'
+        )">
 
-🗑️ Eliminar
+        🗑️ Eliminar
 
-</button>
+        </button>
 
 
-</div>
+        </div>
 
 
-</div>
+        </div>
 
-</div>
+        </div>
 
-</article>
+        </article>
 
-`;
+    `;
 
 }
 
@@ -2507,65 +2586,62 @@ onclick="eliminarPedido(
 
 function crearOpcionesMetodoPago(actual){
 
-const metodos=[
-"Pendiente",
-"Pago contra entrega",
-"Transferencia bancaria",
-"Otro método"
-];
-
-let opciones=metodos.map(
-metodo=>`
-
-<option
-value="${escaparAtributo(metodo)}"
-${actual===metodo
-?"selected":""}>
-
-${escapar(metodo)}
-
-</option>
-
-`
-).join("");
+    const metodos=[
+        "Pendiente",
+        "Pago contra entrega",
+        "Transferencia bancaria",
+        "Otro método"
+    ];
 
 
-/*
-   Compatibilidad con pedidos antiguos.
-   Si un pedido viejo tiene un método que ya
-   no usamos, lo mostramos para no perderlo.
-*/
+    let opciones=
+        metodos.map(
+            metodo=>`
 
-const metodosAntiguos=[
-"Efectivo",
-"Transferencia",
-"Tarjeta",
-"Pago móvil"
-];
+                <option
+                value="${escaparAtributo(metodo)}"
+                ${actual===metodo
+                ?"selected":""}>
 
+                ${escapar(metodo)}
 
-if(
-actual &&
-!metodos.includes(actual) &&
-metodosAntiguos.includes(actual)
-){
+                </option>
 
-opciones+=`
-
-<option
-value="${escaparAtributo(actual)}"
-selected>
-
-${escapar(actual)} (pedido anterior)
-
-</option>
-
-`;
-
-}
+            `
+        ).join("");
 
 
-return opciones;
+    const metodosAntiguos=[
+        "Efectivo",
+        "Transferencia",
+        "Tarjeta",
+        "Pago móvil"
+    ];
+
+
+    if(
+        actual &&
+        !metodos.includes(actual) &&
+        metodosAntiguos.includes(actual)
+    ){
+
+        opciones+=`
+
+            <option
+            value="${escaparAtributo(actual)}"
+            selected>
+
+            ${escapar(actual)}
+            (pedido anterior)
+
+            </option>
+
+        `;
+
+    }
+
+
+    return opciones;
 
 }
 
@@ -2576,29 +2652,29 @@ return opciones;
 
 function crearOpcionesEstado(actual){
 
-const estados=[
-"Nuevo",
-"Confirmado",
-"Preparando",
-"Enviado",
-"Entregado"
-];
+    const estados=[
+        "Nuevo",
+        "Confirmado",
+        "Preparando",
+        "Enviado",
+        "Entregado"
+    ];
 
 
-return estados.map(
-estado=>`
+    return estados.map(
+        estado=>`
 
-<option
-value="${estado}"
-${actual===estado
-?"selected":""}>
+            <option
+            value="${escaparAtributo(estado)}"
+            ${actual===estado
+            ?"selected":""}>
 
-${estado}
+            ${escapar(estado)}
 
-</option>
+            </option>
 
-`
-).join("");
+        `
+    ).join("");
 
 }
 
@@ -2609,51 +2685,50 @@ ${estado}
 
 function alternarDetalles(id,boton){
 
-const pedido=
-document.getElementById(
-"pedido-"+id
-);
+    const pedido=
+        document.getElementById(
+            "pedido-"+id
+        );
 
 
-if(!pedido){
+    if(!pedido){
 
-return;
+        return;
 
-}
-
-
-pedido.classList.toggle(
-"colapsado"
-);
+    }
 
 
-if(
-pedido.classList.contains(
-"colapsado"
-)
-){
-
-pedidosColapsados.add(
-String(id)
-);
+    pedido.classList.toggle(
+        "colapsado"
+    );
 
 
-boton.textContent=
-"🔽 Mostrar detalles";
+    if(
+        pedido.classList.contains(
+            "colapsado"
+        )
+    ){
+
+        pedidosColapsados.add(
+            String(id)
+        );
 
 
-}else{
+        boton.textContent=
+            "🔽 Mostrar detalles";
 
 
-pedidosColapsados.delete(
-String(id)
-);
+    }else{
+
+        pedidosColapsados.delete(
+            String(id)
+        );
 
 
-boton.textContent=
-"🔼 Ocultar detalles";
+        boton.textContent=
+            "🔼 Ocultar detalles";
 
-}
+    }
 
 }
 
@@ -2664,36 +2739,36 @@ boton.textContent=
 
 async function copiarTexto(texto){
 
-if(!texto){
+    if(!texto){
 
-mostrarNotificacion(
-"⚠️ No hay información para copiar"
-);
+        mostrarNotificacion(
+            "⚠️ No hay información para copiar"
+        );
 
-return;
+        return;
 
-}
-
-
-try{
-
-await navigator.clipboard.writeText(
-texto
-);
+    }
 
 
-mostrarNotificacion(
-"📋 Copiado correctamente"
-);
+    try{
+
+        await navigator.clipboard.writeText(
+            texto
+        );
 
 
-}catch(error){
+        mostrarNotificacion(
+            "📋 Copiado correctamente"
+        );
 
-alert(
-"Copiado no disponible en este navegador."
-);
 
-}
+    }catch(error){
+
+        alert(
+            "Copiado no disponible en este navegador."
+        );
+
+    }
 
 }
 
@@ -2704,60 +2779,60 @@ alert(
 
 function crearProductoHTML(producto){
 
-return `
+    return `
 
-<div class="producto">
-
-
-<img
-src="${escaparAtributo(
-producto.imagen||""
-)}"
-onerror="this.style.display='none';"
-alt="Producto">
+        <div class="producto">
 
 
-<div class="producto-info">
+        <img
+        src="${escaparAtributo(
+            producto.imagen||""
+        )}"
+        onerror="this.style.display='none';"
+        alt="Producto">
 
 
-<strong>
-
-${escapar(
-producto.nombre||
-"Producto"
-)}
-
-</strong>
+        <div class="producto-info">
 
 
-<span>
+        <strong>
 
-Talla:
-${escapar(
-producto.talla||"-"
-)}
+        ${escapar(
+            producto.nombre||
+            "Producto"
+        )}
 
-&nbsp; | &nbsp;
-
-Cantidad:
-${escapar(
-producto.cantidad||1
-)}
-
-&nbsp; | &nbsp;
-
-${formatoDinero(
-producto.precio
-)}
-
-</span>
+        </strong>
 
 
-</div>
+        <span>
 
-</div>
+        Talla:
+        ${escapar(
+            producto.talla||"-"
+        )}
 
-`;
+        &nbsp; | &nbsp;
+
+        Cantidad:
+        ${escapar(
+            producto.cantidad||1
+        )}
+
+        &nbsp; | &nbsp;
+
+        ${formatoDinero(
+            producto.precio
+        )}
+
+        </span>
+
+
+        </div>
+
+        </div>
+
+    `;
 
 }
 
@@ -2767,36 +2842,36 @@ producto.precio
 ========================================= */
 
 function agregarDatoCliente(
-nombre,
-valor
+    nombre,
+    valor
 ){
 
-if(
-valor===undefined||
-valor===null||
-valor===""
-){
+    if(
+        valor===undefined||
+        valor===null||
+        valor===""
+    ){
 
-return "";
+        return "";
 
-}
+    }
 
 
-return `
+    return `
 
-<div class="dato">
+        <div class="dato">
 
-<strong>
+        <strong>
 
-${escapar(nombre)}:
+        ${escapar(nombre)}:
 
-</strong>
+        </strong>
 
-${escapar(valor)}
+        ${escapar(valor)}
 
-</div>
+        </div>
 
-`;
+    `;
 
 }
 
@@ -2806,85 +2881,91 @@ ${escapar(valor)}
 ========================================= */
 
 async function cambiarEstadoPedido(
-id,
-estado
+    id,
+    estado
 ){
 
-try{
+    try{
 
-const respuesta=
-await fetch(
-API_PEDIDOS,
-{
+        const respuesta=
+            await fetch(
+                API_PEDIDOS,
+                {
+                    method:"PATCH",
 
-method:"PATCH",
+                    headers:headersAdmin(),
 
-headers:{
-"Content-Type":
-"application/json"
-},
-
-body:JSON.stringify({
-id:id,
-estado:estado
-})
-
-}
-);
+                    body:JSON.stringify({
+                        id:id,
+                        estado:estado
+                    })
+                }
+            );
 
 
-const datos=
-await respuesta.json();
+        if(respuesta.status===401){
+
+            limpiarTokenAdmin();
+
+            throw new Error(
+                "Token de administrador incorrecto."
+            );
+
+        }
 
 
-if(!respuesta.ok){
-
-throw new Error(
-datos.error||
-"No se pudo cambiar el estado"
-);
-
-}
+        const datos=
+            await respuesta.json();
 
 
-const pedidoLocal=
-pedidos.find(
-pedido=>
-String(pedido.id)===
-String(id)
-);
+        if(!respuesta.ok){
+
+            throw new Error(
+                datos.error||
+                "No se pudo cambiar el estado"
+            );
+
+        }
 
 
-if(pedidoLocal){
-
-pedidoLocal.estado=
-estado;
-
-}
-
-
-actualizarEstadisticas();
+        const pedidoLocal=
+            pedidos.find(
+                pedido=>
+                String(pedido.id)===
+                String(id)
+            );
 
 
-mostrarNotificacion(
-"✅ Estado actualizado"
-);
+        if(pedidoLocal){
+
+            pedidoLocal.estado=
+                estado;
+
+        }
 
 
-}catch(error){
-
-console.error(error);
+        actualizarEstadisticas();
 
 
-alert(
-"No se pudo cambiar el estado:\n"+
-error.message
-);
+        mostrarNotificacion(
+            "✅ Estado actualizado"
+        );
 
 
-cargarPedidos();
+    }catch(error){
 
-}
+        console.error(error);
+
+
+        alert(
+            "No se pudo cambiar el estado:\n"+
+            error.message
+        );
+
+
+        cargarPedidos();
+
+    }
 
 }
 
@@ -2895,205 +2976,211 @@ cargarPedidos();
 
 async function guardarPago(id){
 
-const estadoElemento=
-document.getElementById(
-"estadoPago-"+id
-);
+    const estadoElemento=
+        document.getElementById(
+            "estadoPago-"+id
+        );
 
 
-const metodoElemento=
-document.getElementById(
-"metodoPago-"+id
-);
+    const metodoElemento=
+        document.getElementById(
+            "metodoPago-"+id
+        );
 
 
-const referenciaElemento=
-document.getElementById(
-"referenciaPago-"+id
-);
+    const referenciaElemento=
+        document.getElementById(
+            "referenciaPago-"+id
+        );
 
 
-const boton=
-document.getElementById(
-"botonPago-"+id
-);
+    const boton=
+        document.getElementById(
+            "botonPago-"+id
+        );
 
 
-if(
-!estadoElemento||
-!metodoElemento||
-!referenciaElemento
-){
+    if(
+        !estadoElemento||
+        !metodoElemento||
+        !referenciaElemento
+    ){
 
-alert(
-"No se encontraron los campos del pago."
-);
+        alert(
+            "No se encontraron los campos del pago."
+        );
 
-return;
+        return;
 
-}
+    }
 
 
-const pago={
+    const pago={
 
-estado:
-estadoElemento.value,
+        estado:
+            estadoElemento.value,
 
-metodo:
-metodoElemento.value,
+        metodo:
+            metodoElemento.value,
 
-referencia:
-referenciaElemento.value.trim()
+        referencia:
+            referenciaElemento.value.trim()
 
-};
+    };
 
 
-editandoPago=true;
+    editandoPago=true;
 
 
-if(boton){
+    if(boton){
 
-boton.disabled=true;
+        boton.disabled=true;
 
-boton.textContent=
-"⏳ Guardando...";
+        boton.textContent=
+            "⏳ Guardando...";
 
-}
+    }
 
 
-try{
+    try{
 
-const respuesta=
-await fetch(
-API_PEDIDOS,
-{
+        const respuesta=
+            await fetch(
+                API_PEDIDOS,
+                {
+                    method:"PATCH",
 
-method:"PATCH",
+                    headers:headersAdmin(),
 
-headers:{
-"Content-Type":
-"application/json"
-},
+                    body:JSON.stringify({
 
-body:JSON.stringify({
+                        id:id,
 
-id:id,
+                        pago:pago
 
-pago:pago
+                    })
+                }
+            );
 
-})
 
-}
-);
+        if(respuesta.status===401){
 
+            limpiarTokenAdmin();
 
-const datos=
-await respuesta.json();
+            throw new Error(
+                "Token de administrador incorrecto."
+            );
 
+        }
 
-if(!respuesta.ok){
 
-throw new Error(
-datos.error||
-"No se pudo guardar el pago"
-);
+        const datos=
+            await respuesta.json();
 
-}
 
+        if(!respuesta.ok){
 
-const pedidoLocal=
-pedidos.find(
-pedido=>
-String(pedido.id)===
-String(id)
-);
+            throw new Error(
+                datos.error||
+                "No se pudo guardar el pago"
+            );
 
+        }
 
-if(pedidoLocal){
 
-pedidoLocal.pago={
+        const pedidoLocal=
+            pedidos.find(
+                pedido=>
+                String(pedido.id)===
+                String(id)
+            );
 
-estado:pago.estado,
 
-metodo:pago.metodo,
+        if(pedidoLocal){
 
-referencia:pago.referencia
+            pedidoLocal.pago={
 
-};
+                estado:pago.estado,
 
+                metodo:pago.metodo,
 
-pedidoLocal.estadoPago=
-pago.estado;
+                referencia:pago.referencia
 
-pedidoLocal.metodoPago=
-pago.metodo;
+            };
 
-pedidoLocal.referenciaPago=
-pago.referencia;
 
-}
+            pedidoLocal.estadoPago=
+                pago.estado;
 
+            pedidoLocal.metodoPago=
+                pago.metodo;
 
-actualizarEstadisticas();
+            pedidoLocal.referenciaPago=
+                pago.referencia;
 
+        }
 
-mostrarNotificacion(
-"💳 Información del pago guardada"
-);
 
+        actualizarEstadisticas();
 
-if(boton){
 
-boton.textContent=
-"✅ Pago guardado";
+        mostrarNotificacion(
+            "💳 Información del pago guardada"
+        );
 
-}
 
+        if(boton){
 
-setTimeout(()=>{
+            boton.textContent=
+                "✅ Pago guardado";
 
-editandoPago=false;
+        }
 
 
-if(boton){
+        setTimeout(()=>{
 
-boton.disabled=false;
+            editandoPago=false;
 
-boton.textContent=
-"💾 Guardar información del pago";
 
-}
+            if(boton){
 
+                boton.disabled=false;
 
-mostrarPedidos();
+                boton.textContent=
+                    "💾 Guardar información del pago";
 
-},1200);
+            }
 
 
-}catch(error){
+            mostrarPedidos();
 
-console.error(error);
+        },1200);
 
 
-editandoPago=false;
+    }catch(error){
 
+        console.error(error);
 
-if(boton){
 
-boton.disabled=false;
+        editandoPago=false;
 
-boton.textContent=
-"💾 Guardar información del pago";
 
-}
+        if(boton){
 
+            boton.disabled=false;
 
-alert(
-"No se pudo guardar el pago:\n"+
-error.message
-);
+            boton.textContent=
+                "💾 Guardar información del pago";
 
-}
+        }
+
+
+        alert(
+            "No se pudo guardar el pago:\n"+
+            error.message
+        );
+
+    }
 
 }
 
@@ -3104,85 +3191,101 @@ error.message
 
 async function eliminarPedido(id){
 
-const confirmar=
-confirm(
-"¿Seguro que quieres eliminar este pedido?"
-);
+    const confirmar=
+        confirm(
+            "¿Seguro que quieres eliminar este pedido?"
+        );
 
 
-if(!confirmar){
+    if(!confirmar){
 
-return;
+        return;
 
-}
-
-
-try{
-
-const respuesta=
-await fetch(
-API_PEDIDOS+
-"?id="+
-encodeURIComponent(id),
-{
-method:"DELETE"
-}
-);
+    }
 
 
-const datos=
-await respuesta.json();
+    try{
+
+        const respuesta=
+            await fetch(
+                API_PEDIDOS+
+                "?id="+
+                encodeURIComponent(id),
+                {
+                    method:"DELETE",
+
+                    headers:{
+                        "X-Admin-Token":
+                            obtenerTokenAdmin()
+                    }
+                }
+            );
 
 
-if(!respuesta.ok){
+        if(respuesta.status===401){
 
-throw new Error(
-datos.error||
-"No se pudo eliminar el pedido"
-);
+            limpiarTokenAdmin();
 
-}
+            throw new Error(
+                "Token de administrador incorrecto."
+            );
 
-
-mostrarNotificacion(
-"🗑️ Pedido eliminado"
-);
+        }
 
 
-idsConocidos.delete(
-String(id)
-);
+        const datos=
+            await respuesta.json();
 
 
-pedidosColapsados.delete(
-String(id)
-);
+        if(!respuesta.ok){
+
+            throw new Error(
+                datos.error||
+                "No se pudo eliminar el pedido"
+            );
+
+        }
 
 
-pedidos=
-pedidos.filter(
-pedido=>
-String(pedido.id)!==
-String(id)
-);
+        mostrarNotificacion(
+            "🗑️ Pedido eliminado"
+        );
 
 
-actualizarEstadisticas();
-
-mostrarPedidos();
-
-
-}catch(error){
-
-console.error(error);
+        idsConocidos.delete(
+            String(id)
+        );
 
 
-alert(
-"No se pudo eliminar el pedido:\n"+
-error.message
-);
+        pedidosColapsados.delete(
+            String(id)
+        );
 
-}
+
+        pedidos=
+            pedidos.filter(
+                pedido=>
+                String(pedido.id)!==
+                String(id)
+            );
+
+
+        actualizarEstadisticas();
+
+        mostrarPedidos();
+
+
+    }catch(error){
+
+        console.error(error);
+
+
+        alert(
+            "No se pudo eliminar el pedido:\n"+
+            error.message
+        );
+
+    }
 
 }
 
@@ -3193,15 +3296,15 @@ error.message
 
 function formatoDinero(valor){
 
-return Number(valor||0)
-.toLocaleString(
-"es-DO",
-{
-style:"currency",
-currency:"DOP",
-maximumFractionDigits:0
-}
-);
+    return Number(valor||0)
+        .toLocaleString(
+            "es-DO",
+            {
+                style:"currency",
+                currency:"DOP",
+                maximumFractionDigits:0
+            }
+        );
 
 }
 
@@ -3212,19 +3315,19 @@ maximumFractionDigits:0
 
 function escapar(valor){
 
-return String(valor??"")
-.replace(/&/g,"&amp;")
-.replace(/</g,"&lt;")
-.replace(/>/g,"&gt;")
-.replace(/"/g,"&quot;")
-.replace(/'/g,"&#039;");
+    return String(valor??"")
+        .replace(/&/g,"&amp;")
+        .replace(/</g,"&lt;")
+        .replace(/>/g,"&gt;")
+        .replace(/"/g,"&quot;")
+        .replace(/'/g,"&#039;");
 
 }
 
 
 function escaparAtributo(valor){
 
-return escapar(valor);
+    return escapar(valor);
 
 }
 
@@ -3234,11 +3337,11 @@ return escapar(valor);
 ========================================= */
 
 document
-.getElementById("buscar")
-.addEventListener(
-"input",
-mostrarPedidos
-);
+    .getElementById("buscar")
+    .addEventListener(
+        "input",
+        mostrarPedidos
+    );
 
 
 /* =========================================
@@ -3246,11 +3349,11 @@ mostrarPedidos
 ========================================= */
 
 document
-.getElementById("ordenar")
-.addEventListener(
-"change",
-mostrarPedidos
-);
+    .getElementById("ordenar")
+    .addEventListener(
+        "change",
+        mostrarPedidos
+    );
 
 
 /* =========================================
@@ -3258,40 +3361,40 @@ mostrarPedidos
 ========================================= */
 
 document.addEventListener(
-"focusin",
-function(event){
+    "focusin",
+    function(event){
 
-const elemento=
-event.target;
-
-
-if(
-!elemento||
-!elemento.id
-){
-
-return;
-
-}
+        const elemento=
+            event.target;
 
 
-if(
-elemento.id.startsWith(
-"estadoPago-"
-)||
-elemento.id.startsWith(
-"metodoPago-"
-)||
-elemento.id.startsWith(
-"referenciaPago-"
-)
-){
+        if(
+            !elemento||
+            !elemento.id
+        ){
 
-editandoPago=true;
+            return;
 
-}
+        }
 
-}
+
+        if(
+            elemento.id.startsWith(
+                "estadoPago-"
+            )||
+            elemento.id.startsWith(
+                "metodoPago-"
+            )||
+            elemento.id.startsWith(
+                "referenciaPago-"
+            )
+        ){
+
+            editandoPago=true;
+
+        }
+
+    }
 );
 
 
@@ -3300,37 +3403,37 @@ editandoPago=true;
 ========================================= */
 
 document.addEventListener(
-"change",
-function(event){
+    "change",
+    function(event){
 
-const elemento=
-event.target;
-
-
-if(
-!elemento||
-!elemento.id
-){
-
-return;
-
-}
+        const elemento=
+            event.target;
 
 
-if(
-elemento.id.startsWith(
-"estadoPago-"
-)||
-elemento.id.startsWith(
-"metodoPago-"
-)
-){
+        if(
+            !elemento||
+            !elemento.id
+        ){
 
-editandoPago=true;
+            return;
 
-}
+        }
 
-}
+
+        if(
+            elemento.id.startsWith(
+                "estadoPago-"
+            )||
+            elemento.id.startsWith(
+                "metodoPago-"
+            )
+        ){
+
+            editandoPago=true;
+
+        }
+
+    }
 );
 
 
@@ -3340,66 +3443,67 @@ editandoPago=true;
 
 function comprobarEstadoNotificaciones(){
 
-const boton=
-document.getElementById(
-"botonNotificaciones"
-);
-
-const estado=
-document.getElementById(
-"estadoNotificaciones"
-);
+    const boton=
+        document.getElementById(
+            "botonNotificaciones"
+        );
 
 
-if(!("Notification" in window)){
-
-estado.textContent=
-"⚠️ Este navegador no permite notificaciones.";
-
-boton.textContent=
-"🔔 Solo sonido";
-
-return;
-
-}
+    const estado=
+        document.getElementById(
+            "estadoNotificaciones"
+        );
 
 
-if(
-Notification.permission==="granted"
-){
+    if(!("Notification" in window)){
 
-estado.textContent=
-"✅ Notificaciones del navegador activadas.";
+        estado.textContent=
+            "⚠️ Este navegador no permite notificaciones.";
 
-boton.textContent=
-"✅ Notificaciones activadas";
+        boton.textContent=
+            "🔔 Solo sonido";
 
-boton.classList.add(
-"activado"
-);
+        return;
 
-return;
-
-}
+    }
 
 
-if(
-Notification.permission==="denied"
-){
+    if(
+        Notification.permission==="granted"
+    ){
 
-estado.textContent=
-"⚠️ Las notificaciones están bloqueadas en el navegador.";
+        estado.textContent=
+            "✅ Notificaciones del navegador activadas.";
 
-boton.textContent=
-"⚠️ Notificaciones bloqueadas";
+        boton.textContent=
+            "✅ Notificaciones activadas";
 
-return;
+        boton.classList.add(
+            "activado"
+        );
 
-}
+        return;
+
+    }
 
 
-estado.textContent=
-"Activa las notificaciones para recibir avisos de nuevos pedidos.";
+    if(
+        Notification.permission==="denied"
+    ){
+
+        estado.textContent=
+            "⚠️ Las notificaciones están bloqueadas en el navegador.";
+
+        boton.textContent=
+            "⚠️ Notificaciones bloqueadas";
+
+        return;
+
+    }
+
+
+    estado.textContent=
+        "Activa las notificaciones para recibir avisos de nuevos pedidos.";
 
 }
 
@@ -3418,16 +3522,16 @@ cargarPedidos();
 ========================================= */
 
 setInterval(
-function(){
+    function(){
 
-if(!editandoPago){
+        if(!editandoPago){
 
-cargarPedidos();
+            cargarPedidos();
 
-}
+        }
 
-},
-5000
+    },
+    5000
 );
 
 
@@ -3436,3 +3540,4 @@ cargarPedidos();
 </body>
 
 </html>
+
