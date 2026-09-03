@@ -1,5 +1,3 @@
-
-
 <!DOCTYPE html>
 <html lang="es">
 
@@ -12,7 +10,30 @@
     <link rel="stylesheet" href="style.css">
 </head>
 
-<body>
+<body class="gbo-intro-active">
+
+    <!-- =====================================================
+         INTRO GBO — THE ENTRANCE
+         Se muestra una vez por sesión del navegador.
+    ====================================================== -->
+
+    <div class="gbo-intro" id="gboIntro" aria-hidden="true">
+
+        <div class="gbo-intro__orb"></div>
+        <div class="gbo-intro__flash"></div>
+        <div class="gbo-intro__particles" id="gboParticles"></div>
+        <div class="gbo-intro__noise"></div>
+
+        <div class="gbo-intro__content">
+            <div class="gbo-intro__brand">GBO</div>
+
+            <p class="gbo-intro__slogan">
+                DRESS <span>DIFFERENT.</span>
+            </p>
+        </div>
+
+    </div>
+
 
     <!-- =========================
          NAVEGACIÓN GBO
@@ -187,10 +208,14 @@
 
 
     <!-- =========================
-         FONDO ALEATORIO
+         FONDO ALEATORIO + INTRO GBO
     ========================== -->
 
     <script>
+
+        /* =====================================================
+           FONDO ALEATORIO — SISTEMA ORIGINAL
+        ====================================================== */
 
         const fondos = [
             "fondo-1",
@@ -200,7 +225,6 @@
             "fondo-5"
         ];
 
-
         const fondoAleatorio =
             fondos[
                 Math.floor(
@@ -208,15 +232,96 @@
                 )
             ];
 
-
         document.body.classList.add(
             fondoAleatorio
         );
 
-    </script>
 
+        /* =====================================================
+           INTRO GBO — THE ENTRANCE
+           Una vez por sesión. No se repite al recargar.
+        ====================================================== */
+
+        const intro = document.getElementById("gboIntro");
+        const particlesContainer = document.getElementById("gboParticles");
+        const introKey = "gboIntroV1Shown";
+
+        function crearParticulas() {
+
+            if (!particlesContainer) return;
+
+            const cantidad = window.innerWidth <= 700 ? 24 : 38;
+
+            for (let i = 0; i < cantidad; i++) {
+
+                const particle = document.createElement("span");
+
+                particle.className = "gbo-intro__particle";
+
+                const angle = Math.random() * Math.PI * 2;
+                const distance = 100 + Math.random() * (window.innerWidth <= 700 ? 170 : 280);
+
+                const x = Math.cos(angle) * distance;
+                const y = Math.sin(angle) * distance;
+
+                particle.style.setProperty("--x", `${x}px`);
+                particle.style.setProperty("--y", `${y}px`);
+                particle.style.setProperty("--size", `${1 + Math.random() * 2.5}px`);
+                particle.style.setProperty("--duration", `${1.1 + Math.random() * 1.1}s`);
+                particle.style.setProperty("--delay", `${0.45 + Math.random() * 0.7}s`);
+
+                particlesContainer.appendChild(particle);
+            }
+        }
+
+        function cerrarIntro() {
+
+            if (!intro) return;
+
+            intro.classList.add("is-leaving");
+
+            window.setTimeout(() => {
+                intro.remove();
+                document.body.classList.remove("gbo-intro-active");
+            }, 750);
+        }
+
+        function iniciarIntro() {
+
+            if (!intro) return;
+
+            crearParticulas();
+
+            /*
+               Si el usuario prefiere menos movimiento,
+               mostramos la tienda sin la animación larga.
+            */
+            if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+                cerrarIntro();
+                return;
+            }
+
+            /*
+               Se muestra una vez por sesión del navegador.
+               Al cerrar el navegador y volver a entrar,
+               puede aparecer nuevamente.
+            */
+            if (sessionStorage.getItem(introKey) === "1") {
+                intro.remove();
+                document.body.classList.remove("gbo-intro-active");
+                return;
+            }
+
+            sessionStorage.setItem(introKey, "1");
+
+            /* Entrada completa: aproximadamente 3 segundos. */
+            window.setTimeout(cerrarIntro, 2850);
+        }
+
+        iniciarIntro();
+
+    </script>
 
 </body>
 
 </html>
-
