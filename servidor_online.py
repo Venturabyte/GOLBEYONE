@@ -288,6 +288,113 @@ def normalizar_pedido(pedido):
 
 
 # ============================================================
+# SEGUIMIENTO PÚBLICO
+# ============================================================
+
+def obtener_seguimiento_pedido(pedido_id):
+
+    pedido_id = str(
+        pedido_id or ""
+    ).strip()
+
+    if not pedido_id:
+        return None
+
+    # --------------------------------------------------------
+    # PRODUCCIÓN: PostgreSQL
+    # --------------------------------------------------------
+
+    if USAR_POSTGRES:
+
+        with conexion_postgres() as conn:
+
+            resultado = conn.execute("""
+                SELECT pedido
+                FROM pedidos
+                WHERE id = %s
+                LIMIT 1
+            """, (
+                pedido_id,
+            )).fetchone()
+
+        if not resultado:
+            return None
+
+        pedido = resultado[0]
+
+        if not isinstance(pedido, dict):
+            return None
+
+        return pedido
+
+    # --------------------------------------------------------
+    # LOCAL: pedidos.json
+    # --------------------------------------------------------
+
+    pedidos = cargar_pedidos()
+
+    for pedido in pedidos:
+
+        if str(
+            pedido.get("id", "")
+        ).strip() == pedido_id:
+
+            return pedido
+
+    return None
+
+
+def crear_respuesta_seguimiento(pedido):
+
+    if not isinstance(pedido, dict):
+        return None
+
+    pedido_id = str(
+        pedido.get("id", "")
+    ).strip()
+
+    estado = str(
+        pedido.get(
+            "estado",
+            "Nuevo"
+        )
+    ).strip()
+
+    estados_validos = [
+        "Nuevo",
+        "Confirmado",
+        "Preparando",
+        "Enviado",
+        "Entregado"
+    ]
+
+    if estado not in estados_validos:
+        estado = "Nuevo"
+
+    respuesta = {
+        "ok": True,
+        "pedido": {
+            "id": pedido_id,
+            "estado": estado
+        }
+    }
+
+    # --------------------------------------------------------
+    # Fecha opcional
+    #
+    # Solo se devuelve si el pedido ya la tiene.
+    # --------------------------------------------------------
+
+    if pedido.get("fecha"):
+
+        respuesta["pedido"]["fecha"] = str(
+            pedido.get("fecha")
+        )
+
+    return respuesta
+
+
+# ============================================================
 # NOTIFICACIÓN LOCAL
 # ============================================================
 
@@ -488,6 +595,133 @@ class ServidorGBO(
         ruta = urlparse(
             self.path
         ).path
+
+        # ====================================================
+        # SEGUIMIENTO PÚBLICO
+        # ====================================================
+
+        if ruta == "/api/seguimiento":
+
+            try:
+
+                consulta = parse_qs(
+                    urlparse(
+                        self.path
+                    ).query
+                )
+
+                pedido_id = None
+
+                if "id" in consulta:
+
+                    pedido_id = (
+                        consulta[
+                            "id"
+                        ][0]
+                    )
+
+                pedido_id = str(
+                    pedido_id or ""
+                ).strip()
+
+                # ------------------------------------------------
+                # Validar ID
+                # ------------------------------------------------
+
+                if not pedido_id:
+
+                    self.enviar_json(
+                        {
+                            "ok": False,
+                            "error":
+                                "Debes proporcionar el ID del pedido"
+                        },
+                        400
+                    )
+
+                    return
+
+                # ------------------------------------------------
+                # El seguimiento público solo acepta IDs GBO-
+                # ------------------------------------------------
+
+                if not pedido_id.upper().startswith("GBO-"):
+
+                    self.enviar_json(
+                        {
+                            "ok": False,
+                            "error":
+                                "ID de pedido no válido"
+                        },
+                        400
+                    )
+
+                    return
+
+                # ------------------------------------------------
+                # Buscar pedido
+                # ------------------------------------------------
+
+                pedido = obtener_seguimiento_pedido(
+                    pedido_id
+                )
+
+                if pedido is None:
+
+                    self.enviar_json(
+                        {
+                            "ok": False,
+                            "error":
+                                "Pedido no encontrado"
+                        },
+                        404
+                    )
+
+                    return
+
+                # ------------------------------------------------
+                # Respuesta PÚBLICA
+                #
+                # IMPORTANTE:
+                # Nunca enviamos el pedido completo.
+                # ------------------------------------------------
+
+                respuesta = crear_respuesta_seguimiento(
+                    pedido
+                )
+
+                self.enviar_json(
+                    respuesta
+                )
+
+                print(
+                    f"🔎 Seguimiento consultado: "
+                    f"{pedido_id}"
+                )
+
+                return
+
+            except Exception as error:
+
+                print(
+                    "Error seguimiento:",
+                    error
+                )
+
+                self.enviar_json(
+                    {
+                        "ok": False,
+                        "error":
+                            "Error al consultar el pedido"
+                    },
+                    500
+                )
+
+                return
+
+        # ====================================================
+        # API ADMINISTRATIVA
+        # ====================================================
 
         if ruta == "/api/pedidos":
 
@@ -1366,7 +1600,11 @@ if __name__ == "__main__":
         )
 
     print(
-        "API: /api/pedidos"
+        "API Admin: /api/pedidos"
+    )
+
+    print(
+        "API Pública: /api/seguimiento?id=GBO-..."
     )
 
     print("----------------------------------------")
