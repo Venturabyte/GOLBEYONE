@@ -1,0 +1,3710 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0">
+
+<title>GOLBEYONE | Centro de Pedidos</title>
+
+<style>
+
+/* =========================================================
+   RESET
+========================================================= */
+
+*{
+    box-sizing:border-box;
+    margin:0;
+    padding:0;
+}
+
+html{
+    scroll-behavior:smooth;
+}
+
+body{
+    font-family:
+        Arial,
+        Helvetica,
+        sans-serif;
+
+    background:
+        radial-gradient(
+            circle at top left,
+            rgba(100,0,255,.16),
+            transparent 35%
+        ),
+        radial-gradient(
+            circle at top right,
+            rgba(170,0,255,.10),
+            transparent 30%
+        ),
+        #050505;
+
+    color:#fff;
+    min-height:100vh;
+}
+
+/* =========================================================
+   SCROLLBAR
+========================================================= */
+
+::-webkit-scrollbar{
+    width:9px;
+}
+
+::-webkit-scrollbar-track{
+    background:#050505;
+}
+
+::-webkit-scrollbar-thumb{
+    background:#4d168d;
+    border-radius:20px;
+}
+
+::-webkit-scrollbar-thumb:hover{
+    background:#7627d1;
+}
+
+/* =========================================================
+   HEADER
+========================================================= */
+
+header{
+    position:sticky;
+    top:0;
+    z-index:1000;
+
+    background:
+        rgba(5,5,5,.88);
+
+    backdrop-filter:blur(18px);
+
+    border-bottom:
+        1px solid rgba(255,255,255,.08);
+
+    box-shadow:
+        0 10px 40px rgba(0,0,0,.35);
+}
+
+.header-inner{
+    width:min(1250px,94%);
+    margin:auto;
+
+    min-height:78px;
+
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+
+    gap:20px;
+}
+
+.logo{
+    display:flex;
+    align-items:center;
+    gap:14px;
+}
+
+.logo-mark{
+    width:46px;
+    height:46px;
+
+    border-radius:14px;
+
+    display:flex;
+    align-items:center;
+    justify-content:center;
+
+    font-size:18px;
+    font-weight:900;
+
+    background:
+        linear-gradient(
+            135deg,
+            #160025,
+            #741bd1
+        );
+
+    border:
+        1px solid rgba(255,255,255,.12);
+
+    box-shadow:
+        0 0 30px rgba(120,30,220,.25);
+}
+
+.logo-text strong{
+    display:block;
+    font-size:19px;
+    letter-spacing:2px;
+}
+
+.logo-text span{
+    display:block;
+    margin-top:3px;
+
+    color:#9c7ab8;
+    font-size:11px;
+    letter-spacing:2px;
+}
+
+.connection{
+    display:flex;
+    align-items:center;
+    gap:10px;
+
+    font-size:13px;
+    color:#aaa;
+}
+
+.connection-dot{
+    width:10px;
+    height:10px;
+
+    border-radius:50%;
+
+    background:#777;
+
+    box-shadow:
+        0 0 0 rgba(0,0,0,0);
+}
+
+.connection.online .connection-dot{
+    background:#52e48b;
+
+    box-shadow:
+        0 0 15px rgba(82,228,139,.8);
+}
+
+.connection.error .connection-dot{
+    background:#ff4f6d;
+
+    box-shadow:
+        0 0 15px rgba(255,79,109,.7);
+}
+
+/* =========================================================
+   MAIN
+========================================================= */
+
+main{
+    width:min(1250px,94%);
+    margin:0 auto;
+
+    padding:
+        40px 0 80px;
+}
+
+.page-title{
+    margin-bottom:28px;
+}
+
+.page-title h1{
+    font-size:
+        clamp(30px,5vw,48px);
+
+    line-height:1;
+
+    letter-spacing:-1.5px;
+
+    margin-bottom:12px;
+}
+
+.page-title h1 span{
+    color:#9c45ee;
+}
+
+.page-title p{
+    color:#9d9d9d;
+    font-size:14px;
+    max-width:680px;
+}
+
+/* =========================================================
+   TOP ACTIONS
+========================================================= */
+
+.top-actions{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+
+    gap:15px;
+
+    flex-wrap:wrap;
+
+    margin-bottom:25px;
+}
+
+.btn{
+    border:none;
+    outline:none;
+
+    cursor:pointer;
+
+    min-height:42px;
+
+    padding:
+        0 18px;
+
+    border-radius:12px;
+
+    color:white;
+
+    font-weight:700;
+
+    transition:
+        .2s ease;
+
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    gap:8px;
+}
+
+.btn:hover{
+    transform:translateY(-1px);
+}
+
+.btn-primary{
+    background:
+        linear-gradient(
+            135deg,
+            #6414a8,
+            #8d30e8
+        );
+
+    box-shadow:
+        0 8px 25px rgba(120,30,220,.20);
+}
+
+.btn-secondary{
+    background:
+        rgba(255,255,255,.06);
+
+    border:
+        1px solid rgba(255,255,255,.10);
+}
+
+.btn-danger{
+    background:
+        rgba(255,60,90,.12);
+
+    border:
+        1px solid rgba(255,60,90,.25);
+
+    color:#ff8a9c;
+}
+
+.btn-danger:hover{
+    background:
+        rgba(255,60,90,.20);
+}
+
+.btn-small{
+    min-height:36px;
+    padding:
+        0 13px;
+
+    font-size:12px;
+}
+
+/* =========================================================
+   STATS
+========================================================= */
+
+.stats{
+    display:grid;
+
+    grid-template-columns:
+        repeat(4,1fr);
+
+    gap:15px;
+
+    margin-bottom:25px;
+}
+
+.stat{
+    position:relative;
+
+    overflow:hidden;
+
+    padding:22px;
+
+    border-radius:20px;
+
+    background:
+        linear-gradient(
+            145deg,
+            rgba(255,255,255,.065),
+            rgba(255,255,255,.025)
+        );
+
+    border:
+        1px solid rgba(255,255,255,.08);
+
+    box-shadow:
+        0 15px 50px rgba(0,0,0,.20);
+}
+
+.stat::before{
+    content:"";
+
+    position:absolute;
+
+    width:100px;
+    height:100px;
+
+    right:-40px;
+    top:-40px;
+
+    border-radius:50%;
+
+    background:
+        rgba(123,37,206,.13);
+
+    filter:blur(5px);
+}
+
+.stat-label{
+    color:#999;
+    font-size:12px;
+
+    text-transform:uppercase;
+
+    letter-spacing:1.5px;
+
+    margin-bottom:10px;
+}
+
+.stat-number{
+    font-size:31px;
+    font-weight:900;
+
+    position:relative;
+}
+
+/* =========================================================
+   FILTERS
+========================================================= */
+
+.filters{
+    display:grid;
+
+    grid-template-columns:
+        minmax(220px,1fr)
+        190px
+        160px;
+
+    gap:12px;
+
+    margin-bottom:25px;
+}
+
+.field{
+    position:relative;
+}
+
+.field input,
+.field select{
+    width:100%;
+
+    height:46px;
+
+    padding:
+        0 14px;
+
+    border-radius:13px;
+
+    background:
+        rgba(255,255,255,.045);
+
+    border:
+        1px solid rgba(255,255,255,.10);
+
+    color:white;
+
+    outline:none;
+
+    font-size:14px;
+}
+
+.field input::placeholder{
+    color:#777;
+}
+
+.field input:focus,
+.field select:focus{
+    border-color:
+        rgba(153,58,230,.65);
+
+    box-shadow:
+        0 0 0 3px
+        rgba(123,35,200,.10);
+}
+
+.field select option{
+    background:#171017;
+    color:white;
+}
+
+/* =========================================================
+   ORDERS CONTAINER
+========================================================= */
+
+.orders{
+    display:flex;
+    flex-direction:column;
+    gap:16px;
+}
+
+/* =========================================================
+   ORDER CARD
+========================================================= */
+
+.order-card{
+    position:relative;
+
+    overflow:hidden;
+
+    border-radius:22px;
+
+    background:
+        linear-gradient(
+            145deg,
+            rgba(255,255,255,.065),
+            rgba(255,255,255,.025)
+        );
+
+    border:
+        1px solid rgba(255,255,255,.09);
+
+    box-shadow:
+        0 18px 55px rgba(0,0,0,.24);
+}
+
+.order-card::before{
+    content:"";
+
+    position:absolute;
+
+    left:0;
+    top:0;
+    bottom:0;
+
+    width:3px;
+
+    background:
+        linear-gradient(
+            180deg,
+            #8d35d9,
+            #3b1260
+        );
+}
+
+.order-head{
+    padding:20px 22px;
+
+    display:flex;
+    align-items:flex-start;
+    justify-content:space-between;
+
+    gap:20px;
+
+    border-bottom:
+        1px solid rgba(255,255,255,.07);
+}
+
+.order-main{
+    min-width:0;
+}
+
+.order-id{
+    color:#b66df1;
+
+    font-size:12px;
+
+    font-weight:800;
+
+    letter-spacing:1.4px;
+
+    margin-bottom:7px;
+}
+
+.order-client{
+    font-size:20px;
+    font-weight:800;
+
+    margin-bottom:5px;
+
+    word-break:break-word;
+}
+
+.order-date{
+    color:#888;
+    font-size:12px;
+}
+
+.status-badge{
+    flex-shrink:0;
+
+    padding:
+        8px 12px;
+
+    border-radius:30px;
+
+    font-size:11px;
+
+    font-weight:800;
+
+    text-transform:uppercase;
+
+    letter-spacing:.6px;
+
+    background:
+        rgba(151,68,224,.12);
+
+    color:#c58cf2;
+
+    border:
+        1px solid rgba(151,68,224,.25);
+}
+
+/* =========================================================
+   ORDER BODY
+========================================================= */
+
+.order-body{
+    padding:22px;
+}
+
+.order-grid{
+    display:grid;
+
+    grid-template-columns:
+        1.3fr
+        .8fr
+        .8fr;
+
+    gap:22px;
+}
+
+.info-title{
+    color:#777;
+
+    font-size:10px;
+
+    font-weight:800;
+
+    text-transform:uppercase;
+
+    letter-spacing:1.4px;
+
+    margin-bottom:8px;
+}
+
+.info-value{
+    color:#e7e7e7;
+
+    font-size:14px;
+
+    line-height:1.6;
+
+    word-break:break-word;
+}
+
+.products{
+    display:flex;
+    flex-direction:column;
+
+    gap:8px;
+}
+
+.product-line{
+    display:flex;
+    justify-content:space-between;
+    gap:15px;
+
+    padding:
+        9px 11px;
+
+    border-radius:10px;
+
+    background:
+        rgba(255,255,255,.035);
+}
+
+.product-name{
+    color:#ddd;
+    font-size:13px;
+}
+
+.product-qty{
+    color:#999;
+    font-size:12px;
+}
+
+.product-price{
+    color:#c987f5;
+    font-weight:700;
+    font-size:13px;
+}
+
+/* =========================================================
+   TOTAL
+========================================================= */
+
+.total-box{
+    margin-top:16px;
+
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+
+    padding:
+        14px 16px;
+
+    border-radius:13px;
+
+    background:
+        rgba(125,40,200,.08);
+
+    border:
+        1px solid rgba(125,40,200,.15);
+}
+
+.total-box span:first-child{
+    color:#aaa;
+    font-size:13px;
+}
+
+.total{
+    font-size:21px;
+    font-weight:900;
+    color:#d397ff;
+}
+
+/* =========================================================
+   PAYMENT
+========================================================= */
+
+.payment-box{
+    padding:
+        13px 14px;
+
+    border-radius:13px;
+
+    background:
+        rgba(255,255,255,.035);
+
+    border:
+        1px solid rgba(255,255,255,.06);
+}
+
+.payment-status{
+    display:inline-block;
+
+    margin-bottom:7px;
+
+    padding:
+        5px 9px;
+
+    border-radius:20px;
+
+    font-size:10px;
+
+    font-weight:800;
+
+    text-transform:uppercase;
+
+    letter-spacing:.6px;
+}
+
+.payment-paid{
+    background:
+        rgba(52,211,113,.10);
+
+    color:#65e798;
+
+    border:
+        1px solid rgba(52,211,113,.18);
+}
+
+.payment-pending{
+    background:
+        rgba(255,191,71,.10);
+
+    color:#ffc967;
+
+    border:
+        1px solid rgba(255,191,71,.18);
+}
+
+.payment-method{
+    color:#ddd;
+    font-size:13px;
+}
+
+.payment-ref{
+    margin-top:5px;
+
+    color:#888;
+    font-size:11px;
+}
+
+/* =========================================================
+   PROGRESS
+========================================================= */
+
+.progress-wrap{
+    margin-top:22px;
+}
+
+.progress-title{
+    display:flex;
+    justify-content:space-between;
+
+    color:#777;
+
+    font-size:10px;
+
+    font-weight:800;
+
+    text-transform:uppercase;
+
+    letter-spacing:1.3px;
+
+    margin-bottom:13px;
+}
+
+.progress{
+    display:grid;
+
+    grid-template-columns:
+        repeat(5,1fr);
+
+    gap:5px;
+}
+
+.progress-step{
+    text-align:center;
+}
+
+.progress-line{
+    height:5px;
+
+    border-radius:20px;
+
+    background:
+        rgba(255,255,255,.08);
+
+    margin-bottom:7px;
+}
+
+.progress-step.active .progress-line{
+    background:
+        linear-gradient(
+            90deg,
+            #6820a5,
+            #a145ef
+        );
+
+    box-shadow:
+        0 0 12px rgba(145,45,230,.25);
+}
+
+.progress-step span{
+    color:#666;
+
+    font-size:9px;
+
+    font-weight:700;
+}
+
+.progress-step.active span{
+    color:#c98cf4;
+}
+
+/* =========================================================
+   ACTIONS
+========================================================= */
+
+.order-actions{
+    margin-top:20px;
+
+    padding-top:18px;
+
+    border-top:
+        1px solid rgba(255,255,255,.06);
+
+    display:flex;
+
+    justify-content:flex-end;
+
+    align-items:center;
+
+    gap:10px;
+
+    flex-wrap:wrap;
+}
+
+.status-select{
+    height:38px;
+
+    padding:
+        0 12px;
+
+    border-radius:10px;
+
+    background:
+        #171117;
+
+    color:white;
+
+    border:
+        1px solid rgba(255,255,255,.10);
+
+    outline:none;
+
+    font-size:12px;
+}
+
+/* =========================================================
+   EMPTY STATE
+========================================================= */
+
+.empty{
+    padding:
+        70px 25px;
+
+    text-align:center;
+
+    border-radius:22px;
+
+    border:
+        1px dashed rgba(255,255,255,.12);
+
+    background:
+        rgba(255,255,255,.025);
+}
+
+.empty-icon{
+    width:65px;
+    height:65px;
+
+    margin:
+        0 auto 18px;
+
+    border-radius:20px;
+
+    display:flex;
+    align-items:center;
+    justify-content:center;
+
+    font-size:28px;
+
+    background:
+        rgba(125,40,200,.10);
+
+    border:
+        1px solid rgba(125,40,200,.15);
+}
+
+.empty h2{
+    font-size:20px;
+    margin-bottom:8px;
+}
+
+.empty p{
+    color:#777;
+    font-size:13px;
+}
+
+/* =========================================================
+   LOADING
+========================================================= */
+
+.loading{
+    padding:70px 20px;
+
+    text-align:center;
+
+    color:#777;
+}
+
+.spinner{
+    width:38px;
+    height:38px;
+
+    margin:
+        0 auto 15px;
+
+    border-radius:50%;
+
+    border:
+        3px solid rgba(255,255,255,.08);
+
+    border-top-color:#963be0;
+
+    animation:
+        spin .8s linear infinite;
+}
+
+@keyframes spin{
+    to{
+        transform:rotate(360deg);
+    }
+}
+
+/* =========================================================
+   TOAST
+========================================================= */
+
+.toast{
+    position:fixed;
+
+    right:22px;
+    bottom:22px;
+
+    z-index:9999;
+
+    width:min(360px,calc(100% - 40px));
+
+    padding:
+        15px 17px;
+
+    border-radius:15px;
+
+    background:
+        rgba(22,14,25,.96);
+
+    backdrop-filter:blur(15px);
+
+    border:
+        1px solid rgba(255,255,255,.10);
+
+    box-shadow:
+        0 20px 60px rgba(0,0,0,.45);
+
+    transform:
+        translateY(30px);
+
+    opacity:0;
+
+    pointer-events:none;
+
+    transition:
+        .25s ease;
+}
+
+.toast.show{
+    transform:
+        translateY(0);
+
+    opacity:1;
+}
+
+.toast.success{
+    border-color:
+        rgba(65,220,130,.25);
+}
+
+.toast.error{
+    border-color:
+        rgba(255,70,90,.30);
+}
+
+.toast-title{
+    font-weight:800;
+    font-size:13px;
+
+    margin-bottom:4px;
+}
+
+.toast-message{
+    color:#aaa;
+    font-size:12px;
+    line-height:1.5;
+}
+
+/* =========================================================
+   MODAL TOKEN
+========================================================= */
+
+.modal{
+    position:fixed;
+
+    inset:0;
+
+    z-index:10000;
+
+    display:flex;
+
+    align-items:center;
+    justify-content:center;
+
+    padding:20px;
+
+    background:
+        rgba(0,0,0,.78);
+
+    backdrop-filter:
+        blur(10px);
+}
+
+.modal.hidden{
+    display:none;
+}
+
+.modal-card{
+    width:min(430px,100%);
+
+    padding:28px;
+
+    border-radius:24px;
+
+    background:
+        linear-gradient(
+            145deg,
+            #17101b,
+            #0b080d
+        );
+
+    border:
+        1px solid rgba(255,255,255,.10);
+
+    box-shadow:
+        0 30px 100px rgba(0,0,0,.60);
+}
+
+.modal-card h2{
+    font-size:22px;
+    margin-bottom:8px;
+}
+
+.modal-card p{
+    color:#888;
+    font-size:13px;
+    line-height:1.6;
+
+    margin-bottom:18px;
+}
+
+.token-input{
+    width:100%;
+
+    height:46px;
+
+    padding:
+        0 14px;
+
+    border-radius:12px;
+
+    background:
+        rgba(255,255,255,.05);
+
+    border:
+        1px solid rgba(255,255,255,.10);
+
+    color:white;
+
+    outline:none;
+}
+
+.token-input:focus{
+    border-color:#8c37d1;
+}
+
+.modal-actions{
+    margin-top:15px;
+
+    display:flex;
+    justify-content:flex-end;
+
+    gap:10px;
+}
+
+/* =========================================================
+   RESPONSIVE
+========================================================= */
+
+@media(max-width:900px){
+
+    .stats{
+        grid-template-columns:
+            repeat(2,1fr);
+    }
+
+    .order-grid{
+        grid-template-columns:
+            1fr 1fr;
+    }
+
+}
+
+@media(max-width:700px){
+
+    .header-inner{
+        min-height:70px;
+    }
+
+    .connection{
+        font-size:11px;
+    }
+
+    .logo-mark{
+        width:40px;
+        height:40px;
+    }
+
+    .logo-text strong{
+        font-size:15px;
+    }
+
+    .logo-text span{
+        font-size:9px;
+    }
+
+    .filters{
+        grid-template-columns:1fr;
+    }
+
+    .order-head{
+        flex-direction:column;
+    }
+
+    .status-badge{
+        align-self:flex-start;
+    }
+
+    .order-grid{
+        grid-template-columns:1fr;
+    }
+
+    .order-actions{
+        justify-content:stretch;
+    }
+
+    .status-select,
+    .order-actions .btn{
+        flex:1;
+    }
+
+}
+
+@media(max-width:480px){
+
+    main{
+        width:92%;
+        padding-top:28px;
+    }
+
+    .stats{
+        grid-template-columns:1fr 1fr;
+    }
+
+    .stat{
+        padding:17px;
+    }
+
+    .stat-number{
+        font-size:25px;
+    }
+
+    .order-head,
+    .order-body{
+        padding:17px;
+    }
+
+    .progress-step span{
+        font-size:7px;
+    }
+
+    .order-actions{
+        flex-direction:column;
+    }
+
+    .status-select,
+    .order-actions .btn{
+        width:100%;
+        flex:none;
+    }
+
+}
+
+/* =========================================================
+   HIDDEN
+========================================================= */
+
+.hidden{
+    display:none !important;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<!-- =======================================================
+     HEADER
+======================================================= -->
+
+<header>
+
+    <div class="header-inner">
+
+        <div class="logo">
+
+            <div class="logo-mark">
+                GBO
+            </div>
+
+            <div class="logo-text">
+
+                <strong>
+                    GOLBEYONE
+                </strong>
+
+                <span>
+                    CENTRO DE PEDIDOS
+                </span>
+
+            </div>
+
+        </div>
+
+        <div
+            id="connectionStatus"
+            class="connection">
+
+            <span class="connection-dot"></span>
+
+            <span id="connectionText">
+                Conectando...
+            </span>
+
+        </div>
+
+    </div>
+
+</header>
+
+
+<!-- =======================================================
+     MAIN
+======================================================= -->
+
+<main>
+
+    <section class="page-title">
+
+        <h1>
+            Centro de
+            <span>Pedidos</span>
+        </h1>
+
+        <p>
+            Administra los pedidos de GOLBEYONE,
+            actualiza su estado y consulta la información
+            de cada cliente.
+        </p>
+
+    </section>
+
+
+    <!-- ===================================================
+         ACTIONS
+    ==================================================== -->
+
+    <div class="top-actions">
+
+        <div>
+
+            <button
+                class="btn btn-primary"
+                id="btnActualizar">
+
+                ↻ Actualizar pedidos
+
+            </button>
+
+        </div>
+
+        <div>
+
+            <button
+                class="btn btn-secondary"
+                id="btnCambiarToken">
+
+                🔐 Cambiar token
+
+            </button>
+
+        </div>
+
+    </div>
+
+
+    <!-- ===================================================
+         STATS
+    ==================================================== -->
+
+    <section class="stats">
+
+        <div class="stat">
+
+            <div class="stat-label">
+                Total
+            </div>
+
+            <div
+                class="stat-number"
+                id="statTotal">
+                0
+            </div>
+
+        </div>
+
+
+        <div class="stat">
+
+            <div class="stat-label">
+                Nuevos
+            </div>
+
+            <div
+                class="stat-number"
+                id="statNuevos">
+                0
+            </div>
+
+        </div>
+
+
+        <div class="stat">
+
+            <div class="stat-label">
+                En proceso
+            </div>
+
+            <div
+                class="stat-number"
+                id="statProceso">
+                0
+            </div>
+
+        </div>
+
+
+        <div class="stat">
+
+            <div class="stat-label">
+                Entregados
+            </div>
+
+            <div
+                class="stat-number"
+                id="statEntregados">
+                0
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <!-- ===================================================
+         FILTERS
+    ==================================================== -->
+
+    <section class="filters">
+
+        <div class="field">
+
+            <input
+                type="text"
+                id="buscar"
+                placeholder="Buscar por cliente, ID o teléfono...">
+
+        </div>
+
+
+        <div class="field">
+
+            <select id="filtroEstado">
+
+                <option value="todos">
+                    Todos los estados
+                </option>
+
+                <option value="Nuevo">
+                    Nuevo
+                </option>
+
+                <option value="Confirmado">
+                    Confirmado
+                </option>
+
+                <option value="Preparando">
+                    Preparando
+                </option>
+
+                <option value="Enviado">
+                    Enviado
+                </option>
+
+                <option value="Entregado">
+                    Entregado
+                </option>
+
+            </select>
+
+        </div>
+
+
+        <div class="field">
+
+            <select id="ordenar">
+
+                <option value="reciente">
+                    Más recientes
+                </option>
+
+                <option value="antiguo">
+                    Más antiguos
+                </option>
+
+                <option value="mayor">
+                    Mayor total
+                </option>
+
+                <option value="menor">
+                    Menor total
+                </option>
+
+            </select>
+
+        </div>
+
+    </section>
+
+
+    <!-- ===================================================
+         ORDERS
+    ==================================================== -->
+
+    <section
+        id="orders"
+        class="orders">
+
+        <div class="loading">
+
+            <div class="spinner"></div>
+
+            Cargando pedidos...
+
+        </div>
+
+    </section>
+
+</main>
+
+
+<!-- =======================================================
+     TOKEN MODAL
+======================================================= -->
+
+<div
+    id="tokenModal"
+    class="modal hidden">
+
+    <div class="modal-card">
+
+        <h2>
+            Acceso administrativo
+        </h2>
+
+        <p>
+            Introduce el token de administrador para
+            consultar y modificar los pedidos.
+        </p>
+
+        <input
+            id="tokenInput"
+            class="token-input"
+            type="password"
+            autocomplete="off"
+            placeholder="Token de administrador">
+
+        <div class="modal-actions">
+
+            <button
+                id="btnCancelarToken"
+                class="btn btn-secondary">
+
+                Cancelar
+
+            </button>
+
+            <button
+                id="btnGuardarToken"
+                class="btn btn-primary">
+
+                Guardar token
+
+            </button>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- =======================================================
+     TOAST
+======================================================= -->
+
+<div
+    id="toast"
+    class="toast">
+
+    <div
+        id="toastTitle"
+        class="toast-title">
+        Aviso
+    </div>
+
+    <div
+        id="toastMessage"
+        class="toast-message">
+    </div>
+
+</div>
+
+
+<script>
+
+/* =========================================================
+   CONFIGURACIÓN
+========================================================= */
+
+const API_BASE = "/api/pedidos";
+
+const TOKEN_KEY = "gbo_admin_token_v2";
+
+const REFRESH_TIME = 15000;
+
+const ESTADOS = [
+    "Nuevo",
+    "Confirmado",
+    "Preparando",
+    "Enviado",
+    "Entregado"
+];
+
+
+/* =========================================================
+   ESTADO GLOBAL
+========================================================= */
+
+let pedidos = [];
+
+let cargando = false;
+
+let primerCarga = true;
+
+
+/* =========================================================
+   ELEMENTOS
+========================================================= */
+
+const ordersEl =
+    document.getElementById("orders");
+
+const buscarEl =
+    document.getElementById("buscar");
+
+const filtroEstadoEl =
+    document.getElementById("filtroEstado");
+
+const ordenarEl =
+    document.getElementById("ordenar");
+
+const statTotalEl =
+    document.getElementById("statTotal");
+
+const statNuevosEl =
+    document.getElementById("statNuevos");
+
+const statProcesoEl =
+    document.getElementById("statProceso");
+
+const statEntregadosEl =
+    document.getElementById("statEntregados");
+
+const connectionStatusEl =
+    document.getElementById("connectionStatus");
+
+const connectionTextEl =
+    document.getElementById("connectionText");
+
+const tokenModalEl =
+    document.getElementById("tokenModal");
+
+const tokenInputEl =
+    document.getElementById("tokenInput");
+
+const toastEl =
+    document.getElementById("toast");
+
+const toastTitleEl =
+    document.getElementById("toastTitle");
+
+const toastMessageEl =
+    document.getElementById("toastMessage");
+
+
+/* =========================================================
+   TOAST
+========================================================= */
+
+let toastTimer = null;
+
+function mostrarToast(
+    titulo,
+    mensaje,
+    tipo = "success"
+){
+
+    toastTitleEl.textContent =
+        titulo;
+
+    toastMessageEl.textContent =
+        mensaje;
+
+    toastEl.className =
+        "toast show " + tipo;
+
+    clearTimeout(toastTimer);
+
+    toastTimer = setTimeout(() => {
+
+        toastEl.className =
+            "toast";
+
+    }, 3500);
+
+}
+
+
+/* =========================================================
+   CONEXIÓN
+========================================================= */
+
+function marcarConexionOnline(){
+
+    connectionStatusEl.classList.remove(
+        "error"
+    );
+
+    connectionStatusEl.classList.add(
+        "online"
+    );
+
+    connectionTextEl.textContent =
+        "Servidor conectado";
+
+}
+
+
+function marcarConexionError(){
+
+    connectionStatusEl.classList.remove(
+        "online"
+    );
+
+    connectionStatusEl.classList.add(
+        "error"
+    );
+
+    connectionTextEl.textContent =
+        "Error de conexión";
+
+}
+
+
+/* =========================================================
+   TOKEN
+========================================================= */
+
+function obtenerTokenGuardado(){
+
+    try{
+
+        return localStorage.getItem(
+            TOKEN_KEY
+        ) || "";
+
+    }catch(error){
+
+        console.error(
+            "Error leyendo token:",
+            error
+        );
+
+        return "";
+
+    }
+
+}
+
+
+function obtenerTokenAdmin(){
+
+    const token =
+        obtenerTokenGuardado();
+
+    if(token){
+
+        return token;
+
+    }
+
+    abrirModalToken();
+
+    return "";
+
+}
+
+
+function headersAdmin(){
+
+    const token =
+        obtenerTokenAdmin();
+
+    return {
+
+        "Content-Type":
+            "application/json",
+
+        "X-Admin-Token":
+            token
+
+    };
+
+}
+
+
+/* =========================================================
+   MODAL TOKEN
+========================================================= */
+
+function abrirModalToken(){
+
+    tokenModalEl.classList.remove(
+        "hidden"
+    );
+
+    tokenInputEl.value =
+        obtenerTokenGuardado();
+
+    setTimeout(() => {
+
+        tokenInputEl.focus();
+
+    }, 100);
+
+}
+
+
+function cerrarModalToken(){
+
+    tokenModalEl.classList.add(
+        "hidden"
+    );
+
+}
+
+
+function guardarToken(){
+
+    const token =
+        tokenInputEl.value.trim();
+
+    if(!token){
+
+        mostrarToast(
+            "Token vacío",
+            "Introduce un token válido.",
+            "error"
+        );
+
+        return;
+
+    }
+
+    try{
+
+        localStorage.setItem(
+            TOKEN_KEY,
+            token
+        );
+
+    }catch(error){
+
+        console.error(
+            "No se pudo guardar el token:",
+            error
+        );
+
+    }
+
+    cerrarModalToken();
+
+    cargarPedidos(true);
+
+}
+
+
+/* =========================================================
+   NORMALIZAR PEDIDO
+========================================================= */
+
+function normalizarPedido(item){
+
+    if(!item || typeof item !== "object"){
+
+        return null;
+
+    }
+
+    const pagoOriginal =
+        item.pago &&
+        typeof item.pago === "object"
+            ? item.pago
+            : {};
+
+    const productos =
+        Array.isArray(item.productos)
+            ? item.productos
+            : [];
+
+    const estado =
+        item.estado ||
+        "Nuevo";
+
+    const pagoEstado =
+        pagoOriginal.estado ||
+        item.estadoPago ||
+        "Pendiente";
+
+    const pagoMetodo =
+        pagoOriginal.metodo ||
+        item.metodoPago ||
+        "No especificado";
+
+    const pagoReferencia =
+        pagoOriginal.referencia ||
+        item.referenciaPago ||
+        "";
+
+    let total =
+        Number(item.total);
+
+    if(!Number.isFinite(total)){
+
+        total = productos.reduce(
+            (suma, producto) => {
+
+                const precio =
+                    Number(
+                        producto.precio
+                    ) || 0;
+
+                const cantidad =
+                    Number(
+                        producto.cantidad
+                    ) || 1;
+
+                return suma +
+                    precio * cantidad;
+
+            },
+            0
+        );
+
+    }
+
+    return {
+
+        id:
+            String(
+                item.id ||
+                "SIN-ID"
+            ),
+
+        cliente:
+            item.cliente ||
+            item.nombre ||
+            "Cliente sin nombre",
+
+        fecha:
+            item.fecha ||
+            item.creado_en ||
+            "",
+
+        direccion:
+            item.direccion ||
+            "No especificada",
+
+        ciudad:
+            item.ciudad ||
+            "",
+
+        telefono:
+            item.telefono ||
+            "",
+
+        instrucciones:
+            item.instrucciones ||
+            item.indicaciones ||
+            "",
+
+        productos,
+
+        total,
+
+        estado,
+
+        pago:{
+
+            estado:
+                pagoEstado,
+
+            metodo:
+                pagoMetodo,
+
+            referencia:
+                pagoReferencia
+
+        }
+
+    };
+
+}
+
+
+/* =========================================================
+   FORMATEAR MONEDA
+========================================================= */
+
+function formatearPrecio(valor){
+
+    const numero =
+        Number(valor) || 0;
+
+    return numero.toLocaleString(
+        "es-DO",
+        {
+            style:"currency",
+            currency:"DOP",
+            maximumFractionDigits:0
+        }
+    );
+
+}
+
+
+/* =========================================================
+   FORMATEAR FECHA
+========================================================= */
+
+function formatearFecha(valor){
+
+    if(!valor){
+
+        return "Fecha no disponible";
+
+    }
+
+    try{
+
+        const fecha =
+            new Date(valor);
+
+        if(Number.isNaN(
+            fecha.getTime()
+        )){
+
+            return String(valor);
+
+        }
+
+        return fecha.toLocaleString(
+            "es-DO",
+            {
+                dateStyle:"medium",
+                timeStyle:"short"
+            }
+        );
+
+    }catch(error){
+
+        return String(valor);
+
+    }
+
+}
+
+
+/* =========================================================
+   ESCAPAR HTML
+========================================================= */
+
+function escapeHTML(valor){
+
+    return String(valor ?? "")
+        .replace(
+            /&/g,
+            "&amp;"
+        )
+        .replace(
+            /</g,
+            "&lt;"
+        )
+        .replace(
+            />/g,
+            "&gt;"
+        )
+        .replace(
+            /"/g,
+            "&quot;"
+        )
+        .replace(
+            /'/g,
+            "&#039;"
+        );
+
+}
+
+
+/* =========================================================
+   CARGAR PEDIDOS
+========================================================= */
+
+async function cargarPedidos(
+    pedirTokenSiFalta = true
+){
+
+    if(cargando){
+
+        return;
+
+    }
+
+    const token =
+        obtenerTokenGuardado();
+
+    if(
+        pedirTokenSiFalta &&
+        !token
+    ){
+
+        abrirModalToken();
+
+        return;
+
+    }
+
+    if(
+        !pedirTokenSiFalta &&
+        !token
+    ){
+
+        /*
+         * IMPORTANTE:
+         *
+         * Durante el auto-refresh NO abrimos
+         * ningún prompt/modal.
+         *
+         * Así evitamos el problema anterior
+         * de pedir contraseña cada pocos segundos.
+         */
+
+        return;
+
+    }
+
+    cargando = true;
+
+    if(primerCarga){
+
+        ordersEl.innerHTML = `
+
+            <div class="loading">
+
+                <div class="spinner"></div>
+
+                Cargando pedidos...
+
+            </div>
+
+        `;
+
+    }
+
+    try{
+
+        const respuesta =
+            await fetch(
+                `${API_BASE}?t=${Date.now()}`,
+                {
+                    method:"GET",
+
+                    headers:{
+                        "Content-Type":
+                            "application/json",
+
+                        "X-Admin-Token":
+                            token
+                    },
+
+                    cache:"no-store"
+                }
+            );
+
+
+        if(
+            respuesta.status === 401 ||
+            respuesta.status === 403
+        ){
+
+            /*
+             * Solo eliminamos el token si el
+             * servidor realmente lo rechaza.
+             */
+
+            try{
+
+                localStorage.removeItem(
+                    TOKEN_KEY
+                );
+
+            }catch(error){}
+
+            marcarConexionError();
+
+            if(primerCarga){
+
+                ordersEl.innerHTML = `
+
+                    <div class="empty">
+
+                        <div class="empty-icon">
+                            🔐
+                        </div>
+
+                        <h2>
+                            Token no autorizado
+                        </h2>
+
+                        <p>
+                            El token guardado ya no es válido.
+                            Introduce uno nuevo.
+                        </p>
+
+                        <br>
+
+                        <button
+                            class="btn btn-primary"
+                            onclick="abrirModalToken()">
+
+                            Introducir token
+
+                        </button>
+
+                    </div>
+
+                `;
+
+            }
+
+            primerCarga = false;
+
+            return;
+
+        }
+
+
+        if(!respuesta.ok){
+
+            const texto =
+                await respuesta.text();
+
+            throw new Error(
+                `HTTP ${respuesta.status}: ${texto}`
+            );
+
+        }
+
+
+        const data =
+            await respuesta.json();
+
+
+        if(!Array.isArray(data)){
+
+            throw new Error(
+                "La API no devolvió un arreglo de pedidos."
+            );
+
+        }
+
+
+        pedidos =
+            data
+                .map(normalizarPedido)
+                .filter(Boolean);
+
+
+        marcarConexionOnline();
+
+        renderizar();
+
+        actualizarEstadisticas();
+
+        primerCarga = false;
+
+
+    }catch(error){
+
+        console.error(
+            "Error cargando pedidos:",
+            error
+        );
+
+        marcarConexionError();
+
+        /*
+         * IMPORTANTE:
+         *
+         * Si falla un refresh automático,
+         * NO borramos los pedidos que ya
+         * estaban visibles.
+         */
+
+        if(primerCarga){
+
+            ordersEl.innerHTML = `
+
+                <div class="empty">
+
+                    <div class="empty-icon">
+                        ⚠️
+                    </div>
+
+                    <h2>
+                        No se pudieron cargar
+                        los pedidos
+                    </h2>
+
+                    <p>
+                        Revisa que el servidor esté
+                        funcionando y vuelve a intentar.
+                    </p>
+
+                    <br>
+
+                    <button
+                        class="btn btn-primary"
+                        onclick="cargarPedidos(true)">
+
+                        Reintentar
+
+                    </button>
+
+                </div>
+
+            `;
+
+            primerCarga = false;
+
+        }
+
+    }finally{
+
+        cargando = false;
+
+    }
+
+}
+
+
+/* =========================================================
+   ESTADÍSTICAS
+========================================================= */
+
+function actualizarEstadisticas(){
+
+    const total =
+        pedidos.length;
+
+    const nuevos =
+        pedidos.filter(
+            pedido =>
+                pedido.estado === "Nuevo"
+        ).length;
+
+    const proceso =
+        pedidos.filter(
+            pedido =>
+                [
+                    "Confirmado",
+                    "Preparando",
+                    "Enviado"
+                ].includes(
+                    pedido.estado
+                )
+        ).length;
+
+    const entregados =
+        pedidos.filter(
+            pedido =>
+                pedido.estado === "Entregado"
+        ).length;
+
+
+    statTotalEl.textContent =
+        total;
+
+    statNuevosEl.textContent =
+        nuevos;
+
+    statProcesoEl.textContent =
+        proceso;
+
+    statEntregadosEl.textContent =
+        entregados;
+
+}
+
+
+/* =========================================================
+   FILTRAR / ORDENAR
+========================================================= */
+
+function obtenerPedidosFiltrados(){
+
+    const texto =
+        buscarEl.value
+            .trim()
+            .toLowerCase();
+
+    const estadoFiltro =
+        filtroEstadoEl.value;
+
+    const orden =
+        ordenarEl.value;
+
+
+    let resultado =
+        pedidos.filter(
+            pedido => {
+
+                const coincideTexto =
+                    !texto ||
+                    String(
+                        pedido.id
+                    )
+                    .toLowerCase()
+                    .includes(texto) ||
+
+                    String(
+                        pedido.cliente
+                    )
+                    .toLowerCase()
+                    .includes(texto) ||
+
+                    String(
+                        pedido.telefono
+                    )
+                    .toLowerCase()
+                    .includes(texto);
+
+
+                const coincideEstado =
+                    estadoFiltro === "todos" ||
+                    pedido.estado ===
+                        estadoFiltro;
+
+
+                return (
+                    coincideTexto &&
+                    coincideEstado
+                );
+
+            }
+        );
+
+
+    resultado.sort(
+        (a,b) => {
+
+            if(
+                orden === "mayor"
+            ){
+
+                return b.total - a.total;
+
+            }
+
+            if(
+                orden === "menor"
+            ){
+
+                return a.total - b.total;
+
+            }
+
+
+            const fechaA =
+                new Date(
+                    a.fecha
+                ).getTime() || 0;
+
+            const fechaB =
+                new Date(
+                    b.fecha
+                ).getTime() || 0;
+
+
+            if(
+                orden === "antiguo"
+            ){
+
+                return fechaA - fechaB;
+
+            }
+
+            return fechaB - fechaA;
+
+        }
+    );
+
+
+    return resultado;
+
+}
+
+
+/* =========================================================
+   RENDER
+========================================================= */
+
+function renderizar(){
+
+    const lista =
+        obtenerPedidosFiltrados();
+
+
+    if(!lista.length){
+
+        ordersEl.innerHTML = `
+
+            <div class="empty">
+
+                <div class="empty-icon">
+                    📦
+                </div>
+
+                <h2>
+                    No hay pedidos
+                </h2>
+
+                <p>
+                    No encontramos pedidos que
+                    coincidan con la búsqueda actual.
+                </p>
+
+            </div>
+
+        `;
+
+        return;
+
+    }
+
+
+    ordersEl.innerHTML =
+        lista
+            .map(
+                crearPedidoHTML
+            )
+            .join("");
+
+}
+
+
+/* =========================================================
+   CREAR HTML PEDIDO
+========================================================= */
+
+function crearPedidoHTML(
+    pedido
+){
+
+    const indiceEstado =
+        ESTADOS.indexOf(
+            pedido.estado
+        );
+
+
+    const productosHTML =
+        pedido.productos.length
+
+            ? pedido.productos
+                .map(
+                    producto => {
+
+                        const nombre =
+                            escapeHTML(
+                                producto.nombre ||
+                                producto.producto ||
+                                "Producto"
+                            );
+
+                        const cantidad =
+                            Number(
+                                producto.cantidad
+                            ) || 1;
+
+                        const precio =
+                            Number(
+                                producto.precio
+                            ) || 0;
+
+                        return `
+
+                            <div
+                                class="product-line">
+
+                                <div>
+
+                                    <div
+                                        class="product-name">
+
+                                        ${nombre}
+
+                                    </div>
+
+                                    <div
+                                        class="product-qty">
+
+                                        Cantidad:
+                                        ${cantidad}
+
+                                    </div>
+
+                                </div>
+
+                                <div
+                                    class="product-price">
+
+                                    ${formatearPrecio(
+                                        precio *
+                                        cantidad
+                                    )}
+
+                                </div>
+
+                            </div>
+
+                        `;
+
+                    }
+                )
+                .join("")
+
+            : `
+
+                <div
+                    class="info-value">
+
+                    No hay productos registrados.
+
+                </div>
+
+            `;
+
+
+    const pagoEstado =
+        String(
+            pedido.pago.estado ||
+            "Pendiente"
+        );
+
+
+    const pagoPagado =
+        pagoEstado
+            .toLowerCase()
+            .includes(
+                "pag"
+            );
+
+
+    const pagoClass =
+        pagoPagado
+            ? "payment-paid"
+            : "payment-pending";
+
+
+    const direccionCompleta =
+        [
+            pedido.direccion,
+            pedido.ciudad
+        ]
+            .filter(Boolean)
+            .join(", ");
+
+
+    const instrucciones =
+        pedido.instrucciones
+            ? escapeHTML(
+                pedido.instrucciones
+            )
+            : "Sin instrucciones";
+
+
+    const telefono =
+        pedido.telefono
+            ? escapeHTML(
+                pedido.telefono
+            )
+            : "No especificado";
+
+
+    const estadoOptions =
+        ESTADOS
+            .map(
+                estado => `
+
+                    <option
+                        value="${escapeHTML(
+                            estado
+                        )}"
+                        ${
+                            estado ===
+                            pedido.estado
+                                ? "selected"
+                                : ""
+                        }>
+
+                        ${escapeHTML(
+                            estado
+                        )}
+
+                    </option>
+
+                `
+            )
+            .join("");
+
+
+    const progressHTML =
+        ESTADOS
+            .map(
+                (estado,index) => `
+
+                    <div
+                        class="
+                            progress-step
+                            ${
+                                index <= indiceEstado
+                                    ? "active"
+                                    : ""
+                            }
+                        ">
+
+                        <div
+                            class="progress-line">
+                        </div>
+
+                        <span>
+                            ${escapeHTML(
+                                estado
+                            )}
+                        </span>
+
+                    </div>
+
+                `
+            )
+            .join("");
+
+
+    return `
+
+        <article
+            class="order-card"
+            data-id="${escapeHTML(
+                pedido.id
+            )}">
+
+
+            <!-- =========================================
+                 HEADER PEDIDO
+            ========================================== -->
+
+            <div class="order-head">
+
+                <div class="order-main">
+
+                    <div class="order-id">
+
+                        ${escapeHTML(
+                            pedido.id
+                        )}
+
+                    </div>
+
+                    <div class="order-client">
+
+                        ${escapeHTML(
+                            pedido.cliente
+                        )}
+
+                    </div>
+
+                    <div class="order-date">
+
+                        ${formatearFecha(
+                            pedido.fecha
+                        )}
+
+                    </div>
+
+                </div>
+
+
+                <div class="status-badge">
+
+                    ${escapeHTML(
+                        pedido.estado
+                    )}
+
+                </div>
+
+            </div>
+
+
+            <!-- =========================================
+                 BODY
+            ========================================== -->
+
+            <div class="order-body">
+
+                <div class="order-grid">
+
+
+                    <!-- PRODUCTOS -->
+
+                    <div>
+
+                        <div class="info-title">
+                            Productos
+                        </div>
+
+                        <div class="products">
+
+                            ${productosHTML}
+
+                        </div>
+
+                        <div class="total-box">
+
+                            <span>
+                                Total
+                            </span>
+
+                            <span class="total">
+
+                                ${formatearPrecio(
+                                    pedido.total
+                                )}
+
+                            </span>
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- CLIENTE -->
+
+                    <div>
+
+                        <div class="info-title">
+                            Contacto
+                        </div>
+
+                        <div
+                            class="info-value">
+
+                            <strong>
+                                Teléfono
+                            </strong>
+
+                            <br>
+
+                            ${telefono}
+
+                            <br><br>
+
+                            <strong>
+                                Dirección
+                            </strong>
+
+                            <br>
+
+                            ${
+                                escapeHTML(
+                                    direccionCompleta ||
+                                    "No especificada"
+                                )
+                            }
+
+                            <br><br>
+
+                            <strong>
+                                Indicaciones
+                            </strong>
+
+                            <br>
+
+                            ${instrucciones}
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- PAGO -->
+
+                    <div>
+
+                        <div class="info-title">
+                            Pago
+                        </div>
+
+                        <div class="payment-box">
+
+                            <span
+                                class="
+                                    payment-status
+                                    ${paymentClassSafe(
+                                        pagoClass
+                                    )}
+                                ">
+
+                                ${escapeHTML(
+                                    pagoEstado
+                                )}
+
+                            </span>
+
+                            <div
+                                class="payment-method">
+
+                                ${escapeHTML(
+                                    pedido.pago.metodo
+                                )}
+
+                            </div>
+
+                            ${
+                                pedido.pago.referencia
+                                    ? `
+
+                                        <div
+                                            class="payment-ref">
+
+                                            Ref:
+                                            ${escapeHTML(
+                                                pedido.pago.referencia
+                                            )}
+
+                                        </div>
+
+                                    `
+                                    : ""
+                            }
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <!-- =====================================
+                     PROGRESO
+                ====================================== -->
+
+                <div class="progress-wrap">
+
+                    <div class="progress-title">
+
+                        <span>
+                            Estado del pedido
+                        </span>
+
+                        <span>
+                            ${escapeHTML(
+                                pedido.estado
+                            )}
+                        </span>
+
+                    </div>
+
+                    <div class="progress">
+
+                        ${progressHTML}
+
+                    </div>
+
+                </div>
+
+
+                <!-- =====================================
+                     ACTIONS
+                ====================================== -->
+
+                <div class="order-actions">
+
+                    <select
+                        class="status-select"
+                        data-action="estado"
+                        data-id="${escapeHTML(
+                            pedido.id
+                        )}">
+
+                        ${estadoOptions}
+
+                    </select>
+
+
+                    <button
+                        class="btn btn-primary btn-small"
+                        data-action="guardar"
+                        data-id="${escapeHTML(
+                            pedido.id
+                        )}">
+
+                        ✓ Guardar estado
+
+                    </button>
+
+
+                    <button
+                        class="btn btn-danger btn-small"
+                        data-action="eliminar"
+                        data-id="${escapeHTML(
+                            pedido.id
+                        )}">
+
+                        🗑 Eliminar
+
+                    </button>
+
+                </div>
+
+            </div>
+
+        </article>
+
+    `;
+
+}
+
+
+/*
+ * Solo para evitar cualquier posibilidad de
+ * inyectar clases inesperadas desde variables.
+ */
+
+function paymentClassSafe(
+    clase
+){
+
+    return clase ===
+        "payment-paid"
+
+        ? "payment-paid"
+
+        : "payment-pending";
+
+}
+
+
+/* =========================================================
+   GUARDAR ESTADO
+========================================================= */
+
+async function guardarEstado(
+    id,
+    nuevoEstado
+){
+
+    if(!id){
+
+        return;
+
+    }
+
+
+    const token =
+        obtenerTokenGuardado();
+
+
+    if(!token){
+
+        abrirModalToken();
+
+        return;
+
+    }
+
+
+    try{
+
+        mostrarToast(
+            "Guardando...",
+            "Actualizando el estado del pedido."
+        );
+
+
+        /*
+         * =================================================
+         * CORRECCIÓN IMPORTANTE
+         * =================================================
+         *
+         * ANTES:
+         *
+         * PATCH /api/pedidos/ID
+         *
+         * Eso producía:
+         *
+         * 404 Not Found
+         *
+         * Tu servidor realmente utiliza:
+         *
+         * PATCH /api/pedidos
+         *
+         * con:
+         *
+         * {
+         *     id: "...",
+         *     estado: "..."
+         * }
+         *
+         * =================================================
+         */
+
+
+        const respuesta =
+            await fetch(
+                API_BASE,
+                {
+                    method:"PATCH",
+
+                    headers:{
+                        "Content-Type":
+                            "application/json",
+
+                        "X-Admin-Token":
+                            token
+                    },
+
+                    body:
+                        JSON.stringify({
+
+                            id:id,
+
+                            estado:
+                                nuevoEstado
+
+                        })
+                }
+            );
+
+
+        if(
+            respuesta.status === 401 ||
+            respuesta.status === 403
+        ){
+
+            localStorage.removeItem(
+                TOKEN_KEY
+            );
+
+            abrirModalToken();
+
+            throw new Error(
+                "Token no autorizado."
+            );
+
+        }
+
+
+        if(!respuesta.ok){
+
+            const texto =
+                await respuesta.text();
+
+            throw new Error(
+                `HTTP ${respuesta.status}: ${texto}`
+            );
+
+        }
+
+
+        const data =
+            await respuesta.json();
+
+
+        if(!data.ok){
+
+            throw new Error(
+                data.error ||
+                "El servidor no confirmó el cambio."
+            );
+
+        }
+
+
+        /*
+         * Actualizamos primero la memoria local
+         * para que la interfaz responda inmediatamente.
+         */
+
+        const pedido =
+            pedidos.find(
+                item =>
+                    item.id === id
+            );
+
+
+        if(pedido){
+
+            pedido.estado =
+                nuevoEstado;
+
+        }
+
+
+        actualizarEstadisticas();
+
+        renderizar();
+
+
+        marcarConexionOnline();
+
+
+        mostrarToast(
+            "Estado actualizado",
+            `${id} ahora está en "${nuevoEstado}".`
+        );
+
+
+    }catch(error){
+
+        console.error(
+            "Error guardando estado:",
+            error
+        );
+
+
+        mostrarToast(
+            "No se pudo actualizar",
+            error.message ||
+                "Ocurrió un error.",
+            "error"
+        );
+
+    }
+
+}
+
+
+/* =========================================================
+   ELIMINAR PEDIDO
+========================================================= */
+
+async function eliminarPedido(
+    id
+){
+
+    if(!id){
+
+        return;
+
+    }
+
+
+    const confirmar =
+        window.confirm(
+            `¿Seguro que quieres eliminar el pedido ${id}?`
+        );
+
+
+    if(!confirmar){
+
+        return;
+
+    }
+
+
+    const token =
+        obtenerTokenGuardado();
+
+
+    if(!token){
+
+        abrirModalToken();
+
+        return;
+
+    }
+
+
+    try{
+
+        mostrarToast(
+            "Eliminando...",
+            "El pedido se está eliminando."
+        );
+
+
+        /*
+         * =================================================
+         * CORRECCIÓN IMPORTANTE
+         * =================================================
+         *
+         * ANTES:
+         *
+         * DELETE /api/pedidos/ID
+         *
+         * Tu servidor NO tiene esa ruta.
+         *
+         * La ruta correcta es:
+         *
+         * DELETE /api/pedidos
+         *
+         * enviando:
+         *
+         * {
+         *     id: "..."
+         * }
+         *
+         * =================================================
+         */
+
+
+        const respuesta =
+            await fetch(
+                API_BASE,
+                {
+                    method:"DELETE",
+
+                    headers:{
+                        "Content-Type":
+                            "application/json",
+
+                        "X-Admin-Token":
+                            token
+                    },
+
+                    body:
+                        JSON.stringify({
+
+                            id:id
+
+                        })
+                }
+            );
+
+
+        if(
+            respuesta.status === 401 ||
+            respuesta.status === 403
+        ){
+
+            localStorage.removeItem(
+                TOKEN_KEY
+            );
+
+            abrirModalToken();
+
+            throw new Error(
+                "Token no autorizado."
+            );
+
+        }
+
+
+        if(!respuesta.ok){
+
+            const texto =
+                await respuesta.text();
+
+            throw new Error(
+                `HTTP ${respuesta.status}: ${texto}`
+            );
+
+        }
+
+
+        const data =
+            await respuesta.json();
+
+
+        if(!data.ok){
+
+            throw new Error(
+                data.error ||
+                "El servidor no confirmó la eliminación."
+            );
+
+        }
+
+
+        /*
+         * Quitamos el pedido de la memoria local
+         * solamente después de que el servidor
+         * confirme la eliminación.
+         */
+
+        pedidos =
+            pedidos.filter(
+                pedido =>
+                    pedido.id !== id
+            );
+
+
+        actualizarEstadisticas();
+
+        renderizar();
+
+
+        marcarConexionOnline();
+
+
+        mostrarToast(
+            "Pedido eliminado",
+            `${id} fue eliminado correctamente.`
+        );
+
+
+    }catch(error){
+
+        console.error(
+            "Error eliminando pedido:",
+            error
+        );
+
+
+        mostrarToast(
+            "No se pudo eliminar",
+            error.message ||
+                "Ocurrió un error.",
+            "error"
+        );
+
+    }
+
+}
+
+
+/* =========================================================
+   EVENTOS DE FILTROS
+========================================================= */
+
+buscarEl.addEventListener(
+    "input",
+    () => {
+
+        renderizar();
+
+    }
+);
+
+
+filtroEstadoEl.addEventListener(
+    "change",
+    () => {
+
+        renderizar();
+
+    }
+);
+
+
+ordenarEl.addEventListener(
+    "change",
+    () => {
+
+        renderizar();
+
+    }
+);
+
+
+/* =========================================================
+   EVENT DELEGATION
+========================================================= */
+
+ordersEl.addEventListener(
+    "click",
+    event => {
+
+        const boton =
+            event.target.closest(
+                "[data-action]"
+            );
+
+
+        if(!boton){
+
+            return;
+
+        }
+
+
+        const action =
+            boton.dataset.action;
+
+        const id =
+            boton.dataset.id;
+
+
+        if(action === "guardar"){
+
+            const card =
+                boton.closest(
+                    ".order-card"
+                );
+
+
+            if(!card){
+
+                return;
+
+            }
+
+
+            const select =
+                card.querySelector(
+                    '[data-action="estado"]'
+                );
+
+
+            if(!select){
+
+                return;
+
+            }
+
+
+            guardarEstado(
+                id,
+                select.value
+            );
+
+        }
+
+
+        if(action === "eliminar"){
+
+            eliminarPedido(
+                id
+            );
+
+        }
+
+    }
+);
+
+
+/* =========================================================
+   ACTUALIZAR MANUALMENTE
+========================================================= */
+
+document
+    .getElementById(
+        "btnActualizar"
+    )
+    .addEventListener(
+        "click",
+        () => {
+
+            cargarPedidos(true);
+
+        }
+    );
+
+
+/* =========================================================
+   CAMBIAR TOKEN
+========================================================= */
+
+document
+    .getElementById(
+        "btnCambiarToken"
+    )
+    .addEventListener(
+        "click",
+        () => {
+
+            abrirModalToken();
+
+        }
+    );
+
+
+document
+    .getElementById(
+        "btnCancelarToken"
+    )
+    .addEventListener(
+        "click",
+        () => {
+
+            cerrarModalToken();
+
+        }
+    );
+
+
+document
+    .getElementById(
+        "btnGuardarToken"
+    )
+    .addEventListener(
+        "click",
+        () => {
+
+            guardarToken();
+
+        }
+    );
+
+
+tokenInputEl.addEventListener(
+    "keydown",
+    event => {
+
+        if(
+            event.key === "Enter"
+        ){
+
+            guardarToken();
+
+        }
+
+        if(
+            event.key === "Escape"
+        ){
+
+            cerrarModalToken();
+
+        }
+
+    }
+);
+
+
+/* =========================================================
+   CERRAR MODAL AL TOCAR AFUERA
+========================================================= */
+
+tokenModalEl.addEventListener(
+    "click",
+    event => {
+
+        if(
+            event.target ===
+            tokenModalEl
+        ){
+
+            cerrarModalToken();
+
+        }
+
+    }
+);
+
+
+/* =========================================================
+   AUTO REFRESH
+========================================================= */
+
+setInterval(
+    () => {
+
+        /*
+         * IMPORTANTE:
+         *
+         * false significa:
+         *
+         * "No abras modal si falta token."
+         *
+         * Así el panel puede actualizarse
+         * silenciosamente.
+         */
+
+        cargarPedidos(false);
+
+    },
+    REFRESH_TIME
+);
+
+
+/* =========================================================
+   INICIO
+========================================================= */
+
+console.log(
+    "Panel nuevo iniciado."
+);
+
+console.log(
+    "API:",
+    API_BASE
+);
+
+console.log(
+    "Token guardado:",
+    Boolean(
+        obtenerTokenGuardado()
+    )
+);
+
+
+/*
+ * Primera carga.
+ */
+
+cargarPedidos(true);
+
+</script>
+
+</body>
+
+</html>
